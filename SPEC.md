@@ -44,13 +44,22 @@ User control is central to guided-imagery practice, and imagery can evoke unplan
 emotion, memory, hyperarousal, or dissociation. Each recording establishes:
 
 - the listener remains in control
-- eyes may stay open
 - any detail may be altered or ignored
 - **no clear visual picture is required**
 - stopping or returning attention to the room is always available
 
 > *"Nothing needs to appear perfectly. You can imagine, sense, remember, or simply know
 > that the scene is there. You remain in control of the experience."*
+
+**Eyes closed is the instruction; open is permitted, not offered as an equal.** The
+literature lists eyes-open among standard autonomy provisions, but this product is built
+around closed-eye immersion and the intros should say so. Permission is granted in
+passing and never repeated:
+
+> *"Let your eyes close. If you'd rather keep them open, that's fine — just find
+> somewhere soft to rest them."*
+
+One clause, once, in the intro. No mode, no setting, no toggle.
 
 That phrasing also accommodates listeners whose imagery is emotional, spatial, auditory,
 or bodily rather than visual — see §7.1.
@@ -195,6 +204,13 @@ settings, topics, bodily sensations, and emotional intensity the user does not w
 This was absent from earlier drafts. It matters because **nature is not automatically
 calming** — oceans, deep forests, darkness, isolation, heights, insects, and storms are
 threatening to some listeners.
+
+**Nothing is excluded by default.** Exclusions are a user-held instrument, not a content
+policy applied pre-emptively. The evocative environments stay in the seed set exactly as
+written — a rocky coastline in a storm and a desert under the Milky Way are among the
+best things the Immersive template can build, and demoting them to opt-in would sand off
+the range the product exists to cover. A listener who doesn't want storms says so once,
+and never sees one again.
 
 Exclusion axes, set at onboarding and adjustable any time:
 
@@ -656,7 +672,7 @@ hyperarousal, and dissociation, at rates comparable to other psychological inter
 
 - Warning against use while driving or performing hazardous tasks
 - Immediate stop control, reachable without looking
-- **Eyes-open mode**
+- Permission to keep eyes open, stated once in the intro (§1.1)
 - Ability to reduce voice or environmental intensity
 - Content exclusions honoured (§2.3)
 - Grounding option always available
@@ -711,12 +727,11 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 
 ## 10. Product principles
 
-- Audio-first. The screen goes dark and stays dark during playback — **by default.**
-- **Eyes-open mode** is a first-class alternative, not an accessibility afterthought.
-  Clinical guidance lists eyes-open as a standard autonomy provision, and some listeners
-  become more activated with eyes closed. In this mode the screen holds a low-luminance
-  still field with the breath pacer and nothing else — enough to rest the eyes on, never
-  enough to read.
+- Audio-first. The screen goes dark and stays dark during playback.
+- **Eyes closed is the design centre.** Permission to keep them open is granted once in
+  the intro (§1.1) and never built into the interface. There is no eyes-open mode, no
+  toggle, and no alternate visual state — adding one would trade the product's core
+  premise for an affordance almost nobody would use.
 - **The app is dark-only.** Not a theme option — a product about reducing screen time and
   used mostly at night has no business being bright.
 - Minimal UI. Interface exists for *selection*, not during playback.
@@ -753,25 +768,42 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 
 ---
 
-## 11.1 The central premise is untested
+## 11.1 The premise: adaptation, not a library
 
-The 2026 JMIR AI RCT compared traditional eyes-closed safe-place imagery against an
-**AI-generated VR rendering of the same safe place**. Both improved relaxation
-substantially. **VR was not superior. Satisfaction with the AI-generated environment did
-not predict relaxation.** Imagery vividness predicted it across both arms.
+**Decision:** sessions are generated and adapted to the user. There is no fixed library,
+and building one is not a fallback we are holding in reserve.
 
-That concerns generated *scenery*, not generated *scripts*, so it does not transfer
-directly. But it is the closest available evidence to this product's central bet, and it
-is not encouraging.
+**On the VR evidence.** A 2026 RCT found AI-generated VR renderings of a safe place did
+not outperform ordinary eyes-closed imagery. That finding is about **replacing internal
+imagery with external scenery** — the opposite of what this product does. We are not
+building VR, not rendering environments, and not asking anyone to look at anything. The
+result doesn't transfer, and it is recorded in `docs/research-basis.md` §3 as context
+rather than as a challenge to the architecture.
 
-**Stated plainly: fresh per-session generation has no demonstrated advantage over a
-well-produced fixed library.** Untested rather than refuted — but the entire architecture
-exists to deliver something whose benefit is assumed.
+**What actually supports adaptation:**
 
-**First experiment to run, before scaling the pipeline:** generated sessions vs. a small
-fixed library of excellent ones, measured on relaxation and return rate. If the library
-wins, this is a curation and personalization problem rather than a generation problem —
-and a substantially cheaper company.
+- **Vividness predicts relaxation** across every arm of that same trial. Anything that
+  raises vividness is working on the mechanism the evidence identifies — and imagery
+  built from a listener's own words, place, and dreaded moment is more vivid than imagery
+  built for a generic listener.
+- **Personally meaningful imagery** is more relevant, more emotionally engaging, and
+  easier to retrieve later. Personalization carries moderate support in its own right.
+- **Repetition beats single exposure** — which a fixed library actively undermines, since
+  the fourth hearing of the same script is a recording, not an experience.
+- **Imagery ability varies** (§7.1). A fixed library must pick one sensory register and
+  alienate everyone outside it. Adaptation is the only way to serve an aphantasic
+  listener and a vivid visualizer from the same product.
+
+**What is honestly unknown:** clinical efficacy evidence for AI-generated scripts is
+sparse — it is an early field, not a refuted one. `docs/research-basis.md` keeps that in
+the "still uncertain" tier, alongside session length, narration rate, and music.
+
+**How we resolve it: by measuring, not by hedging the architecture.** The question worth
+instrumenting is not *generated vs. fixed* but **does adaptation compound** — do
+reflections, style memory, and accumulated safe-place detail produce better sessions at
+month three than at week one. If the answer is yes, the premise is doing real work. That
+is measurable from the reflection data we already collect (§7.0), and it needs no
+alternate product built alongside it.
 
 ---
 

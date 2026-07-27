@@ -104,9 +104,12 @@ inhabit, not an affirmation the user must believe.
 **Evidence:** oceans, deep forests, darkness, isolation, heights, insects, and storms can
 be threatening rather than restorative.
 
-**Applied as:** content exclusions promoted to a first-class input, and two seed
-environments flagged as opt-in rather than default (*rocky coastline in a storm*, *desert
-under the Milky Way*).
+**Applied as:** content exclusions promoted to a first-class input — **user-held, empty by
+default.** No environment is pre-emptively demoted. The evocative seed environments
+(*rocky coastline in a storm*, *desert under the Milky Way*) stay in the default set:
+they are among the best things the Immersive template can build, and excluding them
+pre-emptively would sand off the range the product exists to cover. A listener who
+doesn't want storms says so once.
 
 ### 2.6 Breath holding is contraindicated for anxiety
 
@@ -118,16 +121,21 @@ body-conscious. For anxiety regulation specifically: avoid breath holding.
 **Applied as:** 4-7-8 removed from the candidate protocol set for anxiety contexts.
 Coherent breathing (~5.5/min) and extended-exhale patterns retained.
 
-### 2.7 Eyes-open mode was missing
+### 2.7 Eyes-open permission, not an eyes-open mode
 
 **Evidence:** eyes-open is listed as a standard autonomy provision.
 
-**Applied as:** a product-level mode. Note this interacts with our dark-screen premise —
-see `SPEC.md` §10.
+**Applied as:** one clause in the intro — *"let your eyes close; if you'd rather keep them
+open, that's fine"* — and nothing else. **No mode, setting, or toggle.**
+
+This deliberately takes less than the literature offers. Eyes-closed immersion is the
+product's design centre, and building a parallel visual state would trade that premise
+for an affordance almost nobody would use. The autonomy requirement is satisfied by the
+permission; the emphasis stays on closed. (Product decision, `SPEC.md` §1.1, §10.)
 
 ---
 
-## 3. The core premise is untested
+## 3. On the VR findings
 
 The 2026 JMIR AI randomized controlled trial compared three minutes of traditional
 eyes-closed safe-place imagery against three minutes inside an **AI-generated VR version
@@ -137,20 +145,19 @@ of the same safe place**, after a 12-minute personalized safe-place construction
 satisfaction with the AI-generated environment did not predict greater relaxation.
 Imagery vividness predicted relaxation across both groups.**
 
-That result concerns generated *scenery*, not generated *scripts*, so it does not
-transfer directly. But it is the closest available evidence to this product's central
-bet, and it is not encouraging.
+**This does not transfer to our architecture.** The trial tested *replacing internal
+imagery with external scenery*. We generate **narration**, not environments — nothing is
+rendered and nobody looks at anything. Recorded here as context, not as a challenge to
+the premise.
 
-**Stated plainly: fresh per-session generation has no demonstrated advantage over a
-well-produced fixed library.** It is untested rather than refuted. The architecture is
-built to deliver something whose benefit is assumed.
+**The transferable finding is the vividness result**, and it argues *for* adaptation:
+vividness predicted relaxation in both arms, and imagery built from a listener's own
+words, place, and dreaded moment is more vivid than imagery built for a generic listener.
+See `SPEC.md` §11.1.
 
-**Implication for validation:** the first real experiment should be generated vs. a small
-fixed library of excellent sessions, measured on relaxation and return rate. If the fixed
-library wins, the product is a curation and personalization problem, not a generation
-problem — and that is a much cheaper company.
-
----
+**What remains genuinely uncertain** is clinical efficacy evidence for AI-generated
+scripts, which is sparse — early field, not refuted one. Held in §1's "still uncertain"
+tier alongside session length, narration rate, and music.
 
 ## 4. Session architecture
 
