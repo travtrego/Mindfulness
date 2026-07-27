@@ -8,6 +8,10 @@ visualization engine. Grounded in the mechanics of anxiety and PTSD treatment �
 paced breathing, safe-place imagery, and imaginal rehearsal — without making clinical
 claims.
 
+**Evidence basis:** decisions here are grounded in `docs/research-basis.md`, which
+records what the literature supports, what it contradicts, and where we are guessing.
+Claims marked **design judgment** are not findings.
+
 **North star:** every session should feel like a memory, not a story. If a user finishes
 feeling as though they actually stood on a windswept ridge, or actually walked through
 the interview and out the other side, the product worked.
@@ -34,6 +38,22 @@ The intro is also the one part of the session where the *words* matter least and
 
 **Matrix dimensions:** 3 pacings (slow / standard / brisk) × 3 registers (settling /
 neutral / activating) × N voices. Start with 2 voices → 18 recordings.
+
+**Every intro carries autonomy framing.** This is a safety requirement, not copy polish.
+User control is central to guided-imagery practice, and imagery can evoke unplanned
+emotion, memory, hyperarousal, or dissociation. Each recording establishes:
+
+- the listener remains in control
+- eyes may stay open
+- any detail may be altered or ignored
+- **no clear visual picture is required**
+- stopping or returning attention to the room is always available
+
+> *"Nothing needs to appear perfectly. You can imagine, sense, remember, or simply know
+> that the scene is there. You remain in control of the experience."*
+
+That phrasing also accommodates listeners whose imagery is emotional, spatial, auditory,
+or bodily rather than visual — see §7.1.
 
 ### 1.2 Session structure is per-category, not global
 
@@ -167,6 +187,30 @@ it does not get one — it guesses and proceeds. Interrogation is a failure stat
 Only the **Rehearsal** template needs depth 2. Immersive doesn't: the system can build an
 excellent rainforest knowing nothing about the user.
 
+### 2.3 Safety boundaries are a fourth input
+
+Alongside category, conversation, and memory, the system stores **excluded content**:
+settings, topics, bodily sensations, and emotional intensity the user does not want.
+
+This was absent from earlier drafts. It matters because **nature is not automatically
+calming** — oceans, deep forests, darkness, isolation, heights, insects, and storms are
+threatening to some listeners.
+
+Exclusion axes, set at onboarding and adjustable any time:
+
+| Axis | Options |
+|---|---|
+| Enclosure | enclosed · open |
+| Light | daytime · nighttime |
+| Company | alone · accompanied |
+| Water | water · no water |
+| Elevation | heights · ground level |
+| Cultivation | wild · cultivated |
+| Realism | realistic · fantastical |
+
+Exclusions are **hard constraints on generation**, checked in the post-generation scan
+(§8), not suggestions in a prompt.
+
 ### 2.2 Talk comes before the questions — which makes them generated
 
 This ordering is the important part. Because the conversation happens *first*, the
@@ -245,13 +289,21 @@ behind it.
 |---|---|---|
 | Grounding intro | cached | |
 | Progressive relaxation | generated | |
-| Approach | generated | the moments before |
-| The event | generated | lived through successfully — sensory, not affirmational |
-| Aftermath | generated | walking out, how it sits in the body |
-| Anchor + return | generated | |
+| Approach | generated | the moments before, with realistic activation |
+| The event | generated | begin the desired behaviour — sensory, not affirmational |
+| **Obstacle & recovery** | generated | **one realistic thing goes wrong; an adaptive response follows** |
+| Completion | generated | continue successfully *enough* — not flawlessly |
+| Aftermath + anchor | generated | how it sits in the body; one concrete next step |
 
 Builds confidence through rehearsal, not affirmations. No "you are confident." Instead:
 the weight of the door handle, the sound of your own voice steadier than expected.
+
+**The obstacle beat is required, and it corrects an earlier draft** which had the event
+"lived through successfully." Imagining effortless perfection is less credible and less
+behaviourally useful than rehearsing recovery from a small imperfection. Forced positivity
+is alienating when the outcome feels unbelievable — imagery must be plausible enough to
+inhabit, not an affirmation the user is required to believe.
+(`docs/research-basis.md` §2.4)
 
 The **dreaded moment** captured in layer 2 anchors the *event* beat. Without it the
 session defaults to a generic run-through, which is the failure mode this template exists
@@ -304,14 +356,49 @@ scenery to lean on.
 
 ---
 
+## 3.6 Three session formats
+
+| Format | Length | Use |
+|---|---|---|
+| **Reset** | 3–5 min | immediate state regulation |
+| **Standard** | 10–15 min | default for regular use |
+| **Deep journey** | 18–25 min | narrative, nature escape, goal rehearsal |
+
+**10–15 minutes is the default.** Strongest practical compromise between immersion,
+repeatability, and adherence. **Design judgment, not a proven optimum** — no universally
+established dose exists for guided visualization. (`docs/research-basis.md` §4.2)
+
+Every template ends with a **reorientation beat**: breath, contact with the surface,
+sounds of the real room, moving hands and feet, eyes open when ready. Sessions end
+**alert**, not vaguely floating — except Sleep, which has no return beat by design.
+
+The **anchor** is a retrieval cue for later recall — a gesture, a phrase, a remembered
+sound, one slower exhale. Copy must never imply the gesture has special neurological
+power.
+
+---
+
 ## 4. Craft standard
 
 The narration standard is the actual moat. It is enforced programmatically, not hoped for.
 
 **Rules:**
-- Sensory specificity over adjective-stacking. Banned: *breathtaking, serene, peaceful,
-  tranquil, majestic, stunning, blissful.*
+- **Name the sense, not the furniture.** Specify a sensory *channel and quality*; leave
+  the *objects* to the listener. "Cooler on one side of your face" is right. "Seven grey
+  stones beside a blue stream" furnishes their scene for them.
+- **Guided incompleteness.** *"You may notice a path, an opening, or some other way into
+  this place"* — not *"you walk down a narrow pine trail."* The listener's own scene is
+  more personally relevant, easier to retrieve later, and far less likely to contain
+  something unwanted. This corrects an earlier draft that pushed toward maximum concrete
+  detail. (`docs/research-basis.md` §2.1)
+- No generic adjectives. Banned: *breathtaking, serene, peaceful, tranquil, majestic,
+  stunning, blissful.*
 - One sensory detail per beat, sequenced — not stacked.
+- **Vividness is never a performance demand.** Use *"notice whatever detail comes most
+  easily"*, *"it may be clear, faint, or simply felt"*, *"there is no correct way for this
+  to appear."* Vividness predicts relaxation, but implying failure to visualize is a
+  failure of the script, not the listener.
+- Sensory cues are embedded and separated by silence — never run as a checklist.
 - Contrast and asymmetry over generic scene-setting: warm on one side of the face, cool
   on the other.
 - "Noticing" language — *you notice, you catch, you become aware of* — rather than
@@ -368,6 +455,29 @@ land.
 
 The cached intro covers the LLM window. The math closes.
 
+### 5.1 Beat durations are computed, not guessed
+
+The outline emits **word counts and silence durations**, not timestamps. Duration falls
+out of delivery rate:
+
+| Context | Rate / duration |
+|---|---|
+| Ordinary guidance | 85–110 wpm |
+| Scene-building passages | 65–90 wpm |
+| Brief sensory pauses | 3–6 s |
+| Scene transitions | 6–12 s |
+| Open exploration | 15–30 s, minimal sound |
+
+This solves the timestamp problem from the opposite direction to §6.1: the model never
+estimates elapsed time, it specifies content volume, and the pipeline derives timing.
+
+**Silence is content.** Continuous narration competes with the task the narration exists
+to facilitate — listeners need processing time to construct images. Silence durations are
+first-class fields in the outline schema, not gaps left over.
+
+No peer-reviewed evidence establishes ideal wpm or pause length; these are production
+standards. (`docs/research-basis.md` §5)
+
 **Buffer floor:** never begin playback without N seconds of runway plus a live estimate
 of generation rate. If the estimate degrades mid-session, extend the current beat's
 trailing ambience rather than gapping.
@@ -404,6 +514,31 @@ for a dark-screen app used in bed and on planes.
 
 Client-side dynamic mixing is a V2 optimization, justified only if sessions become
 interactive.
+
+### 6.2.1 Soundscape sophistication is descoped
+
+**Decision:** atmosphere-level soundscape. Layered stems with slow crossfades between
+major sections — not tightly scene-synchronised cinematic sound design.
+
+**Why this reverses all three source drafts,** which named dynamic scene-synced sound as
+the signature differentiator: there is no strong evidence that cinematic sound design,
+binaural beats, frequency claims, or elaborate music independently improve guided-imagery
+outcomes. It was also the most expensive item in the build.
+
+The decisive argument is structural, not budgetary: **the soundscape must keep working
+when the listener's imagined scene differs from the script** — which it always will, by
+design (§4, guided incompleteness). Sound tightly synchronised to scene furniture the
+listener never imagined is worse than sound that simply holds a place and a mood.
+
+**Requirements:**
+- reinforce location and emotional tone
+- stay quieter than the voice
+- no unexpected peaks
+- limited melodic movement
+- leave acoustic space
+- fade, never stop abruptly
+
+(`docs/research-basis.md` §2.2)
 
 ### 6.3 Stem library
 
@@ -512,6 +647,31 @@ Three gates, not one. The classifier is not sufficient on its own — classifier
 | Grief / loss / trauma-adjacent | Human-reviewed templates. Tight constraints, narrow generative room. |
 | Ordinary | Open generation within template. |
 
+### 8.1 Required in every session
+
+Meditation and imagery are commonly described as harmless. They are not universally so —
+adverse experiences include anxiety, cognitive disturbance, perceptual change,
+hyperarousal, and dissociation, at rates comparable to other psychological interventions.
+(`docs/research-basis.md` §8)
+
+- Warning against use while driving or performing hazardous tasks
+- Immediate stop control, reachable without looking
+- **Eyes-open mode**
+- Ability to reduce voice or environmental intensity
+- Content exclusions honoured (§2.3)
+- Grounding option always available
+- After-session distress check
+- Instruction to discontinue and seek qualified support if sessions repeatedly increase
+  panic, dissociation, intrusive memories, insomnia, or perceptual disturbance
+
+**Prohibited claims:** treating, curing, reprogramming, healing trauma, altering immune
+function, or replacing mental-health care.
+
+**On the distress check vs. §10's ban on ratings.** These are different instruments. A
+distress check is a safety signal with a defined escalation path; a rating is an
+engagement metric. The check is single-item, appears only when a sensitivity flag was
+raised or a session was abandoned early, and never becomes a score the user accumulates.
+
 **Trauma-specific constraints:**
 - **Never generate a safe place from scratch.** The user describes it; the system only
   elaborates within what they gave.
@@ -551,7 +711,12 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 
 ## 10. Product principles
 
-- Audio-first. The screen goes dark and stays dark during playback.
+- Audio-first. The screen goes dark and stays dark during playback — **by default.**
+- **Eyes-open mode** is a first-class alternative, not an accessibility afterthought.
+  Clinical guidance lists eyes-open as a standard autonomy provision, and some listeners
+  become more activated with eyes closed. In this mode the screen holds a low-luminance
+  still field with the breath pacer and nothing else — enough to rest the eyes on, never
+  enough to read.
 - **The app is dark-only.** Not a theme option — a product about reducing screen time and
   used mostly at night has no business being bright.
 - Minimal UI. Interface exists for *selection*, not during playback.
@@ -588,14 +753,40 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 
 ---
 
+## 11.1 The central premise is untested
+
+The 2026 JMIR AI RCT compared traditional eyes-closed safe-place imagery against an
+**AI-generated VR rendering of the same safe place**. Both improved relaxation
+substantially. **VR was not superior. Satisfaction with the AI-generated environment did
+not predict relaxation.** Imagery vividness predicted it across both arms.
+
+That concerns generated *scenery*, not generated *scripts*, so it does not transfer
+directly. But it is the closest available evidence to this product's central bet, and it
+is not encouraging.
+
+**Stated plainly: fresh per-session generation has no demonstrated advantage over a
+well-produced fixed library.** Untested rather than refuted — but the entire architecture
+exists to deliver something whose benefit is assumed.
+
+**First experiment to run, before scaling the pipeline:** generated sessions vs. a small
+fixed library of excellent ones, measured on relaxation and return rate. If the library
+wins, this is a curation and personalization problem rather than a generation problem —
+and a substantially cheaper company.
+
+---
+
 ## 12. Open questions
 
 1. **Name.** Unresolved.
 2. **Cached intro matrix — recorded by whom?** Voice actor vs. high-quality TTS render.
    TTS is cheaper and consistent with generated beats; a real actor is better and makes
    the ritual anchor genuinely distinct. Leaning actor, since it's ~18 short recordings.
-3. **Just Breathing pacing patterns** — which protocols to ship (4-7-8, box, physiological
-   sigh, coherent 5.5). Probably 3, with the default set at onboarding.
+3. **Just Breathing pacing patterns** — **4-7-8 is out for anxiety contexts.** Breath
+   holding is contraindicated, and forced deep breathing can make anxious users
+   light-headed or more body-conscious. Remaining candidates: coherent breathing
+   (~5.5/min), extended exhale, physiological sigh. Framing throughout is *"allow the
+   breath to become slightly slower and easier, without forcing it"* — never an
+   instruction to breathe deeply. (`docs/research-basis.md` §2.6)
 4. **Sensitivity review capacity** — who reviews the trauma-tier templates, and what does
    the coverage matrix look like before launch.
 5. **Session length vs. cost ceiling** — need a real cost-per-session number for a 15-minute
