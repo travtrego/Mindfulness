@@ -24,8 +24,9 @@ Pre-build. Spec and UX only — no application code yet.
 
 1. Hand-write 3–5 complete sessions (one per template) as few-shot exemplars and the
    craft eval set. This surfaces schema questions no amount of spec work will.
-2. Draft the ~35 amplifying questions alongside them — they carry as much craft weight as
-   the narration prompts.
+2. Write the slot definition for each of the five templates — which slots the template
+   needs filled, plus worked examples of good and bad amplifying questions. These drive
+   question generation at runtime.
 3. Lock the outline JSON schema and the stem tag enum.
 4. Prove the pipeline shape end to end: 3 LLM calls → script → parallel TTS → mixed render.
 
@@ -33,9 +34,21 @@ Pre-build. Spec and UX only — no application code yet.
 
 ```
 1  CATEGORY   broad set, one tap — routes to a template, nothing more
-2  AMPLIFY    questions off that category, or just talk — fills the template
-3  MEMORY     past sessions inform both, fed by end-of-session reflection
+2a TALK       up to 3 turns — only for categories that need your situation
+2b AMPLIFY    up to 3 questions, generated from 2a — fills the template
+3  MEMORY     informs all of it, fed by end-of-session reflection
 ```
+
+**Depth scales with what the template needs** (`SPEC.md` §2.1):
+
+| Depth | Path | Interactions |
+|---|---|---|
+| 0 | tap → audio | **1** |
+| 1 | tap → 3 questions → audio | **4** |
+| 2 | tap → talk → 3 questions → audio | **~7** |
+
+Floor is one tap and about two seconds — that's the 2am case, and nothing may be added to
+it. Hard caps at 3 chat turns and 3 questions.
 
 **Fourteen categories on five templates.** Breadth is cheap; template count is the real
 build cost. See `SPEC.md` §1.5.

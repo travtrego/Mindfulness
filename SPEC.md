@@ -50,15 +50,19 @@ it drives soundscape transitions and pacing; the player doesn't need to know.
 
 ### 1.3 Input is three layers: category → amplify → memory
 
-**Decision:** a broad category grid routes the session. Category-specific *amplifying*
-questions (or a free-form chat, user's choice) then fill in the specifics. Memory from
-past sessions informs both, silently.
+**Decision:** a broad category grid routes the session. Then, for categories that need it,
+a short conversation followed by up to three *amplifying* questions written from what was
+said. Memory from past sessions informs all of it, silently.
 
 ```
 1  CATEGORY   broad set, one tap — routes to a template, nothing more
-2  AMPLIFY    questions off that category, or just talk — fills the template
-3  MEMORY     past sessions inform both, fed by end-of-session reflection
+2a TALK       up to 3 turns — only for categories that need your situation
+2b AMPLIFY    up to 3 questions, generated from 2a — fills the template
+3  MEMORY     informs all of it, fed by end-of-session reflection
 ```
+
+Depth varies by category — see §2.1. Most categories skip 2a entirely; two skip layer 2
+altogether and go straight to audio.
 
 **Why:** the source drafts all said "no menus, chatbot-style." That's right for a general
 wellness audience and wrong for this one. For anxiety and PTSD, a blank text box is a
@@ -74,11 +78,12 @@ product. It turns a generic competition rehearsal into the specific thirty secon
 keeping the user awake. That question is only askable because the category already
 removed the routing burden.
 
-**Chat is layer 2, not a replacement for layer 1.** Some users would rather talk than
-tap, and conversation surfaces detail no fixed question set would think to ask for. It
-fills the same template slots by another route.
+**Chat is layer 2a, not a replacement for layer 1.** It runs *before* the questions rather
+than instead of them — which is what allows those questions to be generated rather than
+pre-authored (see §2.2). Conversation surfaces detail no fixed question set would think
+to ask for.
 
-All amplifying questions are skippable. "Skip — surprise me" is always present.
+Every step in layer 2 is skippable. "Skip — surprise me" is always present.
 
 ### 1.4 Templates constrain the outline; prose stays open
 
