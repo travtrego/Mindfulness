@@ -123,15 +123,13 @@ explicit in its template rather than by cutting the category.
 
 ```
 Home — category grid (14 tiles, 4 groups) + persistent Safe Place + "just talk to me"
-  ├─ TILE PATH
-  │    └─ Amplify: 2–3 category-specific questions, chips, all skippable
-  │         ├─ memory pre-fills answers where it has a confident prior
-  │         └─ "or just describe it" — voice/text escape into free form
-  │    └─ Begin  |  Skip — surprise me
   │
-  └─ CHAT PATH
-       └─ Short conversation filling the same template slots
-       └─ Begin
+  ├─ DEPTH 0  →  straight to audio
+  │
+  ├─ DEPTH 1  →  3 generated questions  →  audio
+  │
+  └─ DEPTH 2  →  talk (≤3 turns)  →  3 questions written from what was said  →  audio
+                    └─ "or just say it" available at every step
 
   → Screen goes dark → cached intro begins → rest renders underneath
   → Playback
@@ -140,40 +138,62 @@ Home — category grid (14 tiles, 4 groups) + persistent Safe Place + "just talk
 
 **There is never a loading screen.** The cached intro is the loading state.
 
-### 2.1 Amplifying questions, not disambiguating ones
+### 2.1 The depth ladder — how many questions before audio
 
-Once the category has settled routing, questions change job. They are no longer *"which
-of these did you mean?"* — they are *"what would make this specific?"*
+Depth scales with what the template actually needs. Three questions before "just
+breathing" would be absurd; zero questions before a rehearsal produces a generic
+run-through. **Each category declares its own depth.**
 
-Each category owns 2–3 questions targeting the detail its template most needs:
+| Depth | Path | Interactions | Categories |
+|---|---|---|---|
+| **0** | tap → audio | **1** | Just breathing · Safe place |
+| **1** | tap → 3 questions → audio | **4** | Nature · Adventure · Fantasy · Into sleep · Body scan · Gratitude · Creativity |
+| **2** | tap → talk → 3 questions → audio | **~7** | Interview · Competition · Hard conversation · Confidence |
 
-| Category | Amplifying questions |
-|---|---|
-| Competition | What moment are you actually dreading? · Who's watching? |
-| Nature | Somewhere you've been, or new? · Warm or cold? |
-| Fantasy | How far from real? |
-| Hard conversation | What do you need them to hear? |
-| Gratitude | Someone, or something? |
+**Floor: one tap, ~2 seconds to audio.** This is the 2am case. Nothing may be added to
+it — no confirmation, no "how are you feeling," no length picker.
 
-*"What's the moment you're actually dreading?"* is the highest-value question in the
-product. It converts a generic rehearsal into the specific thirty seconds keeping the
-user awake — which is the entire craft standard, obtained by asking rather than guessing.
+**Ceiling: seven interactions, ~45 seconds.** A fair trade for a 14-minute rehearsal that
+cannot work without knowing the user's situation. Not a fair trade for breathing.
+
+**Hard caps: 3 chat turns, 3 amplifying questions.** If the model wants a fourth question
+it does not get one — it guesses and proceeds. Interrogation is a failure state.
+
+Only the **Rehearsal** template needs depth 2. Immersive doesn't: the system can build an
+excellent rainforest knowing nothing about the user.
+
+### 2.2 Talk comes before the questions — which makes them generated
+
+This ordering is the important part. Because the conversation happens *first*, the
+amplifying questions do not have to be pre-authored per category. **The model writes them
+from what the user just said.**
+
+> — *playoff game saturday and i keep replaying last year*
+> — *the walk off, not the miss*
+>
+> → *"Same pitch, or somewhere neutral?"* · *"On the walk off — do they see your face?"* ·
+> *"How long have we got?"*
+
+*"Do they see your face?"* only exists because the user mentioned the walk off. No fixed
+per-category question set produces it.
+
+This supersedes an earlier draft of this spec, which specified ~35 hand-written questions
+(2–3 × 14 categories). That set is no longer needed. What replaces it is much smaller:
+**one prompt per template** describing which slots the template needs filled, plus a few
+worked examples of good and bad amplifying questions.
+
+Depth-1 categories have no chat step, so their questions are generated from the category
+plus memory alone — still not hand-authored, just working from less.
 
 **Rules:**
 - Every question is skippable; **Skip — surprise me** is always present
-- Never more than 3
-- Memory pre-fills answers where a confident prior exists, marked visually and always
+- Never more than 3, never a fourth
+- Memory pre-fills answers where a confident prior exists, marked visually, always
   overridable
-- **"Or just describe it"** is always available — chips must never be the only route
+- **"Or just say it"** is always available — chips must never be the only route
 - Sensitivity-flagged sessions get a check-in question here (see §8)
-
-### 2.2 Chat is the same layer
-
-Free-form conversation is an alternate route through layer 2, not a replacement for
-layer 1. It fills the same template slots.
-
-It earns its place by surfacing detail no fixed question set would think to ask for —
-*"the walk off, not the miss"* is not a chip anyone would have written.
+- Questions must be answerable in one tap. A question requiring a typed sentence belongs
+  in the chat step, not here.
 
 ---
 
@@ -575,9 +595,9 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
    the coverage matrix look like before launch.
 5. **Session length vs. cost ceiling** — need a real cost-per-session number for a 15-minute
    Immersive session before committing to durations.
-6. **Amplifying question sets** — 2–3 per category × 14 categories is ~35 questions to
-   write. They carry as much craft weight as the narration prompts and should be drafted
-   alongside the reference corpus, not after.
+6. **Slot definitions per template** — replaced the ~35 hand-written questions. Each
+   template needs a description of which slots it requires filled, plus worked examples of
+   good and bad amplifying questions. Five of these, not thirty-five.
 7. **Reflection → memory extraction** — what actually gets pulled from a free-text
    reflection, and how it's weighted against behavioral signal. Needs a schema before the
    loop is wired.

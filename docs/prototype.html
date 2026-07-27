@@ -167,6 +167,7 @@
     font-family: var(--mono); font-size: 0.55rem; color: rgba(237, 231, 223, 0.3);
     display: block; margin-top: 0.2rem;
   }
+  .cat-d.cat-now { color: var(--glacier); }
 
   .resume {
     width: 100%; text-align: left; border-radius: 9px; padding: 0.7rem 0.75rem;
@@ -504,8 +505,8 @@
       </div>
       <div class="layer">
         <span class="layer-n">LAYER 2</span>
-        <span class="layer-t">Amplify</span>
-        <span class="layer-d">Questions off that category, or just talk. Fills the template with specifics.</span>
+        <span class="layer-t">Talk, then amplify</span>
+        <span class="layer-d">Up to 3 turns, then up to 3 questions written from what you said. Both skippable.</span>
       </div>
       <div class="layer">
         <span class="layer-n">LAYER 3</span>
@@ -559,19 +560,19 @@
 
               <span class="group-h">Settle</span>
               <div class="grid">
-                <button class="cat" data-go="4"><span class="cat-n">Just breathing</span><span class="cat-d">3–10 MIN</span></button>
-                <button class="cat" data-go="2"><span class="cat-n">Body scan</span><span class="cat-d">8–12 MIN</span></button>
+                <button class="cat" data-go="4"><span class="cat-n">Just breathing</span><span class="cat-d cat-now">STARTS NOW</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Body scan</span><span class="cat-d">8–12 MIN</span></button>
               </div>
 
               <span class="group-h">Go somewhere</span>
               <div class="grid">
-                <button class="cat" data-go="2"><span class="cat-n">Nature</span><span class="cat-d">12–20 MIN</span></button>
-                <button class="cat" data-go="2"><span class="cat-n">Adventure</span><span class="cat-d">12–20 MIN</span></button>
-                <button class="cat" data-go="2"><span class="cat-n">Fantasy</span><span class="cat-d">12–25 MIN</span></button>
-                <button class="cat" data-go="2"><span class="cat-n">Into sleep</span><span class="cat-d">30–45 MIN</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Nature</span><span class="cat-d">12–20 MIN</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Adventure</span><span class="cat-d">12–20 MIN</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Fantasy</span><span class="cat-d">12–25 MIN</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Into sleep</span><span class="cat-d">30–45 MIN</span></button>
               </div>
 
-              <span class="group-h">Prepare</span>
+              <span class="group-h">Prepare · we'll talk first</span>
               <div class="grid">
                 <button class="cat" data-go="2"><span class="cat-n">Interview</span><span class="cat-d">10–15 MIN</span></button>
                 <button class="cat" data-go="2"><span class="cat-n">Competition</span><span class="cat-d">10–15 MIN</span></button>
@@ -581,41 +582,63 @@
 
               <span class="group-h">Reflect</span>
               <div class="grid">
-                <button class="cat" data-go="2"><span class="cat-n">Gratitude</span><span class="cat-d">8–12 MIN</span></button>
-                <button class="cat" data-go="2"><span class="cat-n">Creativity</span><span class="cat-d">10–15 MIN</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Gratitude</span><span class="cat-d">8–12 MIN</span></button>
+                <button class="cat" data-go="3"><span class="cat-n">Creativity</span><span class="cat-d">10–15 MIN</span></button>
               </div>
 
-              <button class="talk" data-go="3">Or just talk to me →</button>
+              <button class="talk" data-go="2">Or just talk to me →</button>
               <div style="height:0.5rem;"></div>
             </div>
           </section>
 
-          <!-- 2 · AMPLIFY -->
+          <!-- 2 · CHAT -->
           <section class="s" data-screen="2">
             <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
             <button class="back" data-go="1">← back</button>
             <div style="height:1.3rem;"></div>
-            <p class="s-eyebrow">Competition</p>
-            <h2 class="s-title" style="margin-bottom:1rem;">A few things and we'll go.</h2>
+            <p class="s-eyebrow">Competition · 1 of 2</p>
+            <div class="s-scroll">
+              <div class="thread">
+                <p class="msg msg-app">What's going on?</p>
+                <p class="msg msg-me">playoff game saturday and i keep replaying last year</p>
+                <p class="msg msg-app">Last year — the miss, or what came after it?</p>
+                <p class="msg msg-me">after. the walk off</p>
+                <p class="msg msg-app">Then we'll do the walk off differently. Same pitch, same
+                  people, you leave it another way.</p>
+                <div class="typing"><i></i><i></i><i></i></div>
+              </div>
+            </div>
+            <div class="s-foot">
+              <button class="btn" data-go="3">Continue</button>
+              <p class="s-note" style="text-align:center;margin-top:0.6rem;">
+                3 turns max, then it stops asking.</p>
+            </div>
+          </section>
+
+          <!-- 3 · AMPLIFY -->
+          <section class="s" data-screen="3">
+            <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
+            <button class="back" data-go="2">← back</button>
+            <div style="height:1.3rem;"></div>
+            <p class="s-eyebrow">Competition · 2 of 2</p>
+            <h2 class="s-title" style="margin-bottom:0.4rem;">Three more and we'll go.</h2>
+            <p class="s-note" style="margin-bottom:1rem;">Written from what you just told me.</p>
 
             <div class="s-scroll">
               <div class="q">
-                <p class="q-t">What's the moment you're actually dreading?</p>
+                <p class="q-t">Same pitch, or somewhere neutral?</p>
                 <div class="chips">
-                  <button class="chip">the wait before</button>
-                  <button class="chip is-picked">first touch</button>
-                  <button class="chip">a mistake</button>
-                  <button class="chip">the end</button>
+                  <button class="chip is-picked">same pitch</button>
+                  <button class="chip">neutral ground</button>
                 </div>
               </div>
 
               <div class="q">
-                <p class="q-t">Who's watching?</p>
+                <p class="q-t">On the walk off — do they see your face?</p>
                 <div class="chips">
-                  <button class="chip">no one</button>
-                  <button class="chip">family</button>
-                  <button class="chip">scouts</button>
-                  <button class="chip">a full touchline</button>
+                  <button class="chip">yes</button>
+                  <button class="chip">no</button>
+                  <button class="chip">only after</button>
                 </div>
               </div>
 
@@ -634,37 +657,13 @@
                   <rect x="9" y="2" width="6" height="12" rx="3"></rect>
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
                 </svg>
-                or just describe it
+                or just say it
               </button>
             </div>
 
             <div class="s-foot">
-              <button class="btn" data-go="4">Begin</button>
-              <button class="btn-ghost" data-go="4">Skip — surprise me</button>
-            </div>
-          </section>
-
-          <!-- 3 · CHAT -->
-          <section class="s" data-screen="3">
-            <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
-            <button class="back" data-go="1">← back</button>
-            <div style="height:1.3rem;"></div>
-            <p class="s-eyebrow">Talking</p>
-            <div class="s-scroll">
-              <div class="thread">
-                <p class="msg msg-app">What's going on?</p>
-                <p class="msg msg-me">playoff game saturday and i keep replaying last year</p>
-                <p class="msg msg-app">Last year — the miss, or what came after it?</p>
-                <p class="msg msg-me">after. the walk off</p>
-                <p class="msg msg-app">Then we'll do the walk off differently. Same pitch, same
-                  people, you leave it another way.</p>
-                <div class="typing"><i></i><i></i><i></i></div>
-              </div>
-            </div>
-            <div class="s-foot">
               <button class="btn" data-go="4">Begin · 14 min</button>
-              <p class="s-note" style="text-align:center;margin-top:0.6rem;">
-                Same layer as the questions — different way in.</p>
+              <button class="btn-ghost" data-go="4">Skip — surprise me</button>
             </div>
           </section>
 
@@ -770,13 +769,12 @@
         <button class="flow-item" data-go="2">
           <span class="flow-num">03</span>
           <span>
-            <span class="flow-name">Amplify</span>
-            <span class="flow-note">Now that routing is settled, the questions can do real work.
-              "What moment are you actually dreading" is the highest-value question in the
-              product — it turns a generic competition rehearsal into the specific thirty
-              seconds keeping you up. Every question is skippable; the teal chip is memory
-              pre-filling an answer.
-              <span class="flow-lay">Layer 2 · fills the template</span>
+            <span class="flow-name">Talk</span>
+            <span class="flow-note">Three turns, hard cap. Conversation surfaces what no fixed
+              question set would think to ask for — "the walk off, not the miss" isn't a chip
+              anyone would have written. Only the Rehearsal categories go through here; nothing
+              else needs to know your situation to build you a good forest.
+              <span class="flow-lay">Layer 2a · gathers context</span>
             </span>
           </span>
         </button>
@@ -784,11 +782,12 @@
         <button class="flow-item" data-go="3">
           <span class="flow-num">04</span>
           <span>
-            <span class="flow-name">Or just talk</span>
-            <span class="flow-note">Same layer, different modality. Some people would rather say
-              it than tap it, and conversation surfaces things chips can't — "the walk off, not
-              the miss" is a detail no question set would have thought to ask for.
-              <span class="flow-lay">Layer 2 · alternate route</span>
+            <span class="flow-name">Amplify</span>
+            <span class="flow-note">Three questions, hard cap — and because they come <em>after</em>
+              the conversation, they're written from what you said rather than pre-authored per
+              category. "Do they see your face?" only exists because you mentioned the walk off.
+              The teal chip is memory pre-filling an answer. Everything here is skippable.
+              <span class="flow-lay">Layer 2b · generated, not scripted</span>
             </span>
           </span>
         </button>
@@ -824,6 +823,61 @@
   </div>
 
   <!-- ============ DOCS ============ -->
+
+  <section class="doc">
+    <h2>How many questions before audio</h2>
+    <p class="doc-lede">Depth scales with what the template actually needs. Three questions
+      before "just breathing" would be absurd; zero questions before a rehearsal produces a
+      generic run-through. Each category declares its own depth.</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Depth</th><th>Path</th><th>Taps</th><th>Categories</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="t-name">0</td>
+            <td>tap → audio</td>
+            <td><strong style="color:var(--glacier);">1</strong></td>
+            <td class="t-cats">Just breathing · Safe place</td>
+          </tr>
+          <tr>
+            <td class="t-name">1</td>
+            <td>tap → 3 questions → audio</td>
+            <td><strong>4</strong></td>
+            <td class="t-cats">Nature · Adventure · Fantasy · Into sleep · Body scan · Gratitude · Creativity</td>
+          </tr>
+          <tr>
+            <td class="t-name">2</td>
+            <td>tap → talk → 3 questions → audio</td>
+            <td><strong>~7</strong></td>
+            <td class="t-cats">Interview · Competition · Hard conversation · Confidence</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols" style="margin-top:1.75rem;">
+      <div class="card">
+        <h3>Floor: one tap</h3>
+        <p>About two seconds to audio. That's the 2am case, and nothing may be added to it
+          — no confirmation, no "how are you feeling," no length picker.</p>
+      </div>
+      <div class="card">
+        <h3>Ceiling: seven interactions</h3>
+        <p>Roughly 45 seconds. A fair trade for a 14-minute rehearsal that has to know your
+          situation. Not a fair trade for breathing.</p>
+      </div>
+      <div class="card">
+        <h3>Hard caps</h3>
+        <p><strong>3 chat turns. 3 amplifiers.</strong> If the model wants a fourth question
+          it doesn't get one — it guesses and moves. Interrogation is a failure state.</p>
+      </div>
+      <div class="card">
+        <h3>Why talk comes first</h3>
+        <p>Because it makes the questions <strong>generated rather than pre-authored</strong>.
+          "Do they see your face?" only exists because you said "the walk off." No fixed
+          set per category produces that.</p>
+      </div>
+    </div>
+  </section>
 
   <section class="doc">
     <h2>Fourteen categories, five templates</h2>
@@ -915,8 +969,8 @@
     var captions = [
       "Onboarding · asked once",
       "Layer 1 · category",
-      "Layer 2 · amplify",
-      "Layer 2 · just talk",
+      "Layer 2a · talk (3 turns max)",
+      "Layer 2b · amplify (3 questions max)",
       "Playback · dark screen",
       "Layer 3 · close & reflect"
     ];
