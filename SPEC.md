@@ -224,8 +224,41 @@ Exclusion axes, set at onboarding and adjustable any time:
 | Cultivation | wild · cultivated |
 | Realism | realistic · fantastical |
 
-Exclusions are **hard constraints on generation**, checked in the post-generation scan
-(§8), not suggestions in a prompt.
+### 2.3.1 Exclusions have three tiers with different lifetimes
+
+An earlier draft treated exclusions as one flat list. They aren't — they differ in who
+they apply to and how long they last, and collapsing them causes real damage.
+
+| Tier | Applies to | Lifetime | Example | Stored |
+|---|---|---|---|---|
+| **Global prohibition** | everyone | permanent | crisis content, clinical claims, trauma processing | system config — never user data |
+| **Standing exclusion** | this user | until changed | no water · no darkness · no enclosed spaces | profile memory, editable |
+| **Session preference** | this session | **discarded at session end** | *"don't bring up bombing out"* | on the session record only |
+
+**Session preferences are never promoted to profile.** This is the important rule.
+
+The failure mode it prevents: every "not this time" silently becoming "never." Preferences
+accumulate into permanent constraints, the space of possible sessions narrows month over
+month, and the product eventually can only make one kind of session. It would look like
+the system learning right up until it was useless.
+
+The concrete case: a lifter says *"don't bring up bombing out"* before a PR attempt. Stored
+as standing, that removes miss-and-recover rehearsal from their product forever — and
+missing well is a legitimate skill they may want to train next month. Same user, same
+category, opposite request. Both valid.
+
+This mirrors the style/content memory split in §7: **style persists, content does not.**
+
+**Resolution is by origin, not by classification:**
+
+- stated at **onboarding**, on the exclusion axes → standing
+- stated in **layer 2a or 2b** → session-scoped
+
+No classifier is needed and a session preference can never be mistaken for a profile fact.
+
+All three tiers are **hard constraints on generation**, checked in the post-generation
+scan (§8) and present in each beat's context (`do_not_mention`), not suggestions in a
+session-level prompt header.
 
 ### 2.2 Talk comes before the questions — which makes them generated
 

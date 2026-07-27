@@ -13,6 +13,7 @@ measured against, and the source of few-shot examples for the draft and sensory 
 | **2a — Talk** | Olympic weightlifting meet. Final clean & jerk attempt. Going for a PR. |
 | **2b — Amplify** | Platform: Valley Forge convention center · Outcome: make the lift · Length: 14 min |
 | **Exclusions** | **No missed lifts. No bombing out. Do not raise failure as a possibility.** |
+| | *Tier: **session preference** (§2.3.1) — stated in layer 2a, discarded at session end. Not a standing exclusion; miss-and-recover rehearsal stays available to this user.* |
 | **Style memory** | *(none — first session)* |
 
 **Target:** 14:00 · **Actual:** 14:26 · **Speech:** 8:18 · **Silence:** 6:08 (42%)
