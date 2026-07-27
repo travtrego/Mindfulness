@@ -48,19 +48,37 @@ which has no visualization body at all. Structure belongs to the template.
 Script structure ≠ playback state machine. The outline needs finer granularity because
 it drives soundscape transitions and pacing; the player doesn't need to know.
 
-### 1.3 Entry is category-first, with free text inside the category
+### 1.3 Input is three layers: category → amplify → memory
 
-**Decision:** the user picks a category tile, then optionally describes the session in
-their own words. An open "Something else" tile preserves pure free-text entry.
+**Decision:** a broad category grid routes the session. Category-specific *amplifying*
+questions (or a free-form chat, user's choice) then fill in the specifics. Memory from
+past sessions informs both, silently.
+
+```
+1  CATEGORY   broad set, one tap — routes to a template, nothing more
+2  AMPLIFY    questions off that category, or just talk — fills the template
+3  MEMORY     past sessions inform both, fed by end-of-session reflection
+```
 
 **Why:** the source drafts all said "no menus, chatbot-style." That's right for a general
 wellness audience and wrong for this one. For anxiety and PTSD, a blank text box is a
 demand for articulation at exactly the moment articulation is hardest. Tapping a tile is
 achievable mid-spiral; composing a sentence often isn't.
 
-It also removes a whole class of engineering risk: the category is *given*, so intent
-classification can't get it wrong, and generation operates on elaboration within a known
-category rather than open-ended intent.
+Separating the layers matters because it changes what questions are *for*. Once the
+category has settled routing, follow-up questions stop being disambiguation ("which of
+these did you mean?") and become amplification ("what would make this specific?").
+
+*"What's the moment you're actually dreading?"* is the highest-value question in the
+product. It turns a generic competition rehearsal into the specific thirty seconds
+keeping the user awake. That question is only askable because the category already
+removed the routing burden.
+
+**Chat is layer 2, not a replacement for layer 1.** Some users would rather talk than
+tap, and conversation surfaces detail no fixed question set would think to ask for. It
+fills the same template slots by another route.
+
+All amplifying questions are skippable. "Skip — surprise me" is always present.
 
 ### 1.4 Templates constrain the outline; prose stays open
 
@@ -70,54 +88,92 @@ shape. The prose inside each beat is freely generated.
 **Why:** reconciles "predefined therapeutic templates" with "the words are alive."
 Reliability lives in the structure, variety lives in the language.
 
-### 1.5 V1 ships four categories
+### 1.5 Fourteen categories on five templates
 
-**Decision:** Just Breathing, Safe Place, Upcoming Event, Nature Escape. Fantasy/Story
-and Sleep Journeys are deferred.
+**Decision:** ship a broad category surface. Fourteen tiles in four groups, mapping onto
+five beat templates.
 
-**Why:** four covers the full emotional range with the least build. Fantasy is the most
-fun and the least therapeutic — it can wait. Sleep has the worst unit economics (see 6.3)
-and the weakest success signal.
+**Why:** an earlier draft of this spec scoped V1 to four categories to limit build cost.
+That was wrong reasoning. **Category count is not the cost — template count is.** A
+category is a label plus a prompt constraint; a template is beat structure, pacing,
+stem behavior, and validation rules.
 
-Sessions still log their originally-classified category even when it falls outside V1.
-That log is the V2 roadmap, collected for free.
+Adding "Adventure" beside "Nature" costs one constraint (*the environment may be
+invented*). Adding a sixth template costs real work.
+
+So the surface can be broad while the engine stays small. Users shouldn't have to
+translate "playoff game Saturday" into a taxonomy.
+
+| Group | Categories |
+|---|---|
+| **Settle** | Just breathing · Body scan |
+| **Go somewhere** | Nature · Adventure · Fantasy · Into sleep |
+| **Prepare** | Interview · Competition · Hard conversation · Confidence |
+| **Reflect** | Gratitude · Creativity |
+
+Plus **Safe place**, surfaced separately as a persistent return (see 3.2), and
+**"just talk to me"** as the chat entry.
+
+Sleep still carries the worst unit economics (see 6.3) — mitigated by making sparseness
+explicit in its template rather than by cutting the category.
 
 ---
 
 ## 2. Entry model
 
 ```
-Home (4 category tiles + "Something else")
-  └─ Category screen: optional free-text / voice description
-       ├─ suggestion chips specific to the category
-       └─ inferred duration, adjustable
-  └─ Confirmation beat: one line reflecting back what it heard
-  └─ Screen goes dark → cached intro begins → rest renders underneath
-```
+Home — category grid (14 tiles, 4 groups) + persistent Safe Place + "just talk to me"
+  ├─ TILE PATH
+  │    └─ Amplify: 2–3 category-specific questions, chips, all skippable
+  │         ├─ memory pre-fills answers where it has a confident prior
+  │         └─ "or just describe it" — voice/text escape into free form
+  │    └─ Begin  |  Skip — surprise me
+  │
+  └─ CHAT PATH
+       └─ Short conversation filling the same template slots
+       └─ Begin
 
-**The confirmation beat matters.** One line — *"A morning ridge walk, about 12 minutes."* —
-with a light way to nudge (shorter/longer, somewhere else). It's the only chance to catch
-a misread before committing the user to 12 minutes of the wrong session.
+  → Screen goes dark → cached intro begins → rest renders underneath
+  → Playback
+  → Close: anchor line, then one open reflection question (skippable)
+```
 
 **There is never a loading screen.** The cached intro is the loading state.
 
-### 2.1 The one-question rule
+### 2.1 Amplifying questions, not disambiguating ones
 
-The app may ask at most one clarifying question per session, and only when a friend
-would have asked it too.
+Once the category has settled routing, questions change job. They are no longer *"which
+of these did you mean?"* — they are *"what would make this specific?"*
 
-Ask when:
-- the description maps to materially different sessions (*"huge interview tomorrow"* is
-  either rehearsal or escape — no classifier can tell)
-- a sensitivity flag is borderline (doubles as a safety check-in)
+Each category owns 2–3 questions targeting the detail its template most needs:
 
-Don't ask when the request is vague in content but clear in intent — *"take me somewhere
-impossible"* means *surprise me*, and asking damages it.
+| Category | Amplifying questions |
+|---|---|
+| Competition | What moment are you actually dreading? · Who's watching? |
+| Nature | Somewhere you've been, or new? · Warm or cold? |
+| Fantasy | How far from real? |
+| Hard conversation | What do you need them to hear? |
+| Gratitude | Someone, or something? |
 
-The question is always skippable. If unanswered within a few seconds, take the higher-prior
-branch and begin. Never block.
+*"What's the moment you're actually dreading?"* is the highest-value question in the
+product. It converts a generic rehearsal into the specific thirty seconds keeping the
+user awake — which is the entire craft standard, obtained by asking rather than guessing.
 
-The seconds spent answering are seconds the pipeline is already running.
+**Rules:**
+- Every question is skippable; **Skip — surprise me** is always present
+- Never more than 3
+- Memory pre-fills answers where a confident prior exists, marked visually and always
+  overridable
+- **"Or just describe it"** is always available — chips must never be the only route
+- Sensitivity-flagged sessions get a check-in question here (see §8)
+
+### 2.2 Chat is the same layer
+
+Free-form conversation is an alternate route through layer 2, not a replacement for
+layer 1. It fills the same template slots.
+
+It earns its place by surfacing detail no fixed question set would think to ask for —
+*"the walk off, not the miss"* is not a chip anyone would have written.
 
 ---
 
@@ -156,7 +212,9 @@ time — it's the same place, accumulating detail over repeated visits, and the 
 This is the "multi-session journey" concept from the source drafts, with actual grounding
 behind it.
 
-### 3.3 Upcoming Event — 10–15 min
+### 3.3 Rehearsal — 10–15 min
+
+*Serves: Interview · Competition · Hard conversation · Confidence*
 
 | Beat | Source | Notes |
 |---|---|---|
@@ -170,7 +228,13 @@ behind it.
 Builds confidence through rehearsal, not affirmations. No "you are confident." Instead:
 the weight of the door handle, the sound of your own voice steadier than expected.
 
-### 3.4 Nature Escape — 12–20 min
+The **dreaded moment** captured in layer 2 anchors the *event* beat. Without it the
+session defaults to a generic run-through, which is the failure mode this template exists
+to avoid.
+
+### 3.4 Immersive — 12–20 min (Into sleep: 30–45)
+
+*Serves: Nature · Adventure · Fantasy · Into sleep*
 
 | Beat | Source | Notes |
 |---|---|---|
@@ -184,9 +248,34 @@ the weight of the door handle, the sound of your own voice steadier than expecte
 **Environments stay internally consistent.** If the listener starts hiking a ridge, the
 session progresses through that landscape — it does not cut to a beach.
 
+**Category differences are prompt constraints, not structural ones:**
+
+| Category | Constraint |
+|---|---|
+| Nature | Environment must be a real, plausible place |
+| Adventure | Real place, but with movement and mild stakes |
+| Fantasy | Environment may be invented; physics may bend |
+| Into sleep | Same beats, sparse narration, long silences, no return beat |
+
 Seed environments: Appalachian sunrise, Pacific Northwest rainforest, Icelandic waterfall,
 rocky coastline in a storm, alpine meadow after rain, desert under the Milky Way, quiet
 summit, campfire beside a lake.
+
+### 3.5 Reflective — 8–15 min
+
+*Serves: Body scan · Gratitude · Creativity*
+
+| Beat | Source | Notes |
+|---|---|---|
+| Grounding intro | cached | |
+| Settling attention | generated | |
+| Noticing sequence | generated | non-narrative, no environment |
+| Widening | generated | |
+| Anchor + return | generated | |
+
+No place, no journey. Present-moment attention only. This template is where the
+"noticing" language of the craft standard does the most work, because there is no
+scenery to lean on.
 
 ---
 
@@ -293,8 +382,12 @@ interactive.
 
 ### 6.3 Stem library
 
-Start at **25–30 stems** covering the four V1 categories. License from a commercial
-library (Boom, A Sound Effect) — this is not a field-recording project.
+Start at **30–40 stems** covering the Immersive and Reflective templates — those are the
+only two that need environmental audio. License from a commercial library (Boom, A Sound
+Effect); this is not a field-recording project.
+
+Note the leverage: stems are needed per *template*, not per category. Nature, Adventure,
+Fantasy and Into sleep all draw from the same library.
 
 Layered and crossfaded on scene transitions. Never looping ambience.
 
@@ -314,8 +407,7 @@ Changeable between arcs.
 
 ## 7. Personalization
 
-**Do not build the learning loop for V1.** It can't be tuned with zero users. Log
-everything from day one, learn offline, ship personalization in V2.
+Layer 3. Memory informs both the category surface and the amplifying questions, silently.
 
 **Stored, separately:**
 - **Style memory** — pacing tolerance, sensory density, narrative style, preferred
@@ -323,10 +415,47 @@ everything from day one, learn offline, ship personalization in V2.
 - **Content memory** — emotional topics, safe-place details, event context. **Opt-in per
   session.**
 
-**Signals, when the loop is built:** replays and repeat-similar-intent are the least
-confounded signals available and should be weighted highest. Completion is confounded and
-its meaning is per-category — a session ended manually at minute 3 means something very
-different in Just Breathing than in Nature Escape.
+**Style travels across categories. Content does not.** The system learns you prefer
+longer exhales and less visual language, and that applies on a ridge or in a tunnel. It
+does not carry Tuesday's fantasy into Wednesday's match.
+
+### 7.0 End-of-session reflection is the primary signal
+
+**Decision:** after the anchor line, ask one open question — *"Anything you want to keep
+from that?"* — answerable by voice or text, always skippable. No stars, no score.
+
+**Why this reverses an earlier decision.** An earlier draft of this spec said: don't
+build the learning loop for V1, there's no signal with zero users, and ratings break the
+mood. The second half is true *during* a session. But the session is over — there is no
+mood left to break, and reflection is a legitimate part of the practice rather than an
+engagement mechanic bolted on.
+
+It produces something skip-and-replay data never could: **language about what actually
+landed.** Available from session one, which means personalization can ship in V1 after
+all.
+
+**Rules:**
+- Never quoted back explicitly (*"last time you said…"* reads as surveillance). Folded in
+  structurally — the detail that worked recurs, the register that didn't gets dropped.
+- Skipping is free and unremarked. No nagging, no completion percentage.
+- Reflections are content memory, and inherit its opt-in status.
+
+**Secondary signals:** replays and repeat-similar-intent are the least confounded
+behavioral signals and should be weighted highest after reflections. Completion is
+confounded and its meaning is per-category — a session ended manually at minute 3 means
+something very different in Just Breathing than in an Immersive session.
+
+### 7.0.1 Sessions stand alone
+
+Breathing one night, fantasy the next, a match the third is **normal use, not a failure
+to engage.** Nothing in the product should make Wednesday depend on Tuesday.
+
+This demotes the "multi-session journeys" concept from the source drafts. Journeys are
+opt-in and scoped to **Safe Place only**, where returning to the same accumulating place
+is the therapeutic mechanism. Everywhere else, every session is complete in itself.
+
+Anything that makes sessions depend on each other is a retention mechanic wearing a
+therapeutic hat, and §10 rules those out.
 
 ### 7.1 Onboarding asks three questions, once
 
@@ -411,8 +540,12 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 ## 11. V1 scope
 
 **In:**
-- Four categories with templates
-- Category-first entry + free text
+- Fourteen categories on five templates
+- Three-layer input: category → amplify → memory
+- Amplifying questions per category, all skippable
+- Chat as an alternate layer-2 route
+- End-of-session reflection capture
+- Style/content memory split, applied silently
 - 3-call generation pipeline with parallel TTS
 - Cached intro matrix
 - Server-rendered soundscape mixing
@@ -423,10 +556,9 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 - Full signal logging
 
 **Out (deliberately):**
-- Learning loop (log now, build V2)
-- Fantasy/Story and Sleep categories
 - Client-side dynamic mixing
 - Fine-tuning
+- Multi-session journeys outside Safe Place
 - Any social, streak, or engagement layer
 
 ---
@@ -442,4 +574,10 @@ intent_log        -- includes out-of-scope categories → V2 roadmap
 4. **Sensitivity review capacity** — who reviews the trauma-tier templates, and what does
    the coverage matrix look like before launch.
 5. **Session length vs. cost ceiling** — need a real cost-per-session number for a 15-minute
-   Nature Escape before committing to durations.
+   Immersive session before committing to durations.
+6. **Amplifying question sets** — 2–3 per category × 14 categories is ~35 questions to
+   write. They carry as much craft weight as the narration prompts and should be drafted
+   alongside the reference corpus, not after.
+7. **Reflection → memory extraction** — what actually gets pulled from a free-text
+   reflection, and how it's weighted against behavioral signal. Needs a schema before the
+   loop is wired.

@@ -16,806 +16,471 @@
     --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
-
-    --step: 0.5rem;
-    --radius: 4px;
   }
 
   @media (prefers-color-scheme: light) {
     :root {
-      --ground: #E7E2D8;
-      --surface: #F1EDE5;
-      --surface-2: #FAF7F1;
-      --ember: #A25C22;
-      --ember-soft: #8F4F1B;
-      --glacier: #3A625C;
-      --ink: #141D1B;
-      --muted: #5B6866;
-      --line: rgba(20, 29, 27, 0.13);
-      --line-strong: rgba(20, 29, 27, 0.24);
+      --ground: #E7E2D8; --surface: #F1EDE5; --surface-2: #FAF7F1;
+      --ember: #A25C22; --ember-soft: #8F4F1B; --glacier: #3A625C;
+      --ink: #141D1B; --muted: #5B6866;
+      --line: rgba(20, 29, 27, 0.13); --line-strong: rgba(20, 29, 27, 0.24);
     }
   }
 
   :root[data-theme="light"] {
-    --ground: #E7E2D8;
-    --surface: #F1EDE5;
-    --surface-2: #FAF7F1;
-    --ember: #A25C22;
-    --ember-soft: #8F4F1B;
-    --glacier: #3A625C;
-    --ink: #141D1B;
-    --muted: #5B6866;
-    --line: rgba(20, 29, 27, 0.13);
-    --line-strong: rgba(20, 29, 27, 0.24);
+    --ground: #E7E2D8; --surface: #F1EDE5; --surface-2: #FAF7F1;
+    --ember: #A25C22; --ember-soft: #8F4F1B; --glacier: #3A625C;
+    --ink: #141D1B; --muted: #5B6866;
+    --line: rgba(20, 29, 27, 0.13); --line-strong: rgba(20, 29, 27, 0.24);
   }
 
   :root[data-theme="dark"] {
-    --ground: #0A0E0D;
-    --surface: #131A18;
-    --surface-2: #1B2422;
-    --ember: #D98E52;
-    --ember-soft: #E8A672;
-    --glacier: #7FA8A0;
-    --ink: #EDE7DF;
-    --muted: #798683;
-    --line: rgba(237, 231, 223, 0.11);
-    --line-strong: rgba(237, 231, 223, 0.2);
+    --ground: #0A0E0D; --surface: #131A18; --surface-2: #1B2422;
+    --ember: #D98E52; --ember-soft: #E8A672; --glacier: #7FA8A0;
+    --ink: #EDE7DF; --muted: #798683;
+    --line: rgba(237, 231, 223, 0.11); --line-strong: rgba(237, 231, 223, 0.2);
   }
 
   * { box-sizing: border-box; }
 
   .page {
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 16px;
-    line-height: 1.6;
-    margin: 0;
-    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 4vw, 3rem) 6rem;
+    background: var(--ground); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.6;
+    margin: 0; padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 4vw, 3rem) 6rem;
     -webkit-font-smoothing: antialiased;
   }
 
   .wrap { max-width: 1180px; margin: 0 auto; }
 
   .eyebrow {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 0.75rem;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 0.75rem;
   }
 
-  .masthead { margin-bottom: clamp(2.5rem, 6vw, 4rem); max-width: 60ch; }
+  .masthead { margin-bottom: clamp(2.5rem, 6vw, 4rem); max-width: 62ch; }
 
   .masthead h1 {
-    font-family: var(--serif);
-    font-size: clamp(2rem, 4.6vw, 3.1rem);
-    line-height: 1.08;
-    font-weight: 400;
-    letter-spacing: -0.015em;
-    text-wrap: balance;
-    margin: 0 0 1rem;
+    font-family: var(--serif); font-size: clamp(2rem, 4.6vw, 3.1rem);
+    line-height: 1.08; font-weight: 400; letter-spacing: -0.015em;
+    text-wrap: balance; margin: 0 0 1rem;
   }
 
   .masthead h1 em { font-style: italic; color: var(--ember); }
+  .masthead p { margin: 0; color: var(--muted); font-size: 1.03rem; max-width: 58ch; }
 
-  .masthead p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 1.03rem;
-    max-width: 58ch;
+  /* ---- three-layer strip ---- */
+  .layers {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    border-radius: 6px; overflow: hidden; margin: 2rem 0 0;
   }
+  .layer { background: var(--ground); padding: 1rem 1.1rem; }
+  .layer-n {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em;
+    color: var(--ember); display: block; margin-bottom: 0.35rem;
+  }
+  .layer-t { font-family: var(--serif); font-size: 1.05rem; display: block; margin-bottom: 0.2rem; }
+  .layer-d { font-size: 0.8rem; line-height: 1.5; color: var(--muted); }
 
-  /* ---------- main split ---------- */
-
+  /* ---------- split ---------- */
   .stage {
-    display: grid;
-    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
-    gap: clamp(2rem, 5vw, 4.5rem);
-    align-items: start;
+    display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4.5rem); align-items: start;
+    margin-top: clamp(2.5rem, 6vw, 4rem);
   }
-
   @media (max-width: 900px) {
     .stage { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; }
     .device-col { position: static; justify-self: center; }
   }
-
   .device-col { position: sticky; top: 2rem; }
 
   /* ---------- device ---------- */
-
   .device {
-    width: 100%;
-    max-width: 380px;
-    aspect-ratio: 380 / 790;
-    background: #0A0E0D;
-    border: 1px solid var(--line-strong);
-    border-radius: 34px;
-    padding: 11px;
-    position: relative;
+    width: 100%; max-width: 380px; aspect-ratio: 380 / 790;
+    background: #0A0E0D; border: 1px solid var(--line-strong);
+    border-radius: 34px; padding: 11px; position: relative;
     box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.75);
   }
-
   .device-screen {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #0A0E0D;
-    border-radius: 24px;
-    overflow: hidden;
-    color: #EDE7DF;
-    isolation: isolate;
+    position: relative; width: 100%; height: 100%; background: #0A0E0D;
+    border-radius: 24px; overflow: hidden; color: #EDE7DF; isolation: isolate;
   }
-
   .device-caption {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: center;
-    margin-top: 1rem;
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); text-align: center; margin-top: 1rem;
   }
 
   /* ---------- screens ---------- */
-
   .s {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 2.6rem 1.6rem 1.6rem;
-    opacity: 0;
-    visibility: hidden;
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    padding: 2.5rem 1.5rem 1.5rem; opacity: 0; visibility: hidden;
     transform: translateY(6px);
     transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s;
     font-family: var(--sans);
   }
-
   .s.is-on { opacity: 1; visibility: visible; transform: none; }
 
+  .s-scroll { overflow-y: auto; flex: 1; margin: 0 -0.35rem; padding: 0 0.35rem; }
+  .s-scroll::-webkit-scrollbar { width: 0; }
+
   .s-status {
-    position: absolute;
-    top: 0.9rem;
-    left: 1.6rem;
-    right: 1.6rem;
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    color: rgba(237, 231, 223, 0.32);
+    position: absolute; top: 0.85rem; left: 1.5rem; right: 1.5rem;
+    display: flex; justify-content: space-between; font-family: var(--mono);
+    font-size: 0.58rem; letter-spacing: 0.08em; color: rgba(237, 231, 223, 0.3);
   }
 
   .s-eyebrow {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(237, 231, 223, 0.38);
-    margin: 0 0 0.5rem;
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: rgba(237, 231, 223, 0.36); margin: 0 0 0.45rem;
   }
 
   .s-title {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: 1.55rem;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    margin: 0 0 1.4rem;
-    text-wrap: balance;
+    font-family: var(--serif); font-weight: 400; font-size: 1.5rem; line-height: 1.2;
+    letter-spacing: -0.01em; margin: 0 0 1.2rem; text-wrap: balance;
   }
 
-  .s-body {
-    font-size: 0.84rem;
-    line-height: 1.55;
-    color: rgba(237, 231, 223, 0.55);
-    margin: 0 0 1rem;
+  .s-note {
+    font-size: 0.72rem; line-height: 1.5; color: rgba(237, 231, 223, 0.4); margin: 0;
   }
 
-  /* ---------- category tiles ---------- */
+  /* ---------- home grid ---------- */
+  .group-h {
+    font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(237, 231, 223, 0.28);
+    margin: 1.1rem 0 0.45rem; display: block;
+  }
+  .group-h.is-first { margin-top: 0; }
 
-  .tiles { display: flex; flex-direction: column; gap: 0.55rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
 
-  .tile {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: #131A18;
-    border: 1px solid rgba(237, 231, 223, 0.09);
-    border-radius: 10px;
-    padding: 0.85rem 0.95rem;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  .cat {
+    text-align: left; background: #131A18;
+    border: 1px solid rgba(237, 231, 223, 0.08); border-radius: 9px;
+    padding: 0.6rem 0.65rem; color: inherit; font: inherit; cursor: pointer;
+    transition: border-color 0.22s ease, background 0.22s ease;
+  }
+  .cat:hover, .cat:focus-visible {
+    border-color: rgba(217, 142, 82, 0.5); background: #1B2422; outline: none;
+  }
+  .cat-n { font-family: var(--serif); font-size: 0.88rem; line-height: 1.25; display: block; }
+  .cat-d {
+    font-family: var(--mono); font-size: 0.55rem; color: rgba(237, 231, 223, 0.3);
+    display: block; margin-top: 0.2rem;
   }
 
-  .tile:hover, .tile:focus-visible {
-    border-color: rgba(217, 142, 82, 0.5);
-    background: #1B2422;
-    transform: translateX(2px);
-    outline: none;
+  .resume {
+    width: 100%; text-align: left; border-radius: 9px; padding: 0.7rem 0.75rem;
+    color: inherit; font: inherit; cursor: pointer; margin-bottom: 0.35rem;
+    background: linear-gradient(100deg, rgba(127, 168, 160, 0.14), rgba(127, 168, 160, 0.03));
+    border: 1px solid rgba(127, 168, 160, 0.3);
+    transition: border-color 0.22s ease;
+  }
+  .resume:hover, .resume:focus-visible { border-color: var(--glacier); outline: none; }
+  .resume-n { font-family: var(--serif); font-size: 0.95rem; color: var(--glacier); display: block; }
+  .resume-d {
+    font-size: 0.68rem; color: rgba(237, 231, 223, 0.42); display: block; margin-top: 0.1rem;
   }
 
-  .tile-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.75rem;
+  .talk {
+    width: 100%; margin-top: 0.5rem; padding: 0.6rem; border-radius: 9px;
+    border: 1px dashed rgba(237, 231, 223, 0.18); background: none;
+    color: rgba(237, 231, 223, 0.5); font-family: var(--mono); font-size: 0.6rem;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    transition: color 0.22s ease, border-color 0.22s ease;
   }
+  .talk:hover, .talk:focus-visible { color: var(--ember); border-color: var(--ember); outline: none; }
 
-  .tile-name {
-    font-family: var(--serif);
-    font-size: 1rem;
-    letter-spacing: -0.005em;
+  /* ---------- amplify ---------- */
+  .q { margin-bottom: 1.05rem; }
+  .q-t {
+    font-family: var(--serif); font-size: 0.95rem; line-height: 1.35;
+    margin: 0 0 0.45rem; color: rgba(237, 231, 223, 0.82);
   }
-
-  .tile-dur {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    color: rgba(237, 231, 223, 0.34);
-    white-space: nowrap;
-  }
-
-  .tile-desc {
-    font-size: 0.73rem;
-    line-height: 1.45;
-    color: rgba(237, 231, 223, 0.46);
-    margin-top: 0.2rem;
-  }
-
-  .tile--open {
-    background: transparent;
-    border-style: dashed;
-    border-color: rgba(237, 231, 223, 0.16);
-  }
-
-  .tile--resume {
-    background: linear-gradient(100deg, rgba(127, 168, 160, 0.13), rgba(127, 168, 160, 0.03));
-    border-color: rgba(127, 168, 160, 0.28);
-  }
-
-  .tile--resume .tile-name { color: var(--glacier); }
-
-  /* ---------- input ---------- */
-
-  .fake-input {
-    background: #131A18;
-    border: 1px solid rgba(237, 231, 223, 0.11);
-    border-radius: 10px;
-    padding: 0.8rem 0.9rem;
-    min-height: 5.4rem;
-    font-family: var(--serif);
-    font-size: 0.92rem;
-    line-height: 1.5;
-    color: rgba(237, 231, 223, 0.9);
-    position: relative;
-  }
-
-  .caret {
-    display: inline-block;
-    width: 1px;
-    height: 1em;
-    background: var(--ember);
-    vertical-align: -0.15em;
-    margin-left: 1px;
-    animation: blink 1.15s steps(2, start) infinite;
-  }
-
-  @keyframes blink { to { opacity: 0; } }
-
-  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.75rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.32rem; }
 
   .chip {
-    font-family: var(--mono);
-    font-size: 0.63rem;
-    letter-spacing: 0.03em;
-    padding: 0.32rem 0.6rem;
-    border-radius: 999px;
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.02em;
+    padding: 0.34rem 0.62rem; border-radius: 999px;
     border: 1px solid rgba(237, 231, 223, 0.15);
-    color: rgba(237, 231, 223, 0.55);
-    background: none;
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
+    color: rgba(237, 231, 223, 0.55); background: none; cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
   }
-
   .chip:hover, .chip:focus-visible {
-    border-color: var(--ember);
-    color: var(--ember-soft);
-    outline: none;
+    border-color: var(--ember); color: var(--ember-soft); outline: none;
+  }
+  .chip.is-picked {
+    border-color: var(--ember); color: var(--ember-soft); background: rgba(217, 142, 82, 0.12);
+  }
+  .chip.is-mem {
+    border-color: rgba(127, 168, 160, 0.45); color: var(--glacier);
+    background: rgba(127, 168, 160, 0.08);
+  }
+  .chip.is-mem::before {
+    content: ""; display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--glacier); margin-right: 0.4rem; vertical-align: 0.12em;
   }
 
-  .input-tools {
-    display: flex;
-    gap: 0.4rem;
-    margin-top: 0.75rem;
-    align-items: center;
+  .mem-note {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.06em;
+    color: rgba(127, 168, 160, 0.65); margin: 0.5rem 0 0;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .mem-note::before {
+    content: ""; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--glacier); flex: none;
   }
 
-  .mic {
-    width: 34px;
-    height: 34px;
-    flex: none;
-    border-radius: 50%;
-    border: 1px solid rgba(237, 231, 223, 0.18);
-    background: none;
-    color: rgba(237, 231, 223, 0.6);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
+  .say {
+    width: 100%; background: #131A18; border: 1px solid rgba(237, 231, 223, 0.1);
+    border-radius: 9px; padding: 0.6rem 0.7rem; margin-top: 0.3rem;
+    font-family: var(--serif); font-size: 0.82rem; color: rgba(237, 231, 223, 0.4);
+    text-align: left; cursor: pointer;
+    display: flex; align-items: center; gap: 0.5rem;
   }
+  .say:hover, .say:focus-visible { border-color: rgba(217, 142, 82, 0.4); outline: none; }
+  .say svg { flex: none; opacity: 0.55; }
 
-  .mic:hover, .mic:focus-visible { border-color: var(--ember); color: var(--ember); outline: none; }
-
-  .s-foot { margin-top: auto; padding-top: 1.25rem; }
+  .s-foot { margin-top: auto; padding-top: 1rem; }
 
   .btn {
-    display: block;
-    width: 100%;
-    padding: 0.85rem;
-    border-radius: 10px;
-    border: 1px solid var(--ember);
-    background: rgba(217, 142, 82, 0.1);
-    color: var(--ember-soft);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    cursor: pointer;
+    display: block; width: 100%; padding: 0.8rem; border-radius: 9px;
+    border: 1px solid var(--ember); background: rgba(217, 142, 82, 0.1);
+    color: var(--ember-soft); font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
     transition: background 0.25s ease;
   }
-
   .btn:hover, .btn:focus-visible { background: rgba(217, 142, 82, 0.2); outline: none; }
 
-  .btn--ghost {
-    border-color: rgba(237, 231, 223, 0.18);
-    background: none;
-    color: rgba(237, 231, 223, 0.5);
-    margin-top: 0.5rem;
+  .btn-ghost {
+    display: block; width: 100%; padding: 0.65rem; border-radius: 9px;
+    border: 1px solid rgba(237, 231, 223, 0.14); background: none;
+    color: rgba(237, 231, 223, 0.42); font-family: var(--mono); font-size: 0.62rem;
+    letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+    margin-top: 0.4rem; transition: background 0.25s ease;
   }
-
-  .btn--ghost:hover, .btn--ghost:focus-visible { background: rgba(237, 231, 223, 0.05); }
+  .btn-ghost:hover, .btn-ghost:focus-visible {
+    background: rgba(237, 231, 223, 0.05); outline: none;
+  }
 
   .back {
-    position: absolute;
-    top: 2.3rem;
-    left: 1.5rem;
-    background: none;
-    border: none;
-    color: rgba(237, 231, 223, 0.4);
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    cursor: pointer;
-    padding: 0.25rem;
+    position: absolute; top: 2.2rem; left: 1.4rem; background: none; border: none;
+    color: rgba(237, 231, 223, 0.4); font-family: var(--mono); font-size: 0.65rem;
+    cursor: pointer; padding: 0.25rem; z-index: 2;
   }
-
   .back:hover, .back:focus-visible { color: var(--ink); outline: none; }
 
-  /* ---------- confirm ---------- */
-
-  .reflect {
-    font-family: var(--serif);
-    font-size: 1.3rem;
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    margin: 0 0 0.35rem;
-    text-wrap: balance;
+  /* ---------- chat ---------- */
+  .thread { display: flex; flex-direction: column; gap: 0.7rem; }
+  .msg { max-width: 84%; font-size: 0.82rem; line-height: 1.5; }
+  .msg-app {
+    font-family: var(--serif); font-size: 0.92rem; color: rgba(237, 231, 223, 0.85);
+    align-self: flex-start;
   }
-
-  .reflect em { font-style: italic; color: var(--ember); }
-
-  .nudges { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 1.1rem; }
-
-  .qbox {
-    margin-top: 1.5rem;
-    border-left: 2px solid var(--glacier);
-    padding: 0.15rem 0 0.15rem 0.85rem;
+  .msg-me {
+    align-self: flex-end; background: rgba(217, 142, 82, 0.12);
+    border: 1px solid rgba(217, 142, 82, 0.28); border-radius: 12px 12px 3px 12px;
+    padding: 0.5rem 0.7rem; color: rgba(237, 231, 223, 0.9);
   }
-
-  .qbox p {
-    font-family: var(--serif);
-    font-size: 0.95rem;
-    line-height: 1.45;
-    margin: 0 0 0.7rem;
-    color: rgba(237, 231, 223, 0.82);
+  .typing { display: flex; gap: 3px; padding: 0.3rem 0; }
+  .typing i {
+    width: 4px; height: 4px; border-radius: 50%; background: rgba(237, 231, 223, 0.3);
+    animation: bob 1.3s ease-in-out infinite;
   }
-
-  .qbox .chips { margin-top: 0; }
-
-  .qbox .qskip {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    line-height: 1.5;
-    letter-spacing: 0.08em;
-    color: rgba(237, 231, 223, 0.28);
-    margin: 0.7rem 0 0;
-  }
+  .typing i:nth-child(2) { animation-delay: 0.18s; }
+  .typing i:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes bob { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 0.9; } }
 
   /* ---------- playback ---------- */
+  .s-dark { background: #060908; padding: 2.5rem 1.5rem 1.8rem; }
 
-  .s--dark { background: #060908; padding: 2.6rem 1.6rem 2rem; }
-
-  .pacer-zone {
-    flex: 1;
-    display: grid;
-    place-items: center;
-    position: relative;
-  }
+  .pacer-zone { flex: 1; display: grid; place-items: center; position: relative; }
 
   .pacer {
-    width: 168px;
-    height: 168px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    position: relative;
+    width: 168px; height: 168px; border-radius: 50%; display: grid; place-items: center;
+    position: relative; will-change: transform;
     background: radial-gradient(circle at 38% 32%,
-      rgba(217, 142, 82, 0.16),
-      rgba(127, 168, 160, 0.07) 55%,
-      transparent 72%);
+      rgba(217, 142, 82, 0.16), rgba(127, 168, 160, 0.07) 55%, transparent 72%);
     border: 1px solid rgba(237, 231, 223, 0.08);
-    will-change: transform;
   }
-
   .pacer::after {
-    content: "";
-    position: absolute;
-    inset: -22px;
-    border-radius: 50%;
+    content: ""; position: absolute; inset: -22px; border-radius: 50%;
     border: 1px solid rgba(217, 142, 82, 0.1);
   }
-
   .pacer-label {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: rgba(237, 231, 223, 0.5);
-    text-indent: 0.3em;
+    font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: rgba(237, 231, 223, 0.5); text-indent: 0.3em;
   }
 
   .narration {
-    font-family: var(--serif);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    font-style: italic;
-    color: rgba(237, 231, 223, 0.34);
-    text-align: center;
-    margin: 0;
-    min-height: 4.5rem;
-    text-wrap: balance;
-    transition: opacity 0.7s ease;
+    font-family: var(--serif); font-size: 0.93rem; line-height: 1.6; font-style: italic;
+    color: rgba(237, 231, 223, 0.34); text-align: center; margin: 0; min-height: 4.4rem;
+    text-wrap: balance; transition: opacity 0.7s ease;
   }
 
-  .beat-rail {
-    display: flex;
-    gap: 3px;
-    margin-bottom: 1.1rem;
-  }
-
-  .beat {
-    flex: 1;
-    height: 2px;
-    background: rgba(237, 231, 223, 0.12);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
+  .beat-rail { display: flex; gap: 3px; margin-bottom: 1rem; }
+  .beat { flex: 1; height: 2px; background: rgba(237, 231, 223, 0.12); border-radius: 2px; overflow: hidden; }
   .beat.is-done { background: rgba(237, 231, 223, 0.3); }
-
   .beat.is-now::after {
-    content: "";
-    display: block;
-    height: 100%;
-    width: 45%;
-    background: var(--ember);
+    content: ""; display: block; height: 100%; width: 45%; background: var(--ember);
   }
 
   .tap-hint {
-    position: absolute;
-    bottom: 1.6rem;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(237, 231, 223, 0.16);
+    position: absolute; bottom: 1.5rem; left: 0; right: 0; text-align: center;
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: rgba(237, 231, 223, 0.16);
   }
-
-  /* ---------- controls overlay ---------- */
 
   .controls {
-    position: absolute;
-    inset: auto 0 0;
-    padding: 1.4rem 1.6rem 1.8rem;
+    position: absolute; inset: auto 0 0; padding: 1.3rem 1.5rem 1.7rem;
     background: linear-gradient(to top, rgba(6, 9, 8, 0.97) 55%, transparent);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
+    opacity: 0; visibility: hidden; transform: translateY(10px);
     transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
   }
-
   .controls.is-on { opacity: 1; visibility: visible; transform: none; }
 
-  .wave {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    height: 26px;
-    margin-bottom: 0.9rem;
-  }
-
-  .wave span {
-    flex: 1;
-    background: rgba(237, 231, 223, 0.16);
-    border-radius: 1px;
-    min-height: 2px;
-  }
-
+  .wave { display: flex; align-items: center; gap: 2px; height: 26px; margin-bottom: 0.85rem; }
+  .wave span { flex: 1; background: rgba(237, 231, 223, 0.16); border-radius: 1px; min-height: 2px; }
   .wave span.is-played { background: rgba(217, 142, 82, 0.55); }
 
   .times {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    color: rgba(237, 231, 223, 0.32);
-    font-variant-numeric: tabular-nums;
-    margin-bottom: 1.1rem;
+    display: flex; justify-content: space-between; font-family: var(--mono);
+    font-size: 0.58rem; color: rgba(237, 231, 223, 0.32);
+    font-variant-numeric: tabular-nums; margin-bottom: 1rem;
   }
 
-  .transport {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.6rem;
-  }
-
+  .transport { display: flex; align-items: center; justify-content: center; gap: 1.6rem; }
   .tbtn {
-    background: none;
-    border: none;
-    color: rgba(237, 231, 223, 0.62);
-    cursor: pointer;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
-    display: grid;
-    place-items: center;
-    gap: 0.3rem;
-    padding: 0.3rem;
+    background: none; border: none; color: rgba(237, 231, 223, 0.62); cursor: pointer;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.06em;
+    display: grid; place-items: center; gap: 0.28rem; padding: 0.3rem;
   }
-
   .tbtn:hover, .tbtn:focus-visible { color: var(--ink); outline: none; }
-
-  .tbtn--main {
-    width: 52px;
-    height: 52px;
-    border: 1px solid rgba(237, 231, 223, 0.24);
-    border-radius: 50%;
-  }
+  .tbtn-main { width: 52px; height: 52px; border: 1px solid rgba(237, 231, 223, 0.24); border-radius: 50%; }
 
   .escape {
-    margin-top: 1.2rem;
-    width: 100%;
-    padding: 0.65rem;
-    border-radius: 8px;
-    border: 1px solid rgba(127, 168, 160, 0.35);
-    background: rgba(127, 168, 160, 0.07);
-    color: var(--glacier);
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
+    margin-top: 1.1rem; width: 100%; padding: 0.62rem; border-radius: 8px;
+    border: 1px solid rgba(127, 168, 160, 0.35); background: rgba(127, 168, 160, 0.07);
+    color: var(--glacier); font-family: var(--mono); font-size: 0.6rem;
+    letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
   }
-
   .escape:hover, .escape:focus-visible { background: rgba(127, 168, 160, 0.15); outline: none; }
 
-  /* ---------- close ---------- */
-
+  /* ---------- close + reflect ---------- */
+  .anchor-mark { width: 22px; height: 1px; background: var(--ember); margin-bottom: 1.2rem; }
   .anchor {
-    font-family: var(--serif);
-    font-size: 1.35rem;
-    line-height: 1.4;
-    font-style: italic;
-    color: rgba(237, 231, 223, 0.88);
-    text-wrap: balance;
-    margin: 0;
+    font-family: var(--serif); font-size: 1.25rem; line-height: 1.4; font-style: italic;
+    color: rgba(237, 231, 223, 0.88); text-wrap: balance; margin: 0 0 2rem;
   }
-
-  .anchor-mark {
-    width: 22px;
-    height: 1px;
-    background: var(--ember);
-    margin-bottom: 1.4rem;
+  .reflect-box {
+    border-top: 1px solid rgba(237, 231, 223, 0.09); padding-top: 1.2rem;
+  }
+  .reflect-q {
+    font-family: var(--serif); font-size: 0.98rem; line-height: 1.35;
+    color: rgba(237, 231, 223, 0.7); margin: 0 0 0.75rem;
+  }
+  .reflect-tools { display: flex; gap: 0.45rem; align-items: center; }
+  .mic-btn {
+    width: 40px; height: 40px; flex: none; border-radius: 50%;
+    border: 1px solid rgba(217, 142, 82, 0.45); background: rgba(217, 142, 82, 0.08);
+    color: var(--ember); display: grid; place-items: center; cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .mic-btn:hover, .mic-btn:focus-visible { background: rgba(217, 142, 82, 0.2); outline: none; }
+  .reflect-in {
+    flex: 1; background: #131A18; border: 1px solid rgba(237, 231, 223, 0.1);
+    border-radius: 9px; padding: 0.55rem 0.7rem; font-family: var(--serif);
+    font-size: 0.8rem; color: rgba(237, 231, 223, 0.35);
   }
 
   /* ---------- onboarding ---------- */
-
-  .opts { display: flex; flex-direction: column; gap: 0.5rem; }
-
+  .opts { display: flex; flex-direction: column; gap: 0.45rem; }
   .opt {
-    text-align: left;
-    background: #131A18;
-    border: 1px solid rgba(237, 231, 223, 0.09);
-    border-radius: 10px;
-    padding: 0.8rem 0.9rem;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    transition: border-color 0.25s ease;
+    text-align: left; background: #131A18; border: 1px solid rgba(237, 231, 223, 0.09);
+    border-radius: 9px; padding: 0.75rem 0.85rem; color: inherit; font: inherit;
+    cursor: pointer; transition: border-color 0.25s ease;
   }
-
   .opt:hover, .opt:focus-visible { border-color: rgba(127, 168, 160, 0.5); outline: none; }
-
-  .opt-name { font-family: var(--serif); font-size: 0.95rem; }
-
-  .opt-desc {
-    font-size: 0.72rem;
-    line-height: 1.45;
-    color: rgba(237, 231, 223, 0.44);
-    margin-top: 0.15rem;
+  .opt-n { font-family: var(--serif); font-size: 0.92rem; display: block; }
+  .opt-d {
+    font-size: 0.7rem; line-height: 1.45; color: rgba(237, 231, 223, 0.42);
+    display: block; margin-top: 0.15rem;
   }
-
-  .dots { display: flex; gap: 5px; margin-bottom: 1.5rem; }
+  .dots { display: flex; gap: 5px; margin-bottom: 1.3rem; }
   .dot { width: 16px; height: 2px; background: rgba(237, 231, 223, 0.14); border-radius: 2px; }
   .dot.is-on { background: var(--ember); }
 
   /* ---------- right column ---------- */
-
-  .rail { display: flex; flex-direction: column; gap: 1.75rem; }
-
-  .flow { display: flex; flex-direction: column; gap: 0; }
-
+  .flow { display: flex; flex-direction: column; }
   .flow-item {
-    display: grid;
-    grid-template-columns: 2.6rem 1fr;
-    gap: 0.9rem;
-    align-items: start;
-    text-align: left;
-    background: none;
-    border: none;
-    border-top: 1px solid var(--line);
-    padding: 0.85rem 0.25rem;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
+    display: grid; grid-template-columns: 2.6rem 1fr; gap: 0.9rem; align-items: start;
+    text-align: left; background: none; border: none; border-top: 1px solid var(--line);
+    padding: 0.85rem 0.25rem; color: inherit; font: inherit; cursor: pointer;
     transition: background 0.2s ease;
   }
-
   .flow-item:last-child { border-bottom: 1px solid var(--line); }
   .flow-item:hover, .flow-item:focus-visible { background: rgba(217, 142, 82, 0.05); outline: none; }
-
   .flow-num {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    color: var(--muted);
-    padding-top: 0.28rem;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--mono); font-size: 0.64rem; color: var(--muted);
+    padding-top: 0.3rem; font-variant-numeric: tabular-nums;
   }
-
   .flow-item.is-active .flow-num { color: var(--ember); }
-
   .flow-name {
-    font-family: var(--serif);
-    font-size: 1.05rem;
-    line-height: 1.3;
-    color: var(--muted);
-    transition: color 0.2s ease;
+    font-family: var(--serif); font-size: 1.05rem; line-height: 1.3;
+    color: var(--muted); transition: color 0.2s ease;
   }
-
   .flow-item.is-active .flow-name { color: var(--ink); }
-
   .flow-note {
-    font-size: 0.82rem;
-    line-height: 1.5;
-    color: var(--muted);
-    margin-top: 0.2rem;
-    max-width: 54ch;
+    font-size: 0.82rem; line-height: 1.5; color: var(--muted);
+    margin-top: 0.2rem; max-width: 54ch;
   }
-
   .flow-item:not(.is-active) .flow-note { display: none; }
-
-  .note-tag {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ember);
-    border: 1px solid rgba(217, 142, 82, 0.35);
-    border-radius: 999px;
-    padding: 0.12rem 0.5rem;
-    margin-top: 0.55rem;
+  .flow-lay {
+    display: inline-block; font-family: var(--mono); font-size: 0.55rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--glacier);
+    border: 1px solid rgba(127, 168, 160, 0.35); border-radius: 999px;
+    padding: 0.1rem 0.45rem; margin-top: 0.5rem;
   }
 
-  /* ---------- doc sections ---------- */
-
+  /* ---------- doc ---------- */
   .doc { margin-top: clamp(4rem, 9vw, 7rem); }
-
   .doc h2 {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
-    letter-spacing: -0.01em;
-    margin: 0 0 1.5rem;
-    padding-bottom: 0.75rem;
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    letter-spacing: -0.01em; margin: 0 0 1.4rem; padding-bottom: 0.7rem;
     border-bottom: 1px solid var(--line);
   }
+  .doc-lede { color: var(--muted); max-width: 62ch; margin: 0 0 1.75rem; font-size: 0.95rem; }
 
-  .cols {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 1.5rem 2rem;
+  .tbl { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  .tbl th {
+    text-align: left; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ember); font-weight: 400;
+    padding: 0 0.9rem 0.6rem 0; border-bottom: 1px solid var(--line);
   }
+  .tbl td { padding: 0.65rem 0.9rem 0.65rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tbl td.t-name { font-family: var(--serif); font-size: 1rem; color: var(--ink); white-space: nowrap; }
+  .tbl td.t-cats { color: var(--muted); }
+  .tbl-wrap { overflow-x: auto; }
 
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.5rem 2rem; }
   .card h3 {
-    font-family: var(--sans);
-    font-size: 0.76rem;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--ember);
-    margin: 0 0 0.5rem;
+    font-family: var(--sans); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ember); margin: 0 0 0.45rem;
   }
-
-  .card p { margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--muted); }
-  .card p + p { margin-top: 0.6rem; }
+  .card p { margin: 0; font-size: 0.87rem; line-height: 1.6; color: var(--muted); }
+  .card p + p { margin-top: 0.55rem; }
   .card strong { color: var(--ink); font-weight: 500; }
 
-  .swatches {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .sw { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-  .sw-chip { height: 52px; }
-  .sw-meta { padding: 0.5rem 0.6rem; }
-
-  .sw-name {
-    font-family: var(--sans);
-    font-size: 0.76rem;
-    display: block;
-  }
-
-  .sw-hex {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .never {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.25rem;
-  }
-
+  .never { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; }
   .never li {
-    list-style: none;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    padding: 0.3rem 0.65rem;
-    border: 1px dashed var(--line-strong);
-    border-radius: 999px;
-    color: var(--muted);
-    text-decoration: line-through;
+    list-style: none; font-family: var(--mono); font-size: 0.66rem;
+    padding: 0.28rem 0.6rem; border: 1px dashed var(--line-strong); border-radius: 999px;
+    color: var(--muted); text-decoration: line-through;
     text-decoration-color: rgba(217, 142, 82, 0.55);
   }
 
-  .never-wrap { padding: 0; margin: 0; }
-
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
-      animation-duration: 0.001ms !important;
-      animation-iteration-count: 1 !important;
+      animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
     }
   }
@@ -825,10 +490,29 @@
 <div class="wrap">
 
   <header class="masthead">
-    <p class="eyebrow">UX Prototype · V1 · Working title</p>
-    <h1>Structure is fixed. <em>The words are alive.</em></h1>
-    <p>An audio-first guided visualization engine. Tap through the device — every screen
-      is interactive, and the notes on the right update as you go.</p>
+    <p class="eyebrow">UX Prototype · V2 · Working title</p>
+    <h1>Pick broadly. <em>Then get asked better questions.</em></h1>
+    <p>The category routes you. The follow-ons make the session specific. Memory sits
+      underneath both, built from what you say at the end. Tap through the device —
+      the notes on the right follow along.</p>
+
+    <div class="layers">
+      <div class="layer">
+        <span class="layer-n">LAYER 1</span>
+        <span class="layer-t">Category</span>
+        <span class="layer-d">Broad set, one tap. Routes to a template — nothing more.</span>
+      </div>
+      <div class="layer">
+        <span class="layer-n">LAYER 2</span>
+        <span class="layer-t">Amplify</span>
+        <span class="layer-d">Questions off that category, or just talk. Fills the template with specifics.</span>
+      </div>
+      <div class="layer">
+        <span class="layer-n">LAYER 3</span>
+        <span class="layer-t">Memory</span>
+        <span class="layer-d">Past sessions inform both, silently. Fed by what you say at the close.</span>
+      </div>
+    </div>
   </header>
 
   <div class="stage">
@@ -836,188 +520,216 @@
     <!-- ============ DEVICE ============ -->
     <div class="device-col">
       <div class="device">
-        <div class="device-screen" id="screen">
+        <div class="device-screen">
 
           <!-- 0 · ONBOARDING -->
           <section class="s is-on" data-screen="0">
-            <div class="s-status"><span>9:41</span><span>􀙇 􀛨</span></div>
+            <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
             <div class="dots"><i class="dot is-on"></i><i class="dot"></i><i class="dot"></i></div>
             <p class="s-eyebrow">One time only</p>
             <h2 class="s-title">When you picture a place, how much do you actually see?</h2>
             <div class="opts">
               <button class="opt" data-go="1">
-                <span class="opt-name">Vividly, like a photograph</span>
-                <span class="opt-desc">Rich sensory detail, colour, light</span>
+                <span class="opt-n">Vividly, like a photograph</span>
+                <span class="opt-d">Rich sensory detail, colour, light</span>
               </button>
               <button class="opt" data-go="1">
-                <span class="opt-name">Somewhat — impressions more than images</span>
-                <span class="opt-desc">Moderate detail, more feeling than picture</span>
+                <span class="opt-n">Somewhat — impressions more than images</span>
+                <span class="opt-d">Moderate detail, more feeling than picture</span>
               </button>
               <button class="opt" data-go="1">
-                <span class="opt-name">Not really — I know it without seeing it</span>
-                <span class="opt-desc">Language shifts to sensation and knowing</span>
+                <span class="opt-n">Not really — I know it without seeing it</span>
+                <span class="opt-d">Language shifts to sensation and knowing</span>
               </button>
             </div>
-            <div class="s-foot">
-              <p class="s-body" style="margin:0;font-size:0.73rem;">Asked once. Never again.</p>
-            </div>
+            <div class="s-foot"><p class="s-note">Asked once. Never again.</p></div>
           </section>
 
           <!-- 1 · HOME -->
           <section class="s" data-screen="1">
-            <div class="s-status"><span>9:41</span><span>􀙇 􀛨</span></div>
+            <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
             <p class="s-eyebrow">Thursday evening</p>
-            <h2 class="s-title">What do you need?</h2>
-            <div class="tiles">
-              <button class="tile tile--resume" data-go="3">
-                <span class="tile-top">
-                  <span class="tile-name">Return to the boathouse</span>
-                  <span class="tile-dur">4th visit</span>
-                </span>
-                <span class="tile-desc">Your safe place. One new detail each time.</span>
+            <h2 class="s-title" style="margin-bottom:0.9rem;">What do you need?</h2>
+
+            <div class="s-scroll">
+              <button class="resume" data-go="4">
+                <span class="resume-n">Return to the boathouse</span>
+                <span class="resume-d">Your safe place · 4th visit</span>
               </button>
-              <button class="tile" data-go="3">
-                <span class="tile-top">
-                  <span class="tile-name">Just breathing</span>
-                  <span class="tile-dur">3–10 min</span>
-                </span>
-                <span class="tile-desc">No story. Paced breath and quiet.</span>
-              </button>
-              <button class="tile" data-go="2">
-                <span class="tile-top">
-                  <span class="tile-name">Something coming up</span>
-                  <span class="tile-dur">10–15 min</span>
-                </span>
-                <span class="tile-desc">Walk through it before it happens.</span>
-              </button>
-              <button class="tile" data-go="3">
-                <span class="tile-top">
-                  <span class="tile-name">Go somewhere</span>
-                  <span class="tile-dur">12–20 min</span>
-                </span>
-                <span class="tile-desc">A real place, entered slowly.</span>
-              </button>
-              <button class="tile tile--open" data-go="2">
-                <span class="tile-top">
-                  <span class="tile-name">Something else</span>
-                  <span class="tile-dur">Say it</span>
-                </span>
-              </button>
+
+              <span class="group-h">Settle</span>
+              <div class="grid">
+                <button class="cat" data-go="4"><span class="cat-n">Just breathing</span><span class="cat-d">3–10 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Body scan</span><span class="cat-d">8–12 MIN</span></button>
+              </div>
+
+              <span class="group-h">Go somewhere</span>
+              <div class="grid">
+                <button class="cat" data-go="2"><span class="cat-n">Nature</span><span class="cat-d">12–20 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Adventure</span><span class="cat-d">12–20 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Fantasy</span><span class="cat-d">12–25 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Into sleep</span><span class="cat-d">30–45 MIN</span></button>
+              </div>
+
+              <span class="group-h">Prepare</span>
+              <div class="grid">
+                <button class="cat" data-go="2"><span class="cat-n">Interview</span><span class="cat-d">10–15 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Competition</span><span class="cat-d">10–15 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Hard conversation</span><span class="cat-d">10–15 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Confidence</span><span class="cat-d">8–12 MIN</span></button>
+              </div>
+
+              <span class="group-h">Reflect</span>
+              <div class="grid">
+                <button class="cat" data-go="2"><span class="cat-n">Gratitude</span><span class="cat-d">8–12 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Creativity</span><span class="cat-d">10–15 MIN</span></button>
+              </div>
+
+              <button class="talk" data-go="3">Or just talk to me →</button>
+              <div style="height:0.5rem;"></div>
             </div>
           </section>
 
-          <!-- 2 · DESCRIBE -->
+          <!-- 2 · AMPLIFY -->
           <section class="s" data-screen="2">
-            <div class="s-status"><span>9:41</span><span>􀙇 􀛨</span></div>
+            <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
             <button class="back" data-go="1">← back</button>
-            <div style="height:1.4rem;"></div>
-            <p class="s-eyebrow">Something coming up</p>
-            <h2 class="s-title">Tell me about it.</h2>
-            <div class="fake-input">Final round interview tomorrow at 9<span class="caret"></span></div>
-            <div class="chips">
-              <button class="chip">interview</button>
-              <button class="chip">hard conversation</button>
-              <button class="chip">competition</button>
-              <button class="chip">appointment</button>
-            </div>
-            <div class="input-tools">
-              <button class="mic" aria-label="Speak instead">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <div style="height:1.3rem;"></div>
+            <p class="s-eyebrow">Competition</p>
+            <h2 class="s-title" style="margin-bottom:1rem;">A few things and we'll go.</h2>
+
+            <div class="s-scroll">
+              <div class="q">
+                <p class="q-t">What's the moment you're actually dreading?</p>
+                <div class="chips">
+                  <button class="chip">the wait before</button>
+                  <button class="chip is-picked">first touch</button>
+                  <button class="chip">a mistake</button>
+                  <button class="chip">the end</button>
+                </div>
+              </div>
+
+              <div class="q">
+                <p class="q-t">Who's watching?</p>
+                <div class="chips">
+                  <button class="chip">no one</button>
+                  <button class="chip">family</button>
+                  <button class="chip">scouts</button>
+                  <button class="chip">a full touchline</button>
+                </div>
+              </div>
+
+              <div class="q">
+                <p class="q-t">How long have we got?</p>
+                <div class="chips">
+                  <button class="chip">10 min</button>
+                  <button class="chip is-mem">14 min</button>
+                  <button class="chip">20 min</button>
+                </div>
+                <p class="mem-note">Your usual, from the last six sessions</p>
+              </div>
+
+              <button class="say">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                   <rect x="9" y="2" width="6" height="12" rx="3"></rect>
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
                 </svg>
+                or just describe it
               </button>
-              <span class="s-body" style="margin:0;font-size:0.72rem;">or say it out loud</span>
             </div>
+
             <div class="s-foot">
-              <button class="btn" data-go="3">Continue</button>
+              <button class="btn" data-go="4">Begin</button>
+              <button class="btn-ghost" data-go="4">Skip — surprise me</button>
             </div>
           </section>
 
-          <!-- 3 · CONFIRM + ONE QUESTION -->
+          <!-- 3 · CHAT -->
           <section class="s" data-screen="3">
-            <div class="s-status"><span>9:41</span><span>􀙇 􀛨</span></div>
-            <button class="back" data-go="2">← back</button>
-            <div style="height:1.4rem;"></div>
-            <p class="s-eyebrow">Before we start</p>
-            <p class="reflect">Tomorrow's a big one.</p>
-            <div class="qbox">
-              <p>Do you want to walk through it — or get some distance from it?</p>
-              <div class="chips">
-                <button class="chip" data-go="4">Walk through it</button>
-                <button class="chip" data-go="4">Get some distance</button>
+            <div class="s-status"><span>9:41</span><span>▫ ▫</span></div>
+            <button class="back" data-go="1">← back</button>
+            <div style="height:1.3rem;"></div>
+            <p class="s-eyebrow">Talking</p>
+            <div class="s-scroll">
+              <div class="thread">
+                <p class="msg msg-app">What's going on?</p>
+                <p class="msg msg-me">playoff game saturday and i keep replaying last year</p>
+                <p class="msg msg-app">Last year — the miss, or what came after it?</p>
+                <p class="msg msg-me">after. the walk off</p>
+                <p class="msg msg-app">Then we'll do the walk off differently. Same pitch, same
+                  people, you leave it another way.</p>
+                <div class="typing"><i></i><i></i><i></i></div>
               </div>
-              <p class="qskip">No answer in a few seconds → we begin anyway.</p>
-            </div>
-            <div class="nudges">
-              <button class="chip">shorter</button>
-              <button class="chip">longer</button>
             </div>
             <div class="s-foot">
-              <button class="btn" data-go="4">Begin · 12 min</button>
+              <button class="btn" data-go="4">Begin · 14 min</button>
+              <p class="s-note" style="text-align:center;margin-top:0.6rem;">
+                Same layer as the questions — different way in.</p>
             </div>
           </section>
 
           <!-- 4 · PLAYBACK -->
-          <section class="s s--dark" data-screen="4">
+          <section class="s s-dark" data-screen="4">
             <div class="beat-rail">
-              <i class="beat is-now"></i><i class="beat"></i><i class="beat"></i>
+              <i class="beat is-done"></i><i class="beat is-now"></i><i class="beat"></i>
               <i class="beat"></i><i class="beat"></i><i class="beat"></i>
             </div>
             <div class="pacer-zone">
-              <div class="pacer" id="pacer">
-                <span class="pacer-label" id="pacerLabel">in</span>
-              </div>
+              <div class="pacer" id="pacer"><span class="pacer-label" id="pacerLabel">in</span></div>
             </div>
             <p class="narration" id="narration">You notice the weight of your own hands.</p>
             <p class="tap-hint">Tap anywhere for controls</p>
 
             <div class="controls" id="controls">
               <div class="wave" id="wave"></div>
-              <div class="times"><span>2:14</span><span>−9:46</span></div>
+              <div class="times"><span>3:08</span><span>−10:52</span></div>
               <div class="transport">
                 <button class="tbtn" aria-label="Back 15 seconds">
                   <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 6V2L6 6l5 4V7a6 6 0 1 1-6 6"></path>
-                  </svg>
-                  15
+                  </svg>15
                 </button>
-                <button class="tbtn tbtn--main" aria-label="Pause">
+                <button class="tbtn tbtn-main" aria-label="Pause">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="4" width="4" height="16" rx="1"></rect>
                     <rect x="14" y="4" width="4" height="16" rx="1"></rect>
                   </svg>
                 </button>
-                <button class="tbtn" data-go="6" aria-label="End session">
+                <button class="tbtn" data-go="5" aria-label="End session">
                   <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path>
-                  </svg>
-                  end
+                  </svg>end
                 </button>
               </div>
-              <button class="escape" data-go="5">Take me back to breathing</button>
+              <button class="escape" data-go="4">Take me back to breathing</button>
             </div>
           </section>
 
-          <!-- 5 · ESCAPE HATCH -->
-          <section class="s s--dark" data-screen="5">
-            <div class="pacer-zone">
-              <div class="pacer" id="pacer2">
-                <span class="pacer-label" id="pacerLabel2">out</span>
-              </div>
-            </div>
-            <p class="narration">Nothing to picture. Just the breath, and the chair holding you.</p>
-            <p class="tap-hint">Grounding · cached audio · no generation</p>
-          </section>
-
-          <!-- 6 · CLOSE -->
-          <section class="s" data-screen="6">
-            <div class="s-status"><span>9:53</span><span>􀙇 􀛨</span></div>
+          <!-- 5 · CLOSE + REFLECT -->
+          <section class="s" data-screen="5">
+            <div class="s-status"><span>9:56</span><span>▫ ▫</span></div>
             <div style="flex:1;"></div>
             <div class="anchor-mark"></div>
-            <p class="anchor">You have already been in that room. Tomorrow is just the second time.</p>
+            <p class="anchor">You have already walked off that pitch once tonight. Saturday is
+              just the second time.</p>
+
+            <div class="reflect-box">
+              <p class="reflect-q">Anything you want to keep from that?</p>
+              <div class="reflect-tools">
+                <button class="mic-btn" aria-label="Speak your reflection">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="9" y="2" width="6" height="12" rx="3"></rect>
+                    <path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
+                  </svg>
+                </button>
+                <div class="reflect-in">say it, or type it</div>
+              </div>
+              <p class="s-note" style="margin-top:0.7rem;">No stars, no score. This is the only
+                thing that teaches it.</p>
+            </div>
+
             <div class="s-foot">
-              <button class="btn btn--ghost" data-go="1">Done</button>
+              <button class="btn-ghost" data-go="1">Done</button>
             </div>
           </section>
 
@@ -1026,95 +738,87 @@
       <p class="device-caption" id="deviceCaption">Onboarding · asked once</p>
     </div>
 
-    <!-- ============ FLOW NOTES ============ -->
-    <div class="rail">
-      <div>
-        <p class="eyebrow">The flow</p>
-        <div class="flow" id="flow">
+    <!-- ============ NOTES ============ -->
+    <div>
+      <p class="eyebrow">The flow</p>
+      <div class="flow" id="flow">
 
-          <button class="flow-item is-active" data-go="0">
-            <span class="flow-num">01</span>
-            <span>
-              <span class="flow-name">Onboarding</span>
-              <span class="flow-note">Three questions, once: sensory density, voice, typical length.
-                The first one can't be learned implicitly — someone with aphantasia who's told to
-                "picture the light on the water" gets nothing, and the first session is the one that
-                decides whether they come back.
-                <span class="note-tag">The only ratings we ever ask for</span>
-              </span>
+        <button class="flow-item is-active" data-go="0">
+          <span class="flow-num">01</span>
+          <span>
+            <span class="flow-name">Onboarding</span>
+            <span class="flow-note">Three questions, once: sensory density, voice, typical
+              length. The first can't be learned implicitly — someone with aphantasia told to
+              "picture the light on the water" gets nothing, and session one decides whether
+              they come back.</span>
+          </span>
+        </button>
+
+        <button class="flow-item" data-go="1">
+          <span class="flow-num">02</span>
+          <span>
+            <span class="flow-name">Category</span>
+            <span class="flow-note">Fourteen tiles in four groups. Broad on purpose — you
+              shouldn't have to translate "playoff game Saturday" into a taxonomy. The breadth
+              is nearly free: fourteen categories sit on five templates, and template count is
+              the real build cost.
+              <span class="flow-lay">Layer 1 · routes only</span>
             </span>
-          </button>
+          </span>
+        </button>
 
-          <button class="flow-item" data-go="1">
-            <span class="flow-num">02</span>
-            <span>
-              <span class="flow-name">Home</span>
-              <span class="flow-note">Category-first, not a blank text box. Mid-spiral you can tap a
-                tile; composing a sentence about what you need is often exactly the thing you can't
-                do. "Something else" keeps open input for the people who want it.
-                <span class="note-tag">Overrules "no menus" in all three drafts</span>
-              </span>
+        <button class="flow-item" data-go="2">
+          <span class="flow-num">03</span>
+          <span>
+            <span class="flow-name">Amplify</span>
+            <span class="flow-note">Now that routing is settled, the questions can do real work.
+              "What moment are you actually dreading" is the highest-value question in the
+              product — it turns a generic competition rehearsal into the specific thirty
+              seconds keeping you up. Every question is skippable; the teal chip is memory
+              pre-filling an answer.
+              <span class="flow-lay">Layer 2 · fills the template</span>
             </span>
-          </button>
+          </span>
+        </button>
 
-          <button class="flow-item" data-go="2">
-            <span class="flow-num">03</span>
-            <span>
-              <span class="flow-name">Describe</span>
-              <span class="flow-note">Free text inside a known category — elaboration, not
-                classification. Chips are there for when typing is too much. Voice is equal, not a
-                secondary affordance.</span>
+        <button class="flow-item" data-go="3">
+          <span class="flow-num">04</span>
+          <span>
+            <span class="flow-name">Or just talk</span>
+            <span class="flow-note">Same layer, different modality. Some people would rather say
+              it than tap it, and conversation surfaces things chips can't — "the walk off, not
+              the miss" is a detail no question set would have thought to ask for.
+              <span class="flow-lay">Layer 2 · alternate route</span>
             </span>
-          </button>
+          </span>
+        </button>
 
-          <button class="flow-item" data-go="3">
-            <span class="flow-num">04</span>
-            <span>
-              <span class="flow-name">Confirm · one question</span>
-              <span class="flow-note">The reflect-back is the only chance to catch a misread before
-                committing 12 minutes. And "huge interview tomorrow" is genuinely two different
-                sessions — rehearsal or escape — which no classifier can resolve. So we ask, once,
-                the way a friend would. Always skippable.
-                <span class="note-tag">Max one question per session</span>
-              </span>
+        <button class="flow-item" data-go="4">
+          <span class="flow-num">05</span>
+          <span>
+            <span class="flow-name">Playback</span>
+            <span class="flow-note">Screen goes dark, cached grounding intro starts in ~200ms —
+              which is why there's no loading state anywhere. The intro is the loading state,
+              buying 15–25s for the script while beats synthesize in parallel. Controls are
+              tap-to-reveal and leave on their own. Exit to breathing is always one tap, no
+              confirmation, cached audio so it works even if generation failed.</span>
+          </span>
+        </button>
+
+        <button class="flow-item" data-go="5">
+          <span class="flow-num">06</span>
+          <span>
+            <span class="flow-name">Close &amp; reflect</span>
+            <span class="flow-note">The anchor line lands first. Then one open question — spoken
+              or typed, always skippable. This isn't a rating and it isn't engagement bait: the
+              session is over, so there's no mood left to break. It's the only place the system
+              gets language about what actually worked, which skip-and-replay data could never
+              produce.
+              <span class="flow-lay">Layer 3 · feeds memory</span>
             </span>
-          </button>
+          </span>
+        </button>
 
-          <button class="flow-item" data-go="4">
-            <span class="flow-num">05</span>
-            <span>
-              <span class="flow-name">Playback</span>
-              <span class="flow-note">Screen goes dark and the cached grounding intro starts in
-                ~200ms — which is why there's no loading state anywhere in this flow. The intro is
-                the loading state, and it buys 15–25s for the script while beats synthesize in
-                parallel. Controls are tap-to-reveal and fade after four seconds.
-                <span class="note-tag">The intro is the latency mask</span>
-              </span>
-            </span>
-          </button>
-
-          <button class="flow-item" data-go="5">
-            <span class="flow-num">06</span>
-            <span>
-              <span class="flow-name">Exit to breathing</span>
-              <span class="flow-note">Always reachable, one tap, no confirmation dialog. If imagery
-                goes somewhere bad, the way out has to be faster than the thought. Runs on cached
-                audio, so it works even if generation has failed.
-                <span class="note-tag">Non-negotiable for trauma-adjacent use</span>
-              </span>
-            </span>
-          </button>
-
-          <button class="flow-item" data-go="6">
-            <span class="flow-num">07</span>
-            <span>
-              <span class="flow-name">Close</span>
-              <span class="flow-note">One line to carry out. No score, no streak, no "you've
-                meditated 4 days in a row." The session ends the way it started — quietly.</span>
-            </span>
-          </button>
-
-        </div>
       </div>
     </div>
   </div>
@@ -1122,89 +826,78 @@
   <!-- ============ DOCS ============ -->
 
   <section class="doc">
-    <h2>Where the palette comes from</h2>
-    <div class="cols" style="margin-bottom:2rem;">
-      <div class="card">
-        <p>The craft standard says to write with contrast and asymmetry — <strong>warm on one
-          side of the face, cool on the other</strong>. The interface is built from the same
-          two temperatures against a night ground: ember for what's active and warm,
-          glacier for what's safe and cool.</p>
-        <p>Ember marks progress and intent. Glacier marks safety and continuity — the
-          returning safe place, the exit to breathing. They never do each other's job.</p>
-      </div>
-      <div class="card">
-        <p>The page follows your system theme. <strong>The device screen never
-          does.</strong> The app is dark-only — not a preference. A product about reducing
-          screen time, used mostly at night and in bed, has no business having a light mode.</p>
-      </div>
-    </div>
-    <div class="swatches">
-      <div class="sw"><div class="sw-chip" style="background:#0A0E0D;"></div>
-        <div class="sw-meta"><span class="sw-name">Night ground</span><span class="sw-hex">#0A0E0D</span></div></div>
-      <div class="sw"><div class="sw-chip" style="background:#131A18;"></div>
-        <div class="sw-meta"><span class="sw-name">Surface</span><span class="sw-hex">#131A18</span></div></div>
-      <div class="sw"><div class="sw-chip" style="background:#D98E52;"></div>
-        <div class="sw-meta"><span class="sw-name">Ember</span><span class="sw-hex">#D98E52</span></div></div>
-      <div class="sw"><div class="sw-chip" style="background:#7FA8A0;"></div>
-        <div class="sw-meta"><span class="sw-name">Glacier</span><span class="sw-hex">#7FA8A0</span></div></div>
-      <div class="sw"><div class="sw-chip" style="background:#EDE7DF;"></div>
-        <div class="sw-meta"><span class="sw-name">Warm ink</span><span class="sw-hex">#EDE7DF</span></div></div>
+    <h2>Fourteen categories, five templates</h2>
+    <p class="doc-lede">Breadth on the surface is cheap. Every category maps to one of five
+      beat structures — so adding "Adventure" beside "Nature" costs one prompt constraint,
+      not a new pipeline.</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Template</th><th>Shape</th><th>Categories</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="t-name">Breath only</td>
+            <td>Settle → pace → return</td>
+            <td class="t-cats">Just breathing</td>
+          </tr>
+          <tr>
+            <td class="t-name">Anchored place</td>
+            <td>Return → deepen → anchor</td>
+            <td class="t-cats">Safe place</td>
+          </tr>
+          <tr>
+            <td class="t-name">Immersive</td>
+            <td>Arrival → movement → stillness</td>
+            <td class="t-cats">Nature · Adventure · Fantasy · Into sleep</td>
+          </tr>
+          <tr>
+            <td class="t-name">Rehearsal</td>
+            <td>Approach → event → aftermath</td>
+            <td class="t-cats">Interview · Competition · Hard conversation · Confidence</td>
+          </tr>
+          <tr>
+            <td class="t-name">Reflective</td>
+            <td>Noticing, non-narrative</td>
+            <td class="t-cats">Body scan · Gratitude · Creativity</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
   <section class="doc">
-    <h2>Rules the interface follows</h2>
+    <h2>What memory does and doesn't carry</h2>
     <div class="cols">
       <div class="card">
-        <h3>No loading state</h3>
-        <p>Anywhere. The cached grounding intro plays while the script generates and beats
-          synthesize in parallel. If the user ever sees a spinner, the architecture has
-          failed.</p>
+        <h3>Carries</h3>
+        <p><strong>Style.</strong> Voice, pacing tolerance, sensory density, preferred length,
+          the kind of detail that lands. Applies whether you're on a ridge or in a tunnel.</p>
       </div>
       <div class="card">
-        <h3>Interface is for selection</h3>
-        <p>Once audio starts the screen is dark and stays dark. Controls exist, but you
-          have to ask for them, and they leave on their own.</p>
+        <h3>Doesn't carry</h3>
+        <p><strong>Content.</strong> Tuesday's fantasy never bleeds into Wednesday's soccer
+          game. Emotional topics are opt-in per session and stay in their lane.</p>
       </div>
       <div class="card">
-        <h3>The exit is always one tap</h3>
-        <p>No confirmation, no "are you sure." Cached audio, so it works even when
-          generation doesn't.</p>
+        <h3>Sessions stand alone</h3>
+        <p>Breathing one night, fantasy the next, a match the third — that's normal use, not
+          a failure to engage. Only Safe Place is continuous, because returning to the same
+          place is the point.</p>
       </div>
       <div class="card">
-        <h3>Never invent the safe place</h3>
-        <p>The user describes it. The system only elaborates within what they gave, and
-          adds exactly one new detail per visit. It never contradicts an established one.</p>
-      </div>
-      <div class="card">
-        <h3>Words are the product</h3>
-        <p>Narration is set in the serif at a readable size even though almost nobody will
-          read it. The one screen where type is decoration is the one where it matters
-          most.</p>
-      </div>
-      <div class="card">
-        <h3>Copy never congratulates</h3>
-        <p>No praise, no encouragement, no "great job." The voice notices things. It does
-          not have opinions about your consistency.</p>
+        <h3>Reflections do the teaching</h3>
+        <p>One line at the close beats any amount of skip-and-replay inference. It's language
+          about what landed, available from session one — which is why personalization can
+          ship in V1 after all.</p>
       </div>
     </div>
   </section>
 
   <section class="doc">
     <h2>Deliberately absent</h2>
-    <ul class="never never-wrap">
-      <li>streaks</li>
-      <li>badges</li>
-      <li>daily goals</li>
-      <li>progress scores</li>
-      <li>push reminders</li>
-      <li>social feed</li>
-      <li>session count</li>
-      <li>"you're on a roll"</li>
-      <li>category browsing</li>
-      <li>star ratings</li>
-      <li>light mode</li>
-      <li>a spinner</li>
+    <ul class="never">
+      <li>streaks</li><li>badges</li><li>daily goals</li><li>progress scores</li>
+      <li>push reminders</li><li>social feed</li><li>session count</li>
+      <li>"you're on a roll"</li><li>star ratings</li><li>light mode</li><li>a spinner</li>
     </ul>
   </section>
 
@@ -1213,57 +906,60 @@
 
 <script>
   (function () {
-    var screens = Array.prototype.slice.call(document.querySelectorAll(".s"));
-    var flowItems = Array.prototype.slice.call(document.querySelectorAll(".flow-item"));
+    var screens = [].slice.call(document.querySelectorAll(".s"));
+    var flowItems = [].slice.call(document.querySelectorAll(".flow-item"));
     var controls = document.getElementById("controls");
     var caption = document.getElementById("deviceCaption");
     var narration = document.getElementById("narration");
 
     var captions = [
       "Onboarding · asked once",
-      "Home · category-first entry",
-      "Describe · free text in category",
-      "Confirm · the one question",
+      "Layer 1 · category",
+      "Layer 2 · amplify",
+      "Layer 2 · just talk",
       "Playback · dark screen",
-      "Exit to breathing · cached",
-      "Close · one line to carry out"
+      "Layer 3 · close & reflect"
     ];
 
-    var current = 0;
     var hideTimer = null;
 
     function go(n) {
-      current = n;
-      screens.forEach(function (s) {
-        s.classList.toggle("is-on", Number(s.dataset.screen) === n);
-      });
-      flowItems.forEach(function (f, i) {
-        f.classList.toggle("is-active", i === n);
-      });
+      screens.forEach(function (s) { s.classList.toggle("is-on", +s.dataset.screen === n); });
+      flowItems.forEach(function (f, i) { f.classList.toggle("is-active", i === n); });
       caption.textContent = captions[n];
       controls.classList.remove("is-on");
       if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+      var sc = document.querySelector('[data-screen="' + n + '"] .s-scroll');
+      if (sc) sc.scrollTop = 0;
     }
 
     document.querySelectorAll("[data-go]").forEach(function (el) {
-      el.addEventListener("click", function (e) {
-        e.stopPropagation();
-        go(Number(el.dataset.go));
+      el.addEventListener("click", function (e) { e.stopPropagation(); go(+el.dataset.go); });
+    });
+
+    // chip toggling within a question group
+    document.querySelectorAll(".q .chips").forEach(function (grp) {
+      grp.querySelectorAll(".chip").forEach(function (c) {
+        c.addEventListener("click", function (e) {
+          e.stopPropagation();
+          grp.querySelectorAll(".chip").forEach(function (o) {
+            o.classList.remove("is-picked", "is-mem");
+          });
+          c.classList.add("is-picked");
+        });
       });
     });
 
-    // tap-to-reveal controls on the playback screen
+    // tap-to-reveal on playback
     var playback = document.querySelector('[data-screen="4"]');
     playback.addEventListener("click", function (e) {
       if (e.target.closest(".controls")) return;
       controls.classList.add("is-on");
       if (hideTimer) clearTimeout(hideTimer);
-      hideTimer = setTimeout(function () {
-        controls.classList.remove("is-on");
-      }, 4000);
+      hideTimer = setTimeout(function () { controls.classList.remove("is-on"); }, 4000);
     });
 
-    // ---- waveform ----
+    // waveform
     var wave = document.getElementById("wave");
     var seed = 7;
     function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
@@ -1271,16 +967,14 @@
       var bar = document.createElement("span");
       var h = 12 + Math.abs(Math.sin(i / 4.5)) * 55 + rnd() * 30;
       bar.style.height = Math.min(100, h) + "%";
-      if (i < 13) bar.className = "is-played";
+      if (i < 18) bar.className = "is-played";
       wave.appendChild(bar);
     }
 
-    // ---- breath pacer: 4s in, 2s hold, 6s out ----
+    // breath pacer — 4s in, 2s hold, 6s out
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var pacers = [
-      { el: document.getElementById("pacer"), label: document.getElementById("pacerLabel") },
-      { el: document.getElementById("pacer2"), label: document.getElementById("pacerLabel2") }
-    ];
+    var pacer = document.getElementById("pacer");
+    var pacerLabel = document.getElementById("pacerLabel");
 
     var lines = [
       "You notice the weight of your own hands.",
@@ -1291,57 +985,38 @@
     var lineIdx = 0;
 
     if (reduce) {
-      pacers.forEach(function (p) {
-        if (p.el) p.el.style.transform = "scale(0.82)";
-        if (p.label) p.label.textContent = "breathe";
-      });
+      pacer.style.transform = "scale(0.82)";
+      pacerLabel.textContent = "breathe";
     } else {
       var IN = 4000, HOLD = 2000, OUT = 6000, CYCLE = IN + HOLD + OUT;
       var start = performance.now();
       var lastCycle = 0;
 
-      var tick = function (now) {
+      function ease(x) { return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+
+      (function tick(now) {
         var t = (now - start) % CYCLE;
-        var cycleNo = Math.floor((now - start) / CYCLE);
+        var cyc = Math.floor((now - start) / CYCLE);
         var scale, text;
 
-        if (t < IN) {
-          scale = 0.6 + 0.4 * easeInOut(t / IN);
-          text = "in";
-        } else if (t < IN + HOLD) {
-          scale = 1;
-          text = "hold";
-        } else {
-          scale = 1 - 0.4 * easeInOut((t - IN - HOLD) / OUT);
-          text = "out";
-        }
+        if (t < IN) { scale = 0.6 + 0.4 * ease(t / IN); text = "in"; }
+        else if (t < IN + HOLD) { scale = 1; text = "hold"; }
+        else { scale = 1 - 0.4 * ease((t - IN - HOLD) / OUT); text = "out"; }
 
-        pacers.forEach(function (p) {
-          if (!p.el) return;
-          p.el.style.transform = "scale(" + scale.toFixed(4) + ")";
-          if (p.label && p.label.textContent !== text) p.label.textContent = text;
-        });
+        pacer.style.transform = "scale(" + scale.toFixed(4) + ")";
+        if (pacerLabel.textContent !== text) pacerLabel.textContent = text;
 
-        if (cycleNo !== lastCycle) {
-          lastCycle = cycleNo;
+        if (cyc !== lastCycle) {
+          lastCycle = cyc;
           lineIdx = (lineIdx + 1) % lines.length;
-          if (narration) {
-            narration.style.opacity = "0";
-            setTimeout(function () {
-              narration.textContent = lines[lineIdx];
-              narration.style.opacity = "";
-            }, 700);
-          }
+          narration.style.opacity = "0";
+          setTimeout(function () {
+            narration.textContent = lines[lineIdx];
+            narration.style.opacity = "";
+          }, 700);
         }
-
         requestAnimationFrame(tick);
-      };
-
-      function easeInOut(x) {
-        return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
-      }
-
-      requestAnimationFrame(tick);
+      })(performance.now());
     }
   })();
 </script>

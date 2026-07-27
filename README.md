@@ -22,13 +22,29 @@ Pre-build. Spec and UX only — no application code yet.
 
 **Next up, in order:**
 
-1. Hand-write 3–5 complete sessions (one per V1 category) as few-shot exemplars and the
+1. Hand-write 3–5 complete sessions (one per template) as few-shot exemplars and the
    craft eval set. This surfaces schema questions no amount of spec work will.
-2. Lock the outline JSON schema and the stem tag enum.
-3. Prove the pipeline shape end to end: 3 LLM calls → script → parallel TTS → mixed render.
+2. Draft the ~35 amplifying questions alongside them — they carry as much craft weight as
+   the narration prompts.
+3. Lock the outline JSON schema and the stem tag enum.
+4. Prove the pipeline shape end to end: 3 LLM calls → script → parallel TTS → mixed render.
 
-## V1 categories
+## Input model
 
-Just Breathing · Safe Place · Upcoming Event · Nature Escape
+```
+1  CATEGORY   broad set, one tap — routes to a template, nothing more
+2  AMPLIFY    questions off that category, or just talk — fills the template
+3  MEMORY     past sessions inform both, fed by end-of-session reflection
+```
 
-Fantasy/Story and Sleep Journeys are deferred — see `SPEC.md` §1.5.
+**Fourteen categories on five templates.** Breadth is cheap; template count is the real
+build cost. See `SPEC.md` §1.5.
+
+| Group | Categories |
+|---|---|
+| Settle | Just breathing · Body scan |
+| Go somewhere | Nature · Adventure · Fantasy · Into sleep |
+| Prepare | Interview · Competition · Hard conversation · Confidence |
+| Reflect | Gratitude · Creativity |
+
+Plus Safe Place as a persistent return, and "just talk to me" as the chat entry.
