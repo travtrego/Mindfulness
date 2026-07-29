@@ -1,0 +1,455 @@
+{
+  "schema_version": "1.0",
+  "template": "rehearsal",
+  "category": "competition",
+  "target_duration_s": 960,
+  "sensitivity_flag": false,
+  "exclusions": {
+    "standing": [],
+    "session": [
+      "missed lifts",
+      "bombing out",
+      "failure raised as a possibility"
+    ]
+  },
+  "slots": {
+    "event": "olympic weightlifting meet, final clean and jerk attempt",
+    "dreaded_moment": "the final attempt itself - a PR",
+    "setting": "convention centre platform",
+    "audience": "meet crowd",
+    "audience_proximity": "present but not addressed",
+    "difficulty": "the clean is slow out of the bottom",
+    "desired_response": "wait for the bounce to finish rather than rushing the stand",
+    "outcome_frame": "succeed",
+    "anchor_action": "one full exhale before the hands go on the bar",
+    "duration_s": 960
+  },
+  "beats": [
+    {
+      "id": "b1_intro",
+      "role": "grounding_intro",
+      "source": "cached",
+      "cached_ref": "intro/standard_settling_v3",
+      "word_target": 61,
+      "wpm": 82,
+      "silence_total_s": 40,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 7
+        },
+        {
+          "type": "transition",
+          "seconds": 12
+        },
+        {
+          "type": "transition",
+          "seconds": 10
+        }
+      ],
+      "do_not_mention": [],
+      "ambience": "none"
+    },
+    {
+      "id": "b2_settling",
+      "role": "settling",
+      "source": "generated",
+      "word_target": 86,
+      "wpm": 85,
+      "silence_total_s": 46,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "transition",
+          "seconds": 10
+        },
+        {
+          "type": "transition",
+          "seconds": 11
+        }
+      ],
+      "beats_on": [
+        "setting"
+      ],
+      "do_not_mention": [
+        "missed lifts",
+        "bombing out"
+      ],
+      "ambience": "none"
+    },
+    {
+      "id": "b3_approach",
+      "role": "approach",
+      "source": "generated",
+      "word_target": 141,
+      "wpm": 90,
+      "silence_total_s": 58,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "sensory",
+          "seconds": 7
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 9
+        },
+        {
+          "type": "sensory",
+          "seconds": 7
+        },
+        {
+          "type": "transition",
+          "seconds": 10
+        }
+      ],
+      "beats_on": [
+        "event",
+        "setting",
+        "audience"
+      ],
+      "do_not_mention": [
+        "missed lifts",
+        "bombing out",
+        "attempt number or remaining attempts",
+        "failure raised as a possibility"
+      ],
+      "ambience": {
+        "stems": [
+          "room_tone_large",
+          "crowd_distant"
+        ],
+        "level": "bed"
+      }
+    },
+    {
+      "id": "b4_setup",
+      "role": "event",
+      "source": "generated",
+      "word_target": 97,
+      "wpm": 72,
+      "silence_total_s": 44,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "transition",
+          "seconds": 7
+        },
+        {
+          "type": "sensory",
+          "seconds": 4
+        },
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 9
+        },
+        {
+          "type": "sensory",
+          "seconds": 5
+        }
+      ],
+      "beats_on": [
+        "anchor_action",
+        "setting"
+      ],
+      "do_not_mention": [
+        "missed lifts",
+        "bombing out",
+        "the weight in kilos"
+      ],
+      "ambience": {
+        "stems": [
+          "crowd_hush"
+        ],
+        "level": "bed"
+      }
+    },
+    {
+      "id": "b5_difficulty",
+      "role": "difficulty_and_response",
+      "source": "generated",
+      "word_target": 117,
+      "wpm": 68,
+      "silence_total_s": 57,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "transition",
+          "seconds": 7
+        },
+        {
+          "type": "transition",
+          "seconds": 9
+        },
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "transition",
+          "seconds": 6
+        },
+        {
+          "type": "hold",
+          "seconds": 11
+        }
+      ],
+      "beats_on": [
+        "difficulty",
+        "desired_response"
+      ],
+      "do_not_mention": [
+        "missed lifts",
+        "bombing out",
+        "failure raised as a possibility",
+        "the outcome being in doubt"
+      ],
+      "ambience": "none"
+    },
+    {
+      "id": "b6_completion",
+      "role": "completion",
+      "source": "generated",
+      "word_target": 83,
+      "wpm": 70,
+      "silence_total_s": 42,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "transition",
+          "seconds": 7
+        },
+        {
+          "type": "transition",
+          "seconds": 9
+        },
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "hold",
+          "seconds": 7
+        }
+      ],
+      "beats_on": [
+        "outcome_frame"
+      ],
+      "do_not_mention": [
+        "missed lifts",
+        "bombing out"
+      ],
+      "ambience": "none"
+    },
+    {
+      "id": "b7_anchor",
+      "role": "anchor",
+      "source": "generated",
+      "word_target": 118,
+      "wpm": 85,
+      "silence_total_s": 55,
+      "silence_plan": [
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 8
+        },
+        {
+          "type": "hold",
+          "seconds": 12
+        },
+        {
+          "type": "sensory",
+          "seconds": 4
+        },
+        {
+          "type": "transition",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 7
+        },
+        {
+          "type": "sensory",
+          "seconds": 4
+        }
+      ],
+      "beats_on": [
+        "anchor_action"
+      ],
+      "do_not_mention": [
+        "any claim about the result",
+        "guaranteeing the lift",
+        "a specific date"
+      ],
+      "ambience": {
+        "stems": [
+          "room_tone_large"
+        ],
+        "level": "bed"
+      }
+    },
+    {
+      "id": "b8_reorientation",
+      "role": "reorientation",
+      "source": "generated",
+      "word_target": 51,
+      "wpm": 88,
+      "silence_total_s": 28,
+      "silence_plan": [
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "sensory",
+          "seconds": 6
+        },
+        {
+          "type": "sensory",
+          "seconds": 5
+        },
+        {
+          "type": "transition",
+          "seconds": 6
+        },
+        {
+          "type": "transition",
+          "seconds": 6
+        }
+      ],
+      "do_not_mention": [],
+      "ambience": "none"
+    }
+  ],
+  "transitions": [
+    {
+      "from_beat": "b2_settling",
+      "to_beat": "b3_approach",
+      "description": "leaving the room the listener is actually in; the venue arrives as sound before anything else",
+      "stems_out": [],
+      "stems_in": [
+        "room_tone_large",
+        "crowd_distant"
+      ],
+      "crossfade_s": 8
+    },
+    {
+      "from_beat": "b3_approach",
+      "to_beat": "b4_setup",
+      "description": "the walk out; crowd noise stops being addressed to the listener",
+      "stems_out": [
+        "crowd_distant"
+      ],
+      "stems_in": [
+        "crowd_hush"
+      ],
+      "crossfade_s": 6
+    },
+    {
+      "from_beat": "b4_setup",
+      "to_beat": "b5_difficulty",
+      "description": "the bar moves; everything external drops away entirely",
+      "stems_out": [
+        "crowd_hush"
+      ],
+      "stems_in": [],
+      "crossfade_s": 3
+    },
+    {
+      "from_beat": "b6_completion",
+      "to_beat": "b7_anchor",
+      "description": "the room returns late, as though the sound had to travel",
+      "stems_out": [],
+      "stems_in": [
+        "room_tone_large"
+      ],
+      "crossfade_s": 10
+    },
+    {
+      "from_beat": "b7_anchor",
+      "to_beat": "b8_reorientation",
+      "description": "the venue leaves; only the listener's real room remains",
+      "stems_out": [
+        "room_tone_large"
+      ],
+      "stems_in": [],
+      "crossfade_s": 12
+    }
+  ]
+}

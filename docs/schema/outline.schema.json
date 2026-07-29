@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/travtrego/Mindfulness/docs/schema/outline.schema.json",
+  "title": "Session outline",
+  "description": "Output of LLM call 2 (outline). Consumed by call 3 (draft) and by the TTS/mix pipeline. Carries no timestamps by design - see transitions and beats.silence_plan.",
+  "type": "object",
+  "required": ["schema_version", "template", "category", "target_duration_s", "exclusions", "slots", "beats"],
+  "additionalProperties": false,
+
+  "properties": {
+    "schema_version": { "const": "1.0" },
+
+    "template": {
+      "description": "Five templates carry fourteen categories. SPEC.md 1.5",
+      "enum": ["breath_only", "anchored_place", "rehearsal", "immersive", "reflective"]
+    },
+
+    "category": {
+      "enum": [
+        "just_breathing", "body_scan", "safe_place",
+        "nature", "adventure", "fantasy", "into_sleep",
+        "interview", "competition", "hard_conversation", "confidence",
+        "gratitude", "creativity", "open"
+      ]
+    },
+
+    "target_duration_s": { "type": "integer", "minimum": 180, "maximum": 2700 },
+
+    "sensitivity_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true the intro variant carries explicit stop permission and generation is template-bounded. SPEC.md 8"
+    },
+
+    "exclusions": {
+      "description": "Three tiers with different lifetimes. SPEC.md 2.3.1",
+      "type": "object",
+      "required": ["standing", "session"],
+      "additionalProperties": false,
+      "properties": {
+        "standing": {
+          "description": "Profile-level, persists until the user changes it",
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+        "session": {
+          "description": "This session only. MUST NOT be written back to profile.",
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        }
+      }
+    },
+
+    "slots": {
+      "description": "Filled per docs/templates/slots.md. Shape varies by template.",
+      "type": "object"
+    },
+
+    "beats": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 10,
+      "items": { "$ref": "#/$defs/beat" }
+    },
+
+    "transitions": {
+      "description": "Semantic markers only. Resolved to real timestamps after TTS returns character timings - the model never estimates elapsed time. SPEC.md 6.1",
+      "type": "array",
+      "items": { "$ref": "#/$defs/transition" },
+      "default": []
+    }
+  },
+
+  "$defs": {
+
+    "beat": {
+      "type": "object",
+      "required": ["id", "role", "source", "word_target", "wpm", "silence_total_s", "silence_plan", "ambience"],
+      "additionalProperties": false,
+      "properties": {
+
+        "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+
+        "role": {
+          "description": "difficulty_and_response was renamed from obstacle_and_recovery: the old name presumed failure and forced a miss into sessions where the user asked for none. It covers both a genuine setback and difficulty-within-success.",
+          "enum": [
+            "grounding_intro", "settling", "entry_threshold", "establish_world",
+            "approach", "event", "difficulty_and_response", "completion",
+            "meaningful_experience", "deepening", "paced_breathing",
+            "consolidation", "anchor", "reorientation"
+          ]
+        },
+
+        "source": { "enum": ["cached", "generated", "parametric"] },
+
+        "cached_ref": {
+          "description": "Required when source is cached. Points into the 18-recording intro matrix.",
+          "type": "string"
+        },
+
+        "word_target": {
+          "description": "Independent of silence_total_s. Word count per beat ranged 51-141 in reference session 01 and is NOT proportional to duration - deriving one from the other produces the wrong pacing.",
+          "type": "integer", "minimum": 0, "maximum": 400
+        },
+
+        "wpm": {
+          "description": "Delivery rate belongs to the beat, not the session. 85-110 ordinary guidance, 65-90 scene-building. The setup and the difficult beat are exactly where a session-level rate mis-paces things.",
+          "type": "integer", "minimum": 65, "maximum": 110
+        },
+
+        "silence_total_s": {
+          "description": "Must equal the sum of silence_plan[].seconds. Silence is content, not leftover gaps - it carried 43% of runtime in reference session 01.",
+          "type": "integer", "minimum": 0, "maximum": 600
+        },
+
+        "silence_plan": {
+          "description": "Typed, because a 5s sensory pause and an 11s post-climax hold are different instruments.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "seconds"],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "enum": ["sensory", "transition", "open", "hold"],
+                "description": "sensory 3-6s | transition 6-12s | open 15-30s | hold: after a climax or an anchor, unbounded"
+              },
+              "seconds": { "type": "integer", "minimum": 2, "maximum": 60 }
+            }
+          }
+        },
+
+        "beats_on": {
+          "description": "Slot keys this beat must use. Guides the draft stage without prescribing prose.",
+          "type": "array", "items": { "type": "string" }, "default": []
+        },
+
+        "do_not_mention": {
+          "description": "Exclusions repeated INTO the beat context. A session-level header drifts by beat 6 - the constraint has to be present where the model would otherwise reach for it.",
+          "type": "array", "items": { "type": "string" }, "default": []
+        },
+
+        "ambience": { "$ref": "#/$defs/ambience" }
+      },
+
+      "allOf": [
+        {
+          "if": { "properties": { "source": { "const": "cached" } }, "required": ["source"] },
+          "then": {
+            "required": ["cached_ref"],
+            "properties": {
+              "do_not_mention": {
+                "description": "Cached beats have no access to user exclusions, so they may introduce NO concrete imagery at all - only the body and the breath. A water simile in a cached intro would breach a standing water exclusion the recording cannot know about.",
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+
+    "ambience": {
+      "description": "Atmosphere-level only. Soundscape was descoped from scene-synced cinematic design: unevidenced, expensive, and it must keep working when the listener's imagined scene differs from the script - which by design it always will. SPEC.md 6.2.1",
+      "oneOf": [
+        {
+          "const": "none",
+          "description": "Explicit silence. Required for climax beats - a stem system that always has something playing would ruin them."
+        },
+        {
+          "type": "object",
+          "required": ["stems", "level"],
+          "additionalProperties": false,
+          "properties": {
+            "stems": {
+              "type": "array", "minItems": 1, "maxItems": 3,
+              "items": { "$ref": "#/$defs/stem_tag" }
+            },
+            "level": {
+              "enum": ["bed", "present"],
+              "description": "Always quieter than the voice. No unexpected peaks."
+            }
+          }
+        }
+      ]
+    },
+
+    "stem_tag": {
+      "description": "Fixed enum. The model selects; it never invents a stem name that does not exist in the library.",
+      "enum": [
+        "room_tone_small", "room_tone_large", "room_tone_outdoor",
+        "wind_low", "wind_ridge", "wind_trees",
+        "rain_light", "rain_heavy", "water_stream", "water_lake", "water_surf",
+        "fire_close", "birds_dawn", "birds_distant", "insects_night",
+        "forest_canopy", "grass_movement", "gravel_underfoot", "snow_underfoot",
+        "crowd_distant", "crowd_hush", "bell_distant", "creak_wood", "hum_low"
+      ]
+    },
+
+    "transition": {
+      "type": "object",
+      "required": ["from_beat", "to_beat", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "from_beat": { "type": "string" },
+        "to_beat": { "type": "string" },
+        "description": {
+          "type": "string",
+          "description": "Semantic, e.g. 'leaving the treeline, wind rises'. NOT a timestamp."
+        },
+        "stems_out": { "type": "array", "items": { "$ref": "#/$defs/stem_tag" }, "default": [] },
+        "stems_in": { "type": "array", "items": { "$ref": "#/$defs/stem_tag" }, "default": [] },
+        "crossfade_s": { "type": "integer", "minimum": 2, "maximum": 20, "default": 6 }
+      }
+    }
+  }
+}

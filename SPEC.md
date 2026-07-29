@@ -541,6 +541,27 @@ first-class fields in the outline schema, not gaps left over.
 No peer-reviewed evidence establishes ideal wpm or pause length; these are production
 standards. (`docs/research-basis.md` §5)
 
+### 5.2 The outline must reconcile before a draft is written
+
+Computed runtime is checked against target **before** the draft stage runs. If drift
+exceeds **10%**, trim `word_target` and recompute. Never close the gap by raising `wpm` —
+the beats that overrun are the ones that most need slow delivery.
+
+`scripts/validate_outline.py` is the gate. It also enforces what JSON Schema cannot:
+
+- `silence_plan` must sum to `silence_total_s`
+- every exclusion must appear in the `do_not_mention` of at least one generated beat
+- cached beats carry no exclusions and no `cached_ref`-less references
+- `event` · `difficulty_and_response` · `completion` may not exceed 90 wpm
+- a `rehearsal` always contains `difficulty_and_response`, whatever the outcome frame
+- every session except `into_sleep` ends on `reorientation`
+- silence lands between 30% and 55% of runtime
+
+**This gate has already caught a real error.** Reference session 01 was reported at 14:11,
+computed at a uniform 95 wpm. At true per-beat rates — 68–72 wpm across the setup, the
+lift, and the completion — it runs **15:43**. A 12% underestimate, and 1:43 over what the
+user asked for. Uniform-rate estimation is not close enough to be useful.
+
 **Buffer floor:** never begin playback without N seconds of runway plus a live estimate
 of generation rate. If the estimate degrades mid-session, extend the current beat's
 trailing ambience rather than gapping.
