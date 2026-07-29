@@ -39,29 +39,43 @@ The intro is also the one part of the session where the *words* matter least and
 **Matrix dimensions:** 3 pacings (slow / standard / brisk) × 3 registers (settling /
 neutral / activating) × N voices. Start with 2 voices → 18 recordings.
 
-**Every intro carries autonomy framing.** This is a safety requirement, not copy polish.
+**Autonomy framing is required — and distributed, not front-loaded.**
+
 User control is central to guided-imagery practice, and imagery can evoke unplanned
-emotion, memory, hyperarousal, or dissociation. Each recording establishes:
+emotion, memory, hyperarousal, or dissociation. But stacking every permission into the
+first ninety seconds turns the intro into the terms and conditions of the session, and it
+audibly does. (See `docs/sessions/01-clean-and-jerk.md`, Revision 1 — the first draft
+failed exactly this way.)
 
-- the listener remains in control
-- any detail may be altered or ignored
-- **no clear visual picture is required**
-- stopping or returning attention to the room is always available
+**Permissions land where they are relevant:**
 
-> *"Nothing needs to appear perfectly. You can imagine, sense, remember, or simply know
-> that the scene is there. You remain in control of the experience."*
+| Permission | Where |
+|---|---|
+| Posture is fine as it is | intro, opening line |
+| Eyes closed; open is fine | intro, one clause, never repeated |
+| Nothing has to be clear | intro, **last line — immediately before imagery** |
+| Any detail may be changed or ignored | carried by behaviour, not stated |
+| You can stop whenever | **the stop control states this.** Spoken only in sensitivity-flagged variants |
 
-**Eyes closed is the instruction; open is permitted, not offered as an equal.** The
-literature lists eyes-open among standard autonomy provisions, but this product is built
-around closed-eye immersion and the intros should say so. Permission is granted in
-passing and never repeated:
+**The intro must be physical within three lines.** It is the one beat with no session
+material — it cannot reference the user's situation — which makes it structurally prone
+to drifting into meta-commentary. The defence is universal *sensation*: the surface taking
+your weight, the breath slowing. Never an explanation of what is about to happen.
 
-> *"Let your eyes close. If you'd rather keep them open, that's fine — just find
-> somewhere soft to rest them."*
+**Target: ~48 words.** The first draft ran 96 and every extra word was about the session
+rather than in it.
 
-One clause, once, in the intro. No mode, no setting, no toggle.
+**The 18 variants carry different framing weight.** This is what the matrix is for:
 
-That phrasing also accommodates listeners whose imagery is emotional, spatial, auditory,
+- **standard / activating** — minimum framing, as above
+- **settling** — one additional permission line
+- **sensitivity-flagged** — explicit *"you can stop whenever you like"*, plus a slower
+  pace and a longer settling hold
+
+Eyes-closed is the instruction throughout; open is permitted in passing and never
+repeated. No mode, no setting, no toggle (§10).
+
+Phrasing must also accommodate listeners whose imagery is emotional, spatial, auditory,
 or bodily rather than visual — see §7.1.
 
 ### 1.2 Session structure is per-category, not global

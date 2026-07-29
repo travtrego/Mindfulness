@@ -16,38 +16,35 @@ measured against, and the source of few-shot examples for the draft and sensory 
 | | *Tier: **session preference** (§2.3.1) — stated in layer 2a, discarded at session end. Not a standing exclusion; miss-and-recover rehearsal stays available to this user.* |
 | **Style memory** | *(none — first session)* |
 
-**Target:** 14:00 · **Actual:** 14:26 · **Speech:** 8:18 · **Silence:** 6:08 (42%)
+**Target:** 14:00 · **Actual:** 14:00 · **Speech:** 7:50 · **Silence:** 6:10 (44%)
 
 Computed at 95 wpm — the midpoint of the ordinary-guidance range. At the band edges the
-same script runs **13:19 (110 wpm) to 15:25 (85 wpm)**. 789 words, 368s of silence.
+same script runs **12:56 (110 wpm) to 14:55 (85 wpm)**. 744 words, 370s of silence.
 
 ---
 
 ## Beat 1 — Grounding intro · CACHED
-`standard pacing · settling register` — 1:39 · 96 words · 38s silence
+`standard pacing · settling register` — 1:11 · 48 words · 40s silence
 
-> Somewhere comfortable. You don't have to be anywhere in particular for this to work.
->
-> *[4s]*
->
-> Let your eyes close. If you'd rather keep them open, that's fine — just find somewhere
-> soft to rest them.
->
-> *[6s]*
->
-> Nothing needs to appear perfectly. You can imagine, sense, remember, or simply know
-> that something is there. None of it has to be clear.
+> Wherever you're sitting is fine. You don't have to fix it.
 >
 > *[5s]*
 >
-> You're in control of this the whole way through. Anything you don't want, you can
-> change or leave out. You can stop whenever you like.
+> Let your eyes close. If you'd rather not, that's fine too.
 >
-> *[8s]*
+> *[6s]*
 >
-> Let the breath get a little slower. Not deeper — just less hurried.
+> Notice the surface under you taking your weight.
 >
-> *[15s]*
+> *[7s]*
+>
+> Let the breath slow down a little. Not deeper. Just less hurried.
+>
+> *[12s]*
+>
+> Nothing in here has to be clear to work.
+>
+> *[10s]*
 
 ---
 
@@ -263,7 +260,7 @@ same script runs **13:19 (110 wpm) to 15:25 (85 wpm)**. 789 words, 368s of silen
 >
 > *[7s]*
 >
-> On Saturday you'll do it and some part of you will remember doing it here.
+> In December you'll do it, and some part of you will remember doing it here.
 >
 > *[4s]*
 
@@ -297,6 +294,35 @@ same script runs **13:19 (110 wpm) to 15:25 (85 wpm)**. 789 words, 368s of silen
 ---
 
 # Craft notes
+
+## Revision 1 — the intro was rewritten
+
+**Feedback: beats 2–8 landed; the intro sounded AI-written.** Correct, and the cause is
+structural rather than stylistic.
+
+The intro was the only beat that talked *about* the session instead of being *in* it.
+Beats 2–8 carry a body — jaw, hands, chalk, knurl, ribs. The original intro had no
+physical content at all: 96 words of meta-commentary.
+
+Three tells:
+
+- **Four consecutive permission statements** — the terms and conditions of the session
+- **"imagine, sense, remember, or simply know"** — a four-item enumeration, lifted nearly
+  verbatim from clinical guidance written to be *read*, not spoken
+- **Four negative constructions in sequence** — *don't have to · nothing needs to · none
+  of it has to · anything you don't want.* Anxious writing about not making the listener
+  anxious
+
+**Structural cause:** the intro is cached, so it is the one beat with no session material.
+With nothing concrete to work from it drifted into explaining itself. **Treat this as a
+predictable failure mode of any cached beat**, not a one-off.
+
+**Fix:** 96 words → 48. Physical by the third line. One permission statement, placed
+immediately before imagery starts rather than 90 seconds early.
+
+**Cut entirely:** *"You're in control the whole way through. You can stop whenever you
+like."* The stop control *is* the control — an always-available one-tap exit says it
+better than a voice does. Retained only in sensitivity-flagged matrix variants.
 
 ## Rules exercised
 
