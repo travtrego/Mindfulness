@@ -14,12 +14,14 @@ Not a meditation app. Meditation is one application of a broader visualization e
 | File | What it is |
 |---|---|
 | [`SPEC.md`](./SPEC.md) | Consolidated product + technical spec. Resolves the conflicts across the three source drafts and records the decisions with rationale. |
-| [`docs/prototype.html`](./docs/prototype.html) | Interactive UX prototype — tap through the full flow, with design rationale per screen. Open in a browser. |
+| [`docs/app.html`](./docs/app.html) | **The app.** Full-screen interface, no annotations. Real navigation, working chat, breathing pacer. No audio yet. |
+| [`docs/prototype.html`](./docs/prototype.html) | The same flow as a design document — every screen annotated with why it is that way. |
 
 ## Running it locally
 
 ```bash
-python3 scripts/serve.py                 # the clickable mock at localhost:8000
+python3 scripts/serve.py                 # the app at localhost:8000
+python3 scripts/serve.py --doc           # the annotated design document
 python3 -m generator.cli --templates     # the six templates
 python3 -m generator.cli "playoff game saturday" --category competition
 ```

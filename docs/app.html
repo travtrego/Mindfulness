@@ -1,0 +1,647 @@
+<title>Guided Visualization</title>
+
+<style>
+  :root {
+    --ground: #070A09;
+    --shell: #0A0E0D;
+    --surface: #131A18;
+    --surface-2: #1B2422;
+    --ember: #D98E52;
+    --ember-soft: #E8A672;
+    --glacier: #7FA8A0;
+    --ink: #EDE7DF;
+    --dim: rgba(237,231,223,.55);
+    --dimmer: rgba(237,231,223,.34);
+    --faint: rgba(237,231,223,.16);
+    --line: rgba(237,231,223,.09);
+    --serif: ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  .stage {
+    background: var(--ground);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .device {
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 860px;
+    background: var(--shell);
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (min-width: 460px) and (min-height: 700px) {
+    .stage { padding: 2rem; }
+    .device {
+      border-radius: 38px;
+      border: 1px solid rgba(237,231,223,.13);
+      box-shadow: 0 40px 90px -40px #000;
+    }
+  }
+
+  /* ---------- screens ---------- */
+  .scr {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 3.2rem 1.5rem 2rem;
+    opacity: 0; visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity .4s ease, transform .4s ease, visibility .4s;
+  }
+  .scr.on { opacity: 1; visibility: visible; transform: none; }
+  .scr.dark { background: #050807; }
+
+  .bar {
+    position: absolute; top: 1.1rem; left: 1.5rem; right: 1.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: .6rem; letter-spacing: .06em;
+    color: var(--faint); height: 1.1rem;
+  }
+  .back {
+    background: none; border: 0; color: var(--dimmer); cursor: pointer;
+    font-family: var(--mono); font-size: .68rem; padding: .2rem .3rem .2rem 0;
+    margin: 0 0 .5rem -.3rem; align-self: flex-start;
+  }
+  .back:hover, .back:focus-visible { color: var(--ink); outline: none; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .58rem; letter-spacing: .17em;
+    text-transform: uppercase; color: var(--dimmer); margin: 0 0 .5rem;
+  }
+  h1.t {
+    font-family: var(--serif); font-weight: 400; font-size: 1.62rem;
+    line-height: 1.18; letter-spacing: -.012em; margin: 0 0 1.3rem;
+    text-wrap: balance;
+  }
+  .sub { font-size: .78rem; line-height: 1.5; color: var(--dimmer); margin: 0 0 1.3rem; }
+
+  .scroll { flex: 1; overflow-y: auto; margin: 0 -1.5rem; padding: 0 1.5rem; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { width: 0; }
+  .foot { padding-top: 1rem; }
+
+  /* ---------- home ---------- */
+  .grp {
+    font-family: var(--mono); font-size: .55rem; letter-spacing: .19em;
+    text-transform: uppercase; color: rgba(237,231,223,.24);
+    display: block; margin: 1.35rem 0 .5rem;
+  }
+  .grp:first-of-type { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+
+  .cat {
+    text-align: left; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 11px; padding: .7rem .75rem; color: inherit; font: inherit;
+    cursor: pointer; transition: background .2s, border-color .2s, transform .2s;
+  }
+  .cat:hover, .cat:focus-visible {
+    background: var(--surface-2); border-color: rgba(217,142,82,.42);
+    transform: translateY(-1px); outline: none;
+  }
+  .cat:active { transform: translateY(0); }
+  .cat b { font-family: var(--serif); font-weight: 400; font-size: .93rem; display: block; line-height: 1.25; }
+  .cat i {
+    font-style: normal; font-family: var(--mono); font-size: .54rem;
+    color: rgba(237,231,223,.28); display: block; margin-top: .25rem;
+  }
+  .cat i.now { color: var(--glacier); }
+
+  .resume {
+    width: 100%; text-align: left; border-radius: 11px; padding: .8rem .85rem;
+    color: inherit; font: inherit; cursor: pointer; margin-bottom: .5rem;
+    background: linear-gradient(100deg, rgba(127,168,160,.15), rgba(127,168,160,.03));
+    border: 1px solid rgba(127,168,160,.3); transition: border-color .2s;
+  }
+  .resume:hover, .resume:focus-visible { border-color: var(--glacier); outline: none; }
+  .resume b { font-family: var(--serif); font-weight: 400; font-size: 1rem; color: var(--glacier); display: block; }
+  .resume span { font-size: .69rem; color: var(--dimmer); display: block; margin-top: .12rem; }
+
+  .talk-btn {
+    width: 100%; margin: .55rem 0 1rem; padding: .68rem; border-radius: 11px;
+    border: 1px dashed rgba(237,231,223,.17); background: none; color: var(--dim);
+    font-family: var(--mono); font-size: .6rem; letter-spacing: .11em;
+    text-transform: uppercase; cursor: pointer; transition: color .2s, border-color .2s;
+  }
+  .talk-btn:hover, .talk-btn:focus-visible { color: var(--ember); border-color: var(--ember); outline: none; }
+
+  /* ---------- chat ---------- */
+  .thread { display: flex; flex-direction: column; gap: .8rem; padding-bottom: .5rem; }
+  .m { max-width: 86%; font-size: .85rem; line-height: 1.5; }
+  .m.app { font-family: var(--serif); font-size: .96rem; color: rgba(237,231,223,.88); align-self: flex-start; }
+  .m.me {
+    align-self: flex-end; background: rgba(217,142,82,.13);
+    border: 1px solid rgba(217,142,82,.26); border-radius: 13px 13px 4px 13px;
+    padding: .55rem .75rem; color: rgba(237,231,223,.92);
+  }
+  .typing { display: flex; gap: 4px; padding: .4rem 0; align-self: flex-start; }
+  .typing i { width: 4px; height: 4px; border-radius: 50%; background: var(--dimmer); animation: bob 1.3s ease-in-out infinite; }
+  .typing i:nth-child(2) { animation-delay: .18s; }
+  .typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes bob { 0%,60%,100% { opacity:.22 } 30% { opacity:.85 } }
+
+  .composer { display: flex; gap: .5rem; align-items: flex-end; padding-top: .8rem; }
+  .composer textarea {
+    flex: 1; resize: none; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: .65rem .8rem; color: var(--ink);
+    font-family: var(--serif); font-size: .92rem; line-height: 1.4; min-height: 2.6rem;
+    max-height: 6rem;
+  }
+  .composer textarea:focus { outline: none; border-color: rgba(217,142,82,.45); }
+  .composer textarea::placeholder { color: rgba(237,231,223,.22); }
+
+  .icon {
+    width: 38px; height: 38px; flex: none; border-radius: 50%;
+    border: 1px solid rgba(237,231,223,.16); background: none; color: var(--dim);
+    display: grid; place-items: center; cursor: pointer; transition: border-color .2s, color .2s;
+  }
+  .icon:hover, .icon:focus-visible { border-color: var(--ember); color: var(--ember); outline: none; }
+  .icon.send { border-color: rgba(217,142,82,.5); color: var(--ember); }
+
+  /* ---------- questions ---------- */
+  .q { margin-bottom: 1.25rem; }
+  .q p {
+    font-family: var(--serif); font-size: 1rem; line-height: 1.35;
+    margin: 0 0 .55rem; color: rgba(237,231,223,.85);
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .chip {
+    font-family: var(--mono); font-size: .64rem; padding: .38rem .68rem;
+    border-radius: 999px; border: 1px solid rgba(237,231,223,.15);
+    color: var(--dim); background: none; cursor: pointer;
+    transition: border-color .18s, color .18s, background .18s;
+  }
+  .chip:hover, .chip:focus-visible { border-color: var(--ember); color: var(--ember-soft); outline: none; }
+  .chip.sel { border-color: var(--ember); color: var(--ember-soft); background: rgba(217,142,82,.13); }
+  .chip.mem { border-color: rgba(127,168,160,.45); color: var(--glacier); background: rgba(127,168,160,.08); }
+  .chip.mem::before {
+    content: ""; display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--glacier); margin-right: .4rem; vertical-align: .12em;
+  }
+  .memnote {
+    font-family: var(--mono); font-size: .55rem; color: rgba(127,168,160,.6);
+    margin: .5rem 0 0;
+  }
+
+  .say {
+    width: 100%; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 11px; padding: .65rem .75rem; margin-top: .3rem;
+    font-family: var(--serif); font-size: .84rem; color: rgba(237,231,223,.38);
+    text-align: left; cursor: pointer; display: flex; align-items: center; gap: .55rem;
+  }
+  .say:hover, .say:focus-visible { border-color: rgba(217,142,82,.4); outline: none; }
+
+  .btn {
+    display: block; width: 100%; padding: .88rem; border-radius: 12px;
+    border: 1px solid var(--ember); background: rgba(217,142,82,.11);
+    color: var(--ember-soft); font-family: var(--mono); font-size: .71rem;
+    letter-spacing: .14em; text-transform: uppercase; cursor: pointer;
+    transition: background .2s;
+  }
+  .btn:hover, .btn:focus-visible { background: rgba(217,142,82,.21); outline: none; }
+  .btn.ghost {
+    border-color: rgba(237,231,223,.13); background: none; color: var(--dimmer);
+    margin-top: .45rem; font-size: .63rem;
+  }
+  .btn.ghost:hover, .btn.ghost:focus-visible { background: rgba(237,231,223,.05); }
+
+  /* ---------- playback ---------- */
+  .rail { display: flex; gap: 3px; margin-bottom: 1.1rem; }
+  .rail i { flex: 1; height: 2px; background: rgba(237,231,223,.1); border-radius: 2px; overflow: hidden; }
+  .rail i.done { background: rgba(237,231,223,.26); }
+  .rail i.now::after { content: ""; display: block; height: 100%; background: var(--ember); animation: fill 40s linear forwards; }
+  @keyframes fill { from { width: 0 } to { width: 100% } }
+
+  .pacezone { flex: 1; display: grid; place-items: center; }
+  .pacer {
+    width: 172px; height: 172px; border-radius: 50%; display: grid; place-items: center;
+    position: relative; will-change: transform;
+    background: radial-gradient(circle at 38% 32%, rgba(217,142,82,.17), rgba(127,168,160,.07) 55%, transparent 72%);
+    border: 1px solid rgba(237,231,223,.07);
+  }
+  .pacer::after { content:""; position:absolute; inset:-24px; border-radius:50%; border:1px solid rgba(217,142,82,.08); }
+  .pacer span {
+    font-family: var(--mono); font-size: .64rem; letter-spacing: .32em;
+    text-transform: uppercase; color: rgba(237,231,223,.42); text-indent: .32em;
+  }
+
+  .narr {
+    font-family: var(--serif); font-size: .95rem; line-height: 1.6; font-style: italic;
+    color: rgba(237,231,223,.3); text-align: center; margin: 0; min-height: 4.6rem;
+    text-wrap: balance; transition: opacity .8s ease;
+  }
+  .hint {
+    text-align: center; font-family: var(--mono); font-size: .55rem;
+    letter-spacing: .16em; text-transform: uppercase; color: rgba(237,231,223,.13);
+    margin: .5rem 0 0; transition: opacity .4s;
+  }
+
+  .controls {
+    position: absolute; inset: auto 0 0; padding: 1.4rem 1.5rem 1.9rem;
+    background: linear-gradient(to top, rgba(5,8,7,.98) 60%, transparent);
+    opacity: 0; visibility: hidden; transform: translateY(12px);
+    transition: opacity .35s, transform .35s, visibility .35s;
+  }
+  .controls.on { opacity: 1; visibility: visible; transform: none; }
+  .wave { display: flex; align-items: center; gap: 2px; height: 24px; margin-bottom: .8rem; }
+  .wave span { flex: 1; background: rgba(237,231,223,.14); border-radius: 1px; min-height: 2px; }
+  .wave span.p { background: rgba(217,142,82,.5); }
+  .times {
+    display: flex; justify-content: space-between; font-family: var(--mono);
+    font-size: .58rem; color: var(--dimmer); font-variant-numeric: tabular-nums;
+    margin-bottom: 1rem;
+  }
+  .transport { display: flex; align-items: center; justify-content: center; gap: 1.7rem; }
+  .tb {
+    background: none; border: 0; color: var(--dim); cursor: pointer;
+    font-family: var(--mono); font-size: .6rem; display: grid; place-items: center;
+    gap: .3rem; padding: .3rem;
+  }
+  .tb:hover, .tb:focus-visible { color: var(--ink); outline: none; }
+  .tb.main { width: 54px; height: 54px; border: 1px solid rgba(237,231,223,.22); border-radius: 50%; }
+  .escape {
+    margin-top: 1.15rem; width: 100%; padding: .68rem; border-radius: 10px;
+    border: 1px solid rgba(127,168,160,.33); background: rgba(127,168,160,.07);
+    color: var(--glacier); font-family: var(--mono); font-size: .61rem;
+    letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  }
+  .escape:hover, .escape:focus-visible { background: rgba(127,168,160,.15); outline: none; }
+
+  /* ---------- close ---------- */
+  .mark { width: 22px; height: 1px; background: var(--ember); margin-bottom: 1.3rem; }
+  .anchor {
+    font-family: var(--serif); font-size: 1.3rem; line-height: 1.4; font-style: italic;
+    color: rgba(237,231,223,.9); text-wrap: balance; margin: 0 0 2.2rem;
+  }
+  .reflect { border-top: 1px solid var(--line); padding-top: 1.3rem; }
+  .reflect p { font-family: var(--serif); font-size: 1rem; color: var(--dim); margin: 0 0 .8rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+</style>
+
+<div class="stage">
+<div class="device" id="device">
+
+  <!-- HOME -->
+  <section class="scr on" id="s-home">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <p class="eyebrow">Thursday evening</p>
+    <h1 class="t">What do you need?</h1>
+
+    <div class="scroll">
+      <button class="resume" data-go="play" data-cat="Safe place">
+        <b>Return to the boathouse</b>
+        <span>Your safe place · 4th visit</span>
+      </button>
+
+      <span class="grp">Settle</span>
+      <div class="grid">
+        <button class="cat" data-go="play" data-cat="Just breathing"><b>Just breathing</b><i class="now">STARTS NOW</i></button>
+        <button class="cat" data-go="ask" data-cat="Body scan"><b>Body scan</b><i>8–12 MIN</i></button>
+      </div>
+
+      <span class="grp">Go somewhere</span>
+      <div class="grid">
+        <button class="cat" data-go="ask" data-cat="Nature"><b>Nature</b><i>12–20 MIN</i></button>
+        <button class="cat" data-go="ask" data-cat="Adventure"><b>Adventure</b><i>12–20 MIN</i></button>
+        <button class="cat" data-go="ask" data-cat="Fantasy"><b>Fantasy</b><i>12–25 MIN</i></button>
+        <button class="cat" data-go="ask" data-cat="Into sleep"><b>Into sleep</b><i>30–45 MIN</i></button>
+      </div>
+
+      <span class="grp">Prepare · we'll talk first</span>
+      <div class="grid">
+        <button class="cat" data-go="talk" data-cat="Interview"><b>Interview</b><i>10–15 MIN</i></button>
+        <button class="cat" data-go="talk" data-cat="Game or match"><b>Game or match</b><i>10–15 MIN</i></button>
+        <button class="cat" data-go="talk" data-cat="Hard conversation"><b>Hard conversation</b><i>10–15 MIN</i></button>
+        <button class="cat" data-go="talk" data-cat="Confidence"><b>Confidence</b><i>8–12 MIN</i></button>
+      </div>
+
+      <span class="grp">Going back · we'll talk first</span>
+      <div class="grid">
+        <button class="cat" data-go="talk" data-cat="First day back"><b>First day back</b><i>14–20 MIN</i></button>
+        <button class="cat" data-go="talk" data-cat="Seeing people again"><b>Seeing people again</b><i>14–20 MIN</i></button>
+      </div>
+
+      <span class="grp">Reflect</span>
+      <div class="grid">
+        <button class="cat" data-go="ask" data-cat="Gratitude"><b>Gratitude</b><i>8–12 MIN</i></button>
+        <button class="cat" data-go="ask" data-cat="Creativity"><b>Creativity</b><i>10–15 MIN</i></button>
+      </div>
+
+      <button class="talk-btn" data-go="talk" data-cat="Something else">Or just talk to me →</button>
+    </div>
+  </section>
+
+  <!-- TALK -->
+  <section class="scr" id="s-talk">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <button class="back" data-go="home">← back</button>
+    <p class="eyebrow" id="talk-cat">Game or match</p>
+    <div class="scroll">
+      <div class="thread" id="thread">
+        <p class="m app">What's going on?</p>
+      </div>
+    </div>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Say it however it comes out"></textarea>
+      <button class="icon" aria-label="Speak instead">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
+        </svg>
+      </button>
+      <button class="icon send" id="send" aria-label="Send">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section class="scr" id="s-ask">
+    <div class="bar"><span>9:42</span><span>􀙇</span></div>
+    <button class="back" data-go="home">← back</button>
+    <p class="eyebrow" id="ask-cat">Game or match</p>
+    <h1 class="t" style="margin-bottom:.35rem;">Three more and we'll go.</h1>
+    <p class="sub" id="ask-sub">Written from what you just told me.</p>
+
+    <div class="scroll" id="qs"></div>
+
+    <div class="foot">
+      <button class="btn" data-go="play">Begin · 14 min</button>
+      <button class="btn ghost" data-go="play">Skip — surprise me</button>
+    </div>
+  </section>
+
+  <!-- PLAYBACK -->
+  <section class="scr dark" id="s-play">
+    <div class="rail"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="pacezone"><div class="pacer" id="pacer"><span id="pace-label">in</span></div></div>
+    <p class="narr" id="narr">You notice the weight of your own hands.</p>
+    <p class="hint" id="hint">Tap anywhere for controls</p>
+
+    <div class="controls" id="controls">
+      <div class="wave" id="wave"></div>
+      <div class="times"><span id="elapsed">0:14</span><span id="remain">−13:46</span></div>
+      <div class="transport">
+        <button class="tb" aria-label="Back 15 seconds">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6V2L6 6l5 4V7a6 6 0 1 1-6 6"></path></svg>15
+        </button>
+        <button class="tb main" id="pp" aria-label="Pause">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+        </button>
+        <button class="tb" data-go="close" aria-label="End session">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>end
+        </button>
+      </div>
+      <button class="escape" data-go="play">Take me back to breathing</button>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="scr" id="s-close">
+    <div class="bar"><span>9:56</span><span>􀙇</span></div>
+    <div style="flex:1"></div>
+    <div class="mark"></div>
+    <p class="anchor" id="anchor">You have already stood this up once tonight.</p>
+    <div class="reflect">
+      <p>Anything you want to keep from that?</p>
+      <div class="composer" style="padding-top:0">
+        <textarea rows="1" placeholder="Say it, or type it"></textarea>
+        <button class="icon" aria-label="Speak">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="foot"><button class="btn ghost" data-go="home">Done</button></div>
+  </section>
+
+</div>
+</div>
+
+<script>
+(function () {
+  var scr = {}, cur = "home";
+  ["home","talk","ask","play","close"].forEach(function (k) { scr[k] = document.getElementById("s-" + k); });
+
+  var QUESTIONS = {
+    "Nature": [
+      { q: "Somewhere you've been, or somewhere new?", a: ["been there", "somewhere new"] },
+      { q: "Warm or cold?", a: ["warm", "cold"] },
+      { q: "How long have we got?", a: ["12 min", "16 min", "20 min"], mem: 1 }
+    ],
+    "Game or match": [
+      { q: "Same pitch, or somewhere neutral?", a: ["same pitch", "neutral ground"], sel: 0 },
+      { q: "Do you want the crowd, or do you want it quiet?", a: ["the crowd", "quiet"] },
+      { q: "How long have we got?", a: ["10 min", "14 min", "20 min"], mem: 1 }
+    ],
+    "First day back": [
+      { q: "Does anyone ask, or does it just not come up?", a: ["they ask", "it doesn't come up"], sel: 0 },
+      { q: "What's the part of the day you can still do without thinking?", a: ["the work itself", "the routine", "the people"] },
+      { q: "How long have we got?", a: ["14 min", "17 min", "20 min"], mem: 1 }
+    ],
+    "_default": [
+      { q: "Somewhere you've been, or somewhere new?", a: ["been there", "somewhere new"] },
+      { q: "How long have we got?", a: ["10 min", "14 min", "20 min"], mem: 1 }
+    ]
+  };
+
+  var ANCHORS = {
+    "Game or match": "You have already stood this up once tonight.",
+    "First day back": "You have already had this Tuesday once.",
+    "Just breathing": "That is always there, and it takes eight seconds.",
+    "Safe place": "The boathouse keeps. It will be there next time.",
+    "_default": "You have already been there once."
+  };
+
+  var category = "Game or match";
+
+  function go(name) {
+    if (!scr[name]) return;
+    scr[cur].classList.remove("on");
+    scr[name].classList.add("on");
+    cur = name;
+    controls.classList.remove("on");
+    hint.style.opacity = "";
+    var s = scr[name].querySelector(".scroll");
+    if (s) s.scrollTop = 0;
+    if (name === "ask") buildQuestions();
+    if (name === "close") anchor.textContent = ANCHORS[category] || ANCHORS._default;
+    if (name === "talk") { thread.innerHTML = '<p class="m app">What\'s going on?</p>'; input.value = ""; }
+  }
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-go]");
+    if (!el) return;
+    e.preventDefault(); e.stopPropagation();
+    if (el.dataset.cat) {
+      category = el.dataset.cat;
+      talkCat.textContent = askCat.textContent = category;
+    }
+    go(el.dataset.go);
+  });
+
+  var talkCat = document.getElementById("talk-cat"),
+      askCat  = document.getElementById("ask-cat"),
+      askSub  = document.getElementById("ask-sub"),
+      qs      = document.getElementById("qs"),
+      thread  = document.getElementById("thread"),
+      input   = document.getElementById("input"),
+      anchor  = document.getElementById("anchor"),
+      controls = document.getElementById("controls"),
+      hint    = document.getElementById("hint");
+
+  function buildQuestions() {
+    var set = QUESTIONS[category] || QUESTIONS._default;
+    askSub.textContent = scr.talk.dataset.used
+      ? "Written from what you just told me."
+      : "A few things and we'll go.";
+    qs.innerHTML = "";
+    set.forEach(function (item) {
+      var d = document.createElement("div");
+      d.className = "q";
+      var p = document.createElement("p"); p.textContent = item.q; d.appendChild(p);
+      var row = document.createElement("div"); row.className = "chips";
+      item.a.forEach(function (label, i) {
+        var b = document.createElement("button");
+        b.className = "chip" + (item.sel === i ? " sel" : "") + (item.mem === i ? " mem" : "");
+        b.textContent = label;
+        b.onclick = function (ev) {
+          ev.stopPropagation();
+          row.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("sel", "mem"); });
+          b.classList.add("sel");
+        };
+        row.appendChild(b);
+      });
+      d.appendChild(row);
+      if (item.mem !== undefined) {
+        var n = document.createElement("p"); n.className = "memnote";
+        n.textContent = "• your usual, from the last six sessions";
+        d.appendChild(n);
+      }
+      qs.appendChild(d);
+    });
+    var say = document.createElement("button");
+    say.className = "say";
+    say.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path></svg> or just say it — the more you say, the less it asks';
+    qs.appendChild(say);
+  }
+
+  // ---- chat ----
+  var REPLIES = [
+    "Is it the thing itself, or what comes after it?",
+    "Then that's what we'll do. Same place, same people — you leave it another way.",
+  ];
+  var turn = 0;
+
+  function send() {
+    var v = input.value.trim();
+    if (!v) return;
+    var me = document.createElement("p"); me.className = "m me"; me.textContent = v;
+    thread.appendChild(me);
+    input.value = ""; input.style.height = "";
+    thread.parentElement.scrollTop = 9e9;
+
+    var dots = document.createElement("div");
+    dots.className = "typing"; dots.innerHTML = "<i></i><i></i><i></i>";
+    thread.appendChild(dots);
+    thread.parentElement.scrollTop = 9e9;
+
+    setTimeout(function () {
+      dots.remove();
+      var reply = document.createElement("p");
+      reply.className = "m app";
+      reply.textContent = REPLIES[Math.min(turn, REPLIES.length - 1)];
+      thread.appendChild(reply);
+      thread.parentElement.scrollTop = 9e9;
+      turn++;
+      if (turn >= 2) {
+        setTimeout(function () {
+          scr.talk.dataset.used = "1";
+          go("ask");
+          turn = 0;
+        }, 1100);
+      }
+    }, 900);
+  }
+  document.getElementById("send").onclick = function (e) { e.stopPropagation(); send(); };
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  input.addEventListener("input", function () {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 96) + "px";
+  });
+
+  // ---- playback ----
+  var hideT = null;
+  scr.play.addEventListener("click", function (e) {
+    if (e.target.closest(".controls")) return;
+    controls.classList.add("on");
+    hint.style.opacity = "0";
+    clearTimeout(hideT);
+    hideT = setTimeout(function () {
+      controls.classList.remove("on");
+      hint.style.opacity = "";
+    }, 4500);
+  });
+
+  var wave = document.getElementById("wave"), seed = 7;
+  function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  for (var i = 0; i < 56; i++) {
+    var b = document.createElement("span");
+    b.style.height = Math.min(100, 12 + Math.abs(Math.sin(i / 4.5)) * 55 + rnd() * 30) + "%";
+    if (i < 6) b.className = "p";
+    wave.appendChild(b);
+  }
+
+  var LINES = [
+    "You notice the weight of your own hands.",
+    "Cooler air at the edge of one nostril than the other.",
+    "The chair takes more of you than you were letting it.",
+    "Somewhere behind you, the room keeps going without you."
+  ];
+  var pacer = document.getElementById("pacer"),
+      label = document.getElementById("pace-label"),
+      narr  = document.getElementById("narr"),
+      li = 0;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    pacer.style.transform = "scale(.82)"; label.textContent = "breathe";
+  } else {
+    var IN = 4000, HOLD = 2000, OUT = 6000, CYC = IN + HOLD + OUT,
+        t0 = performance.now(), lastCyc = 0;
+    function ease(x) { return x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+    (function tick(now) {
+      var t = (now - t0) % CYC, c = Math.floor((now - t0) / CYC), s, txt;
+      if (t < IN) { s = .6 + .4 * ease(t / IN); txt = "in"; }
+      else if (t < IN + HOLD) { s = 1; txt = "hold"; }
+      else { s = 1 - .4 * ease((t - IN - HOLD) / OUT); txt = "out"; }
+      pacer.style.transform = "scale(" + s.toFixed(4) + ")";
+      if (label.textContent !== txt) label.textContent = txt;
+      if (c !== lastCyc) {
+        lastCyc = c; li = (li + 1) % LINES.length;
+        narr.style.opacity = "0";
+        setTimeout(function () { narr.textContent = LINES[li]; narr.style.opacity = ""; }, 800);
+      }
+      requestAnimationFrame(tick);
+    })(performance.now());
+  }
+})();
+</script>

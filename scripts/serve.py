@@ -15,7 +15,9 @@ import webbrowser
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
-SRC = ROOT / "docs/prototype.html"
+APP = ROOT / "docs/app.html"
+DOC = ROOT / "docs/prototype.html"
+SRC = APP
 
 SHELL = """<!doctype html>
 <html lang="en">
@@ -50,13 +52,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--no-open", action="store_true")
+    ap.add_argument("--doc", action="store_true",
+                    help="serve the annotated design document instead of the app")
     a = ap.parse_args()
+
+    global SRC
+    SRC = DOC if a.doc else APP
 
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("127.0.0.1", a.port), Handler) as srv:
         url = f"http://localhost:{a.port}"
-        print(f"prototype  {url}")
-        print("           edit docs/prototype.html and refresh — no rebuild")
+        print(f"{'document' if a.doc else 'app':<10} {url}")
+        print(f"           edit {SRC.relative_to(ROOT)} and refresh — no rebuild")
         print("           ctrl-c to stop")
         if not a.no_open:
             try:
