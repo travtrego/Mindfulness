@@ -201,6 +201,14 @@ run-through. **Each category declares its own depth.**
 **Floor: one tap, ~2 seconds to audio.** This is the 2am case. Nothing may be added to
 it — no confirmation, no "how are you feeling," no length picker.
 
+**Depth is a floor, not a ceiling.** These numbers are the *minimum* the system asks. The
+user may always say more: **"or just say it" appears on every screen in every category**,
+and free text fills slots directly. A user who describes exactly what they want gets
+**fewer** questions, not more — every slot filled is a question retired, and a rich
+description can retire all three.
+
+The system controls the floor. The user controls the ceiling. Never the reverse.
+
 **Ceiling: seven interactions, ~45 seconds.** A fair trade for a 14-minute rehearsal that
 cannot work without knowing the user's situation. Not a fair trade for breathing.
 

@@ -31,6 +31,29 @@ That is why Immersive asks three questions and Rehearsal asks three *after* a
 conversation — Immersive can invent an excellent forest; no model can invent the thirty
 seconds you are actually dreading.
 
+### Depth is a floor, not a ceiling
+
+The depth assigned to a category (`SPEC.md` §2.1) sets the **minimum** the system will ask.
+It never caps what the user may say.
+
+**"Or just say it" is present on every amplify screen, in every category, including depth 0.**
+A user who types *"forest at the base of mountains with a black beach"* has given better
+input than any chip set could collect — and the system takes it and **skips the chips
+entirely**.
+
+| User says | System asks |
+|---|---|
+| nothing | the 3 chips |
+| one sentence | whatever the sentence left empty — often 1 |
+| a rich description | **nothing** |
+
+**The more the user says, the less the system asks.** Free text and speech fill slots
+directly; every slot filled is a question retired. Rich input can only ever *shorten* the
+path to audio.
+
+The system controls the floor. The user controls the ceiling. It is never the other way
+around.
+
 ---
 
 ## What makes an amplifying question good
@@ -45,12 +68,28 @@ seconds you are actually dreading.
 
 **Worked pair, Rehearsal:**
 
-> ✅ *"On the walk off — do they see your face?"*
+> ✅ *"Do you want the crowd, or do you want it quiet?"*
 > ❌ *"How would you like the ending to feel?"*
 
-The first fills `audience_proximity`, is answerable in one tap, and could only have been
-written by something that heard "the walk off." The second asks the user to do the
-writing, and the model could have chosen an ending itself.
+The first fills `audience`, is answerable in one tap, and shapes every ambience decision
+downstream. The second asks the user to do the writing, and the model could have chosen an
+ending itself.
+
+**A generated question can be right in one conversation and wrong in the next.** An earlier
+draft used *"on the walk off — do they see your face?"* as the worked example. That question
+was correct for a soccer scenario where being seen after a miss was the whole subject. Carried
+into a weightlifting meet it is simply strange — nobody at a platform is thinking about their
+face.
+
+The lesson is that generated questions need a **quality gate, not just a count limit**. Before
+a question is shown it must pass:
+
+1. Does it fill a slot that is actually empty?
+2. Would a reasonable person in *this* situation find it relevant?
+3. Is it answerable in one tap?
+
+Fail any of the three and the model drops the question and fills the slot itself. **Asking
+three questions is a maximum, never a quota.**
 
 **Worked pair, Immersive:**
 
