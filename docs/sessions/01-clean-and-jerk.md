@@ -52,12 +52,11 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 ## Beat 2 — Settling · GENERATED
 1:40 · 86 words · 46s silence
 
-> Notice where you're being held up. The backs of your legs. Your heels, maybe, or your
-> hips.
+> Notice where you're being held up. The backs of your legs. Your heels, or your hips.
 >
 > *[6s]*
 >
-> Let your jaw come apart slightly. It's usually doing more than it needs to.
+> Let your jaw come apart. It's usually doing more than it needs to.
 >
 > *[5s]*
 >
@@ -129,7 +128,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 > *[5s]*
 >
 > Your feet find their width without being told. You've done this so many times that the
-> setup happens slightly before you decide to do it.
+> setup happens a beat before you decide to do it.
 >
 > *[7s]*
 >
