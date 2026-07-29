@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""Generate a session, or inspect the prompts that would generate one.
+
+    python3 -m generator.cli "playoff game saturday" --category competition --dry
+    python3 -m generator.cli "take me somewhere cold" --category nature
+
+Without ANTHROPIC_API_KEY set it runs dry: builds every prompt, allocates the beat budget,
+and prints both. Enough to check the shape before spending a token.
+"""
+import argparse
+import json
+import sys
+
+from .pipeline import generate
+from .templates import TEMPLATES
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("text", nargs="?", help="what the listener said")
+    ap.add_argument("--category", help="skip intent parsing and use this category")
+    ap.add_argument("--pacing", default="standard", choices=["slow", "standard", "brisk"])
+    ap.add_argument("--dry", action="store_true", help="force dry run even with a key")
+    ap.add_argument("--show-prompts", action="store_true")
+    ap.add_argument("--templates", action="store_true", help="list templates and exit")
+    a = ap.parse_args()
+    if not a.text and not a.templates:
+        ap.error("text is required unless --templates")
+
+    if a.templates:
+        for t in TEMPLATES.values():
+            print(f"\n{t.name:<16} depth {t.depth}  "
+                  f"{t.duration_range[0]//60}-{t.duration_range[1]//60} min")
+            print(f"  aims at: {t.aims_at}")
+            print(f"  serves:  {', '.join(t.categories)}")
+            print(f"  beats:   {' -> '.join(b.role for b in t.beats)}")
+        return 0
+
+    s = generate(a.text, category=a.category, pacing=a.pacing,
+                 llm=(lambda _: "") if a.dry else None)
+
+    print(f"\ncategory   {s.category}")
+    print(f"template   {s.template.name}  (depth {s.template.depth})")
+    print(f"aims at    {s.template.aims_at}")
+
+    if s.outline:
+        beats = s.outline["beats"]
+        total_w = sum(b.get("word_target", 0) for b in beats)
+        total_s = sum(b.get("silence_total_s", 0) for b in beats)
+        speech = sum(b.get("word_target", 0) / b["wpm"] * 60 for b in beats if b.get("word_target"))
+        print(f"target     {s.outline['target_duration_s']}s\n")
+        print(f"{'beat':<26}{'words':>6}{'wpm':>5}{'silence':>9}")
+        print("-" * 46)
+        for b in beats:
+            if b.get("source") == "cached":
+                print(f"{b['role']:<26}{'cached':>6}{b['wpm']:>5}{'-':>9}")
+            else:
+                print(f"{b['role']:<26}{b['word_target']:>6}{b['wpm']:>5}"
+                      f"{b['silence_total_s']:>8}s")
+        print("-" * 46)
+        print(f"{'':<26}{total_w:>6}{'':>5}{total_s:>8}s")
+        print(f"\nprojected  {(speech + total_s) / 60:.1f} min speech+silence "
+              f"(+ cached intro)")
+        print(f"silence    {total_s / (speech + total_s) * 100:.0f}%")
+
+    if s.script:
+        print(f"\n{'=' * 78}\n{s.script}\n{'=' * 78}")
+
+    if a.show_prompts:
+        print(s.trace.prompts_only())
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

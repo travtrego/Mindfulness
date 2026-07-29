@@ -75,6 +75,19 @@ def check(path: Path) -> int:
         if not any(b["role"] == "difficulty_and_response" for b in beats):
             problems.append("rehearsal template is missing difficulty_and_response")
 
+    # Re-entry: the feared moment must not be the climax
+    if inst["template"] == "reentry":
+        by_role = {b["role"]: b for b in beats}
+        moment, cont = by_role.get("the_moment"), by_role.get("continuation")
+        if not moment or not cont:
+            problems.append("reentry template is missing the_moment or continuation")
+        elif cont["word_target"] < moment["word_target"]:
+            problems.append(
+                f"continuation ({cont['word_target']}w) is shorter than the_moment "
+                f"({moment['word_target']}w) - a session that peaks and stops says the "
+                f"feared exchange was the event"
+            )
+
     # every template except into_sleep must end reoriented
     if inst["category"] != "into_sleep" and beats[-1]["role"] != "reorientation":
         problems.append(f"session ends on {beats[-1]['role']}, not reorientation")
