@@ -260,8 +260,12 @@ same script runs **13:05 (110 wpm) to 15:07 (85 wpm)**. 761 words, 370s of silen
 >
 > *[7s]*
 >
-> When you're actually standing there, you'll do it — and some part of you will
-> remember doing it here.
+> You have already stood this up once tonight.
+>
+> *[8s]*
+>
+> When you're actually standing there, you'll take that breath, your hands will go on,
+> and you will stand it up again.
 >
 > *[4s]*
 
@@ -441,20 +445,46 @@ The schema needs an explicit `ambience: none` state, not just a low volume.
 
 ---
 
-# Open question for the next exemplar
+# Settled — result claims are allowed
 
-Beat 7 says *"on Saturday you'll do it and some part of you will remember doing it here."*
-That's a claim about transfer, and it's the strongest sentence in the session.
+An earlier draft proposed restricting the closing line to **behaviour** (*you'll take the
+breath*) and prohibiting **result** (*you'll make the lift*).
 
-It's also the closest this script comes to a promise. Worth deciding as policy whether
-that register is allowed, because generated sessions will reach for it constantly — it's
-the most satisfying place a rehearsal can end, and it's one step from an outcome claim.
+**That was wrong**, and wrong for an instructive reason: it imported a regulatory concern
+into a craft rule where it does not belong.
 
-Current instinct: allowed when it points at a **behaviour** (you'll take the breath),
-prohibited when it points at a **result** (you'll make the lift). This one stays inside
-the line. Barely.
+**Rehearsing the successful outcome is the intervention.** A performance visualization in
+which the lift does not go up is not cautious, it is broken. Stating that the bar locks
+out is not a prediction about next month — it is the content of the session.
 
-**Note on the time reference.** An earlier draft named a day. Deliberately removed — the
-line is stronger dayless (*"when you're actually standing there"*), and it means the
-generator never needs to know or track a date. Treat calendar specifics as something the
-script should route around, not a slot to fill.
+Two separate things, only one of which is constrained:
+
+| | Allowed |
+|---|---|
+| **Inside the narration** — result imagery, uplift, motivation | **Yes, without restriction.** Visualizations should be motivating. |
+| **The app speaking as itself** — "clinically proven", "treats anxiety", "will cure" | **No.** Health-claim regulation, not a craft limit. `SPEC.md` §8 |
+
+### The one craft constraint that survives
+
+**Earn the result; don't assert it.** Forced positivity alienates when the outcome feels
+unbelievable (`docs/research-basis.md` §7). The defence is structural, not verbal: this
+session can say *"you will stand it up again"* because it already spent 2:11 on the bar
+being heavy and the stand being slow. The difficulty beat is what buys the ending.
+
+A session that skipped straight to success would have the same words and none of the
+weight.
+
+### The ending was strengthened accordingly
+
+Was: *"you'll do it — and some part of you will remember doing it here."* Hedged, because
+the earlier policy required hedging.
+
+Now: *"You have already stood this up once tonight."* → *"you'll take that breath, your
+hands will go on, and you will stand it up again."*
+
+Deliberately avoided: any claim about what the rehearsal does to your nervous system. That
+is a factual assertion about mechanism, and it is a different category from an uplifting
+statement about outcome (`docs/research-basis.md` §4.1).
+
+**Time references stay out.** An earlier draft named a day. Dayless is stronger, and the
+generator never needs to track a date.

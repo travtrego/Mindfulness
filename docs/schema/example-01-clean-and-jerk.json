@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "template": "rehearsal",
   "category": "competition",
-  "target_duration_s": 960,
+  "target_duration_s": 990,
   "sensitivity_flag": false,
   "exclusions": {
     "standing": [],
@@ -312,9 +312,9 @@
       "id": "b7_anchor",
       "role": "anchor",
       "source": "generated",
-      "word_target": 118,
+      "word_target": 138,
       "wpm": 85,
-      "silence_total_s": 55,
+      "silence_total_s": 63,
       "silence_plan": [
         {
           "type": "transition",
@@ -347,14 +347,17 @@
         {
           "type": "sensory",
           "seconds": 4
+        },
+        {
+          "type": "hold",
+          "seconds": 8
         }
       ],
       "beats_on": [
         "anchor_action"
       ],
       "do_not_mention": [
-        "any claim about the result",
-        "guaranteeing the lift",
+        "mechanism claims about the nervous system or the brain",
         "a specific date"
       ],
       "ambience": {

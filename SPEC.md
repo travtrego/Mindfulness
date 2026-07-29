@@ -751,6 +751,32 @@ hyperarousal, and dissociation, at rates comparable to other psychological inter
 **Prohibited claims:** treating, curing, reprogramming, healing trauma, altering immune
 function, or replacing mental-health care.
 
+### 8.2 What the narration may say — result claims are allowed
+
+The prohibition above governs **the app speaking as itself**: marketing copy, onboarding,
+descriptions, anything asserting clinical efficacy. It does **not** govern what the voice
+says inside a session.
+
+**Inside the narration, result imagery is unrestricted.** *"You stand it up."* *"You walk
+out of that room different."* Rehearsing the successful outcome **is** the intervention —
+a performance visualization in which the lift does not go up is broken, not cautious.
+Visualizations should be motivating.
+
+An earlier draft proposed limiting closings to behaviour (*you'll take the breath*) and
+prohibiting result (*you'll make the lift*). That conflated a regulatory constraint with a
+craft rule. Withdrawn.
+
+**Two constraints remain, and neither is about optimism:**
+
+1. **Earn the result, don't assert it.** Forced positivity alienates when the outcome feels
+   unbelievable. The defence is structural: a session may promise the lift *because* it
+   spent a full beat on the bar being heavy. `difficulty_and_response` is what buys the
+   ending — which is a further reason it is never skipped (§3.3).
+2. **No mechanism claims.** *"This rewires your nervous system"*, *"your brain can't tell
+   the difference"* — factual assertions about how the intervention works, and a different
+   category from an uplifting statement about outcome. Anchors are retrieval cues, never
+   described as having neurological power (§3.6).
+
 **On the distress check vs. §10's ban on ratings.** These are different instruments. A
 distress check is a safety signal with a defined escalation path; a rating is an
 engagement metric. The check is single-item, appears only when a sensitivity flag was
