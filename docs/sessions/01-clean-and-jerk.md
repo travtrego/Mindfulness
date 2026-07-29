@@ -16,33 +16,33 @@ measured against, and the source of few-shot examples for the draft and sensory 
 | | *Tier: **session preference** (§2.3.1) — stated in layer 2a, discarded at session end. Not a standing exclusion; miss-and-recover rehearsal stays available to this user.* |
 | **Style memory** | *(none — first session)* |
 
-**Target:** 14:00 · **Actual:** 14:00 · **Speech:** 7:50 · **Silence:** 6:10 (44%)
+**Target:** 14:00 · **Actual:** 14:02 · **Speech:** 7:52 · **Silence:** 6:10 (44%)
 
 Computed at 95 wpm — the midpoint of the ordinary-guidance range. At the band edges the
-same script runs **12:56 (110 wpm) to 14:55 (85 wpm)**. 744 words, 370s of silence.
+same script runs **12:58 (110 wpm) to 14:59 (85 wpm)**. 747 words, 370s of silence.
 
 ---
 
 ## Beat 1 — Grounding intro · CACHED
-`standard pacing · settling register` — 1:11 · 48 words · 40s silence
+`standard pacing · settling register` — 1:11 · 49 words · 40s silence
 
-> Wherever you're sitting is fine. You don't have to fix it.
+> Settle into whatever position you are already in.
 >
 > *[5s]*
 >
-> Let your eyes close. If you'd rather not, that's fine too.
+> Let your eyes close. Or let them rest, half open, on something still.
 >
 > *[6s]*
 >
-> Notice the surface under you taking your weight.
+> The surface beneath you is holding your weight. It has been all along.
 >
 > *[7s]*
 >
-> Let the breath slow down a little. Not deeper. Just less hurried.
+> Let the breath lengthen. Not deeper — only slower.
 >
 > *[12s]*
 >
-> Nothing in here has to be clear to work.
+> Nothing here needs to be seen clearly.
 >
 > *[10s]*
 
@@ -318,8 +318,22 @@ Three tells:
 With nothing concrete to work from it drifted into explaining itself. **Treat this as a
 predictable failure mode of any cached beat**, not a one-off.
 
-**Fix:** 96 words → 48. Physical by the third line. One permission statement, placed
+**Fix:** 96 words → 49. Physical by the third line. One permission statement, placed
 immediately before imagery starts rather than 90 seconds early.
+
+**Revision 1b — register and grammar.** The first rewrite over-corrected into casual
+reassurance: *"that's fine too"*, *"a little"*, *"you don't have to fix it"*. Hedges and
+loose fragments, and *fine* twice in five lines.
+
+Tightened to complete declarative sentences with the hedges removed. The eyes permission
+became an instruction rather than a reassurance — *"or let them rest, half open, on
+something still"* grants the same latitude without the apologetic register. *"Slow down a
+little"* → *"lengthen."* *"Just less hurried"* → *"only slower."*
+
+The register to hold: **composed, unhurried, declarative.** Never chatty, never
+reassuring, never mystical. A statement of what is already true — *"the surface beneath
+you is holding your weight; it has been all along"* — does more settling work than any
+amount of telling the listener they are safe.
 
 **Cut entirely:** *"You're in control the whole way through. You can stop whenever you
 like."* The stop control *is* the control — an always-available one-tap exit says it
