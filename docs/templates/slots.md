@@ -151,8 +151,7 @@ system.
 | `event` | ✓ | `talk` | what is actually happening |
 | `dreaded_moment` | ✓ | `talk` | **the highest-value slot in the product** |
 | `setting` | ✓ | `talk` / `amplify` | sensation only — never furnished (§4) |
-| `audience` | — | `amplify` | who is present |
-| `audience_proximity` | — | `amplify` | can they see your face |
+| `audience` | — | `amplify` | who is present, and whether the listener wants them there |
 | `difficulty` | ✓ | `model` | derived from `dreaded_moment`; feeds `difficulty_and_response` |
 | `desired_response` | ✓ | `model` | the adaptive action taken when it gets hard |
 | `outcome_frame` | ✓ | `amplify` | `succeed` · `recover_from_setback` |
@@ -178,9 +177,12 @@ the lift is slow out of the bottom and is stood up anyway. The beat is never ski
 
 > ✅ *"What's the moment you're actually dreading?"* → `dreaded_moment`
 > ✅ *"Do you want to walk through it going well, or handle it going sideways?"* → `outcome_frame`
-> ✅ *"On the walk off — do they see your face?"* → `audience_proximity`
+> ✅ *"Do you want the crowd, or do you want it quiet?"* → `audience`
 > ❌ *"Tell me about the event."* → belongs in talk
 > ❌ *"How confident are you feeling?"* → fills nothing
+> ❌ *"On the walk off — do they see your face?"* → **situationally wrong.** Correct for a
+> soccer scenario about being seen after a miss; meaningless at a weightlifting platform.
+> Caught by gate 2 above.
 
 ---
 
