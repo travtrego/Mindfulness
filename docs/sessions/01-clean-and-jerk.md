@@ -16,25 +16,25 @@ measured against, and the source of few-shot examples for the draft and sensory 
 | | *Tier: **session preference** (§2.3.1) — stated in layer 2a, discarded at session end. Not a standing exclusion; miss-and-recover rehearsal stays available to this user.* |
 | **Style memory** | *(none — first session)* |
 
-**Target:** 14:00 · **Actual:** 14:02 · **Speech:** 7:52 · **Silence:** 6:10 (44%)
+**Target:** 14:00 · **Actual:** 14:10 · **Speech:** 8:00 · **Silence:** 6:10 (43%)
 
 Computed at 95 wpm — the midpoint of the ordinary-guidance range. At the band edges the
-same script runs **12:58 (110 wpm) to 14:59 (85 wpm)**. 747 words, 370s of silence.
+same script runs **13:05 (110 wpm) to 15:07 (85 wpm)**. 761 words, 370s of silence.
 
 ---
 
 ## Beat 1 — Grounding intro · CACHED
-`standard pacing · settling register` — 1:11 · 49 words · 40s silence
+`standard pacing · settling register` — 1:19 · 61 words · 40s silence
 
-> Settle into whatever position you are already in.
+> Settle into the shape your body has already chosen.
 >
 > *[5s]*
 >
-> Let your eyes close. Or let them rest, half open, on something still.
+> Let your eyes close — or let your focus soften onto a single still point.
 >
 > *[6s]*
 >
-> The surface beneath you is holding your weight. It has been all along.
+> The surface beneath you is taking all of your weight. It has been holding you all along.
 >
 > *[7s]*
 >
@@ -42,7 +42,7 @@ same script runs **12:58 (110 wpm) to 14:59 (85 wpm)**. 747 words, 370s of silen
 >
 > *[12s]*
 >
-> Nothing here needs to be seen clearly.
+> There is nothing to seek here, and nothing that needs to be seen clearly.
 >
 > *[10s]*
 
@@ -332,8 +332,27 @@ little"* → *"lengthen."* *"Just less hurried"* → *"only slower."*
 
 The register to hold: **composed, unhurried, declarative.** Never chatty, never
 reassuring, never mystical. A statement of what is already true — *"the surface beneath
-you is holding your weight; it has been all along"* — does more settling work than any
-amount of telling the listener they are safe.
+you is taking all of your weight; it has been holding you all along"* — does more
+settling work than any amount of telling the listener they are safe.
+
+**Revision 1c — three fixes to a contributed draft.** A rewrite came back with a more
+lyrical register. Two of its lines were kept over the originals; three things were
+corrected, and each corresponds to a standing rule:
+
+| Was | Now | Rule |
+|---|---|---|
+| *"the earth beneath you"* | *"the surface beneath you"* | **Accuracy over poetry.** Most listeners are indoors, on a couch, on a third floor. "Earth" is false for them, and a false detail in the first fifteen seconds costs trust the rest of the session has to earn back. |
+| *"like a wave returning to still water"* | *(cut)* | **No decorative simile.** It also imports water into a session that has none — and would breach a standing water exclusion (§2.3.1) from the cached intro, which cannot know the user's exclusions. **Cached beats must be imagery-free.** |
+| *"nothing to seek, nothing to define, nothing that needs to be seen"* | *"nothing to seek here, and nothing that needs to be seen clearly"* | **No three-item enumeration.** This is the exact tell that made the original intro read as machine-written. Two is a pair; three is a list. |
+
+**Kept from the contributed draft:** *"the shape your body has already chosen"* — better
+than the original's *"whatever position you are already in"*, because it credits the body
+with having decided rather than the listener with having settled. And *"nothing to
+seek"*, which removes striving in three words.
+
+**The generalizable one is the simile.** The cached intro has no session material *and*
+no access to the user's exclusions. Any concrete image it introduces is unbounded risk.
+Its only safe materials are the body and the breath.
 
 **Cut entirely:** *"You're in control the whole way through. You can stop whenever you
 like."* The stop control *is* the control — an always-available one-tap exit says it
