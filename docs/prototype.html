@@ -493,6 +493,7 @@
   <header class="masthead">
     <p class="eyebrow">UX Prototype · V2 · Working title</p>
     <h1>Pick broadly. <em>Then get asked better questions.</em></h1>
+    <p class="eyebrow" style="margin:0.75rem 0 0;">15 categories · 6 templates · local mock, no audio yet</p>
     <p>The category routes you. The follow-ons make the session specific. Memory sits
       underneath both, built from what you say at the end. Tap through the device —
       the notes on the right follow along.</p>
@@ -575,9 +576,15 @@
               <span class="group-h">Prepare · we'll talk first</span>
               <div class="grid">
                 <button class="cat" data-go="2"><span class="cat-n">Interview</span><span class="cat-d">10–15 MIN</span></button>
-                <button class="cat" data-go="2"><span class="cat-n">Competition</span><span class="cat-d">10–15 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Game or match</span><span class="cat-d">10–15 MIN</span></button>
                 <button class="cat" data-go="2"><span class="cat-n">Hard conversation</span><span class="cat-d">10–15 MIN</span></button>
                 <button class="cat" data-go="2"><span class="cat-n">Confidence</span><span class="cat-d">8–12 MIN</span></button>
+              </div>
+
+              <span class="group-h">Going back · we'll talk first</span>
+              <div class="grid">
+                <button class="cat" data-go="2"><span class="cat-n">First day back</span><span class="cat-d">14–20 MIN</span></button>
+                <button class="cat" data-go="2"><span class="cat-n">Seeing people again</span><span class="cat-d">14–20 MIN</span></button>
               </div>
 
               <span class="group-h">Reflect</span>
@@ -634,11 +641,10 @@
               </div>
 
               <div class="q">
-                <p class="q-t">On the walk off — do they see your face?</p>
+                <p class="q-t">Do you want the crowd, or do you want it quiet?</p>
                 <div class="chips">
-                  <button class="chip">yes</button>
-                  <button class="chip">no</button>
-                  <button class="chip">only after</button>
+                  <button class="chip">the crowd</button>
+                  <button class="chip">quiet</button>
                 </div>
               </div>
 
@@ -657,7 +663,7 @@
                   <rect x="9" y="2" width="6" height="12" rx="3"></rect>
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
                 </svg>
-                or just say it
+                or just say it — the more you say, the less it asks
               </button>
             </div>
 
@@ -880,8 +886,8 @@
   </section>
 
   <section class="doc">
-    <h2>Fourteen categories, five templates</h2>
-    <p class="doc-lede">Breadth on the surface is cheap. Every category maps to one of five
+    <h2>Fifteen categories, six templates</h2>
+    <p class="doc-lede">Breadth on the surface is cheap. Every category maps to one of six
       beat structures — so adding "Adventure" beside "Nature" costs one prompt constraint,
       not a new pipeline.</p>
     <div class="tbl-wrap">
@@ -912,6 +918,11 @@
             <td class="t-name">Reflective</td>
             <td>Noticing, non-narrative</td>
             <td class="t-cats">Body scan · Gratitude · Creativity</td>
+          </tr>
+          <tr>
+            <td class="t-name">Re-entry</td>
+            <td>Ordinary day, feared moment <em>not</em> the climax</td>
+            <td class="t-cats">First day back · Seeing people again</td>
           </tr>
         </tbody>
       </table>

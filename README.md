@@ -16,9 +16,28 @@ Not a meditation app. Meditation is one application of a broader visualization e
 | [`SPEC.md`](./SPEC.md) | Consolidated product + technical spec. Resolves the conflicts across the three source drafts and records the decisions with rationale. |
 | [`docs/prototype.html`](./docs/prototype.html) | Interactive UX prototype — tap through the full flow, with design rationale per screen. Open in a browser. |
 
+## Running it locally
+
+```bash
+python3 scripts/serve.py                 # the clickable mock at localhost:8000
+python3 -m generator.cli --templates     # the six templates
+python3 -m generator.cli "playoff game saturday" --category competition
+```
+
+The generator runs without an API key: it builds every prompt and allocates the per-beat
+word and silence budget, then stops. It goes live the moment `ANTHROPIC_API_KEY` exists,
+with no code change.
+
+```bash
+python3 scripts/check_craft.py           # craft validator vs the hand-written sessions
+python3 scripts/check_intros.py          # the four cached intros
+python3 scripts/validate_outline.py docs/schema/example-01-clean-and-jerk.json
+```
+
 ## Status
 
-Pre-build. Spec and UX only — no application code yet.
+Text pipeline built and validated. **No audio yet** — that needs an ElevenLabs key.
+Nothing is deployed; the mock runs locally only.
 
 **Next up, in order:**
 
