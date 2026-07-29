@@ -93,6 +93,34 @@
   .scroll::-webkit-scrollbar { width: 0; }
   .foot { padding-top: 1rem; }
 
+  /* ---------- onboarding ---------- */
+  .dots { display: flex; gap: 5px; margin-bottom: 1.4rem; }
+  .dots i { width: 18px; height: 2px; background: rgba(237,231,223,.12); border-radius: 2px; transition: background .3s; }
+  .dots i.on { background: var(--ember); }
+
+  .opts { display: flex; flex-direction: column; gap: .5rem; }
+  .opt {
+    text-align: left; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: .85rem .9rem; color: inherit; font: inherit;
+    cursor: pointer; transition: background .2s, border-color .2s, transform .2s;
+  }
+  .opt:hover, .opt:focus-visible {
+    background: var(--surface-2); border-color: rgba(127,168,160,.45);
+    transform: translateY(-1px); outline: none;
+  }
+  .opt:active { transform: translateY(0); }
+  .opt b { font-family: var(--serif); font-weight: 400; font-size: 1rem; display: block; line-height: 1.3; }
+  .opt span { font-size: .74rem; line-height: 1.45; color: var(--dimmer); display: block; margin-top: .2rem; }
+
+  .lede {
+    font-family: var(--serif); font-size: 1.05rem; line-height: 1.5;
+    color: rgba(237,231,223,.72); margin: 0 0 1rem;
+  }
+  .lede + .lede { color: var(--dimmer); font-size: .92rem; }
+
+  .avoid { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .avoid .chip.sel { border-color: var(--glacier); color: var(--glacier); background: rgba(127,168,160,.12); }
+
   /* ---------- home ---------- */
   .grp {
     font-family: var(--mono); font-size: .55rem; letter-spacing: .19em;
@@ -296,8 +324,88 @@
 <div class="stage">
 <div class="device" id="device">
 
+  <!-- ONBOARDING -->
+  <section class="scr on" id="s-ob0">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <div style="flex:1"></div>
+    <h1 class="t">Guided visualization.</h1>
+    <p class="lede">Sessions are written for you, one at a time. None of it is pre-recorded.</p>
+    <p class="lede">Three questions first. They take about a minute, and you will not be
+      asked them again.</p>
+    <div style="flex:1"></div>
+    <div class="foot"><button class="btn" data-go="ob1">Start</button></div>
+  </section>
+
+  <section class="scr" id="s-ob1">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <div class="dots"><i class="on"></i><i></i><i></i></div>
+    <p class="eyebrow">One time only</p>
+    <h1 class="t">When you picture a place, how much do you actually see?</h1>
+    <div class="opts">
+      <button class="opt" data-go="ob2"><b>Vividly, like a photograph</b><span>Colour, light, detail</span></button>
+      <button class="opt" data-go="ob2"><b>Somewhat — impressions more than images</b><span>More feeling than picture</span></button>
+      <button class="opt" data-go="ob2"><b>Not really — I know it without seeing it</b><span>The language shifts to sensation and knowing</span></button>
+    </div>
+    <div style="flex:1"></div>
+    <p class="sub" style="margin:0">There is no better answer. It changes how the sessions
+      are written, nothing else.</p>
+  </section>
+
+  <section class="scr" id="s-ob2">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <div class="dots"><i class="on"></i><i class="on"></i><i></i></div>
+    <p class="eyebrow">One time only</p>
+    <h1 class="t">Which voice?</h1>
+    <div class="opts">
+      <button class="opt" data-go="ob3"><b>Lower, unhurried</b><span>Some grain to it. Audible breath.</span></button>
+      <button class="opt" data-go="ob3"><b>Deeper, measured</b><span>Even pace. Quiet warmth.</span></button>
+    </div>
+    <div style="flex:1"></div>
+    <p class="sub" style="margin:0">Changeable later, though not partway through something
+      you have started.</p>
+  </section>
+
+  <section class="scr" id="s-ob3">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+    <p class="eyebrow">One time only</p>
+    <h1 class="t">How long do you usually have?</h1>
+    <div class="opts">
+      <button class="opt" data-go="ob4"><b>Under ten minutes</b><span>Most days</span></button>
+      <button class="opt" data-go="ob4"><b>Around fifteen</b><span>The usual shape of a session</span></button>
+      <button class="opt" data-go="ob4"><b>Longer, when I can</b><span>Twenty and up</span></button>
+    </div>
+    <div style="flex:1"></div>
+    <p class="sub" style="margin:0">A starting point. Every session can be shorter or longer
+      than this.</p>
+  </section>
+
+  <section class="scr" id="s-ob4">
+    <div class="bar"><span>9:41</span><span>􀙇</span></div>
+    <p class="eyebrow">Optional</p>
+    <h1 class="t" style="margin-bottom:.4rem;">Anything you would rather not be taken to?</h1>
+    <p class="sub">Most people leave this empty. It is here because deep water and small
+      rooms are restful for some people and not for others.</p>
+    <div class="avoid" id="avoid">
+      <button class="chip">deep water</button>
+      <button class="chip">heights</button>
+      <button class="chip">the dark</button>
+      <button class="chip">enclosed spaces</button>
+      <button class="chip">crowds</button>
+      <button class="chip">being alone</button>
+      <button class="chip">storms</button>
+      <button class="chip">insects</button>
+    </div>
+    <div style="flex:1"></div>
+    <div class="foot">
+      <button class="btn" data-go="home">Done</button>
+      <button class="btn ghost" data-go="home">Nothing to avoid</button>
+    </div>
+    <p class="sub" style="margin:.7rem 0 0;text-align:center">Changeable any time.</p>
+  </section>
+
   <!-- HOME -->
-  <section class="scr on" id="s-home">
+  <section class="scr" id="s-home">
     <div class="bar"><span>9:41</span><span>􀙇</span></div>
     <p class="eyebrow">Thursday evening</p>
     <h1 class="t">What do you need?</h1>
@@ -437,8 +545,8 @@
 
 <script>
 (function () {
-  var scr = {}, cur = "home";
-  ["home","talk","ask","play","close"].forEach(function (k) { scr[k] = document.getElementById("s-" + k); });
+  var scr = {}, cur = "ob0";
+  ["ob0","ob1","ob2","ob3","ob4","home","talk","ask","play","close"].forEach(function (k) { scr[k] = document.getElementById("s-" + k); });
 
   var QUESTIONS = {
     "Nature": [
@@ -542,6 +650,10 @@
     say.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path></svg> or just say it — the more you say, the less it asks';
     qs.appendChild(say);
   }
+
+  document.querySelectorAll("#avoid .chip").forEach(function (c) {
+    c.onclick = function (e) { e.stopPropagation(); c.classList.toggle("sel"); };
+  });
 
   // ---- chat ----
   var REPLIES = [
