@@ -260,7 +260,8 @@ same script runs **12:56 (110 wpm) to 14:55 (85 wpm)**. 744 words, 370s of silen
 >
 > *[7s]*
 >
-> In December you'll do it, and some part of you will remember doing it here.
+> When you're actually standing there, you'll do it — and some part of you will
+> remember doing it here.
 >
 > *[4s]*
 
@@ -419,3 +420,8 @@ the most satisfying place a rehearsal can end, and it's one step from an outcome
 Current instinct: allowed when it points at a **behaviour** (you'll take the breath),
 prohibited when it points at a **result** (you'll make the lift). This one stays inside
 the line. Barely.
+
+**Note on the time reference.** An earlier draft named a day. Deliberately removed — the
+line is stronger dayless (*"when you're actually standing there"*), and it means the
+generator never needs to know or track a date. Treat calendar specifics as something the
+script should route around, not a slot to fill.
