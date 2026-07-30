@@ -201,16 +201,22 @@ Return the narration only. No preamble, no headings, no explanation.
 def load_exemplar(role: str) -> str:
     """Pull a hand-written beat of the same role from the reference sessions.
 
-    Few-shot on five excellent examples beats almost anything else available at this stage,
-    and these are the only text in the repo known to meet the standard.
+    Few-shot on a handful of excellent examples beats almost anything else available at this
+    stage, and these are the only text in the repo known to meet the standard.
+
+    Match is on the explicit `role:` tag in the beat heading, never on the prose title. An
+    earlier version matched the title's first word, which silently returned the wrong beat
+    whenever the two disagreed - `the_moment` matched on "the" and pulled whichever block
+    happened to be longest.
     """
     import re
     best = ""
     for path in sorted(REFERENCE_DIR.glob("0[12]*.md")):
         text = path.read_text().split("\n# ")[0]
         for block in re.split(r"\n## Beat ", text)[1:]:
-            header = block.split("\n")[0].lower()
-            if role.split("_")[0] not in header.replace(" ", "_"):
+            header = block.split("\n")[0]
+            tag = re.search(r"role:\s*([a-z_]+)", header)
+            if not tag or tag.group(1) != role:
                 continue
             quoted = [l for l in block.split("\n") if l.startswith(">")]
             prose = re.sub(r"^>\s?", "", "\n".join(quoted), flags=re.M).strip()

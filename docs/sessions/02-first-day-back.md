@@ -21,7 +21,7 @@ Longer and more silent than the 17-minute target. Both are correct for this sess
 
 ---
 
-## Beat 1 — Grounding intro · CACHED
+## Beat 1 — Grounding intro · CACHED · role: grounding_intro
 `sensitive register · slow pacing` — 1:43 · 70 words · 52s silence
 
 Full text in [`00-intro-matrix.md`](./00-intro-matrix.md) §4. Selected because the
@@ -30,7 +30,7 @@ demand from every line.
 
 ---
 
-## Beat 2 — Settling · GENERATED
+## Beat 2 — Settling · GENERATED · role: settling
 1:30 · 61 words · 46s silence
 
 > Nothing here needs solving. This is only a place to stand for a while.
@@ -55,7 +55,7 @@ demand from every line.
 
 ---
 
-## Beat 3 — Arrival · GENERATED
+## Beat 3 — Arrival · GENERATED · role: approach
 2:08 · 96 words · 58s silence
 
 > The garage first. That particular cold that concrete holds even in summer.
@@ -90,7 +90,7 @@ demand from every line.
 
 ---
 
-## Beat 4 — Threshold · GENERATED
+## Beat 4 — Threshold · GENERATED · role: threshold
 1:54 · 83 words · 54s silence
 
 > The badge. That small weight in your hand, warmer than it was in the car.
@@ -121,7 +121,7 @@ demand from every line.
 
 ---
 
-## Beat 5 — The work · GENERATED
+## Beat 5 — The work · GENERATED · role: competence
 2:26 · 116 words · 62s silence
 
 > Your desk. The chair takes your weight and settles about an inch, the way chairs do.
@@ -156,7 +156,7 @@ demand from every line.
 
 ---
 
-## Beat 6 — The question · GENERATED
+## Beat 6 — The question · GENERATED · role: the_moment
 2:11 · 90 words · 66s silence
 
 > Late morning. Someone sits down on the edge of the desk beside yours.
@@ -191,7 +191,7 @@ demand from every line.
 
 ---
 
-## Beat 7 — What comes back · GENERATED
+## Beat 7 — What comes back · GENERATED · role: what_returns
 1:55 · 79 words · 58s silence
 
 > They do not flinch.
@@ -223,7 +223,7 @@ demand from every line.
 
 ---
 
-## Beat 8 — The day continues · GENERATED
+## Beat 8 — The day continues · GENERATED · role: continuation
 2:52 · 129 words · 78s silence
 
 > You go back to the workpapers.
@@ -265,7 +265,7 @@ demand from every line.
 
 ---
 
-## Beat 9 — Anchor · GENERATED
+## Beat 9 — Anchor · GENERATED · role: anchor
 1:21 · 60 words · 38s silence
 
 > Here is what to take with you.
@@ -292,7 +292,7 @@ demand from every line.
 
 ---
 
-## Beat 10 — Reorientation · GENERATED
+## Beat 10 — Reorientation · GENERATED · role: reorientation
 1:06 · 50 words · 30s silence
 
 > Come back to the room you are actually in.

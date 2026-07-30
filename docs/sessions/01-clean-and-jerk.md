@@ -23,7 +23,7 @@ same script runs **13:05 (110 wpm) to 15:07 (85 wpm)**. 761 words, 370s of silen
 
 ---
 
-## Beat 1 — Grounding intro · CACHED
+## Beat 1 — Grounding intro · CACHED · role: grounding_intro
 `standard pacing · settling register` — 1:26 · 64 words · 40s silence
 Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
@@ -49,7 +49,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 2 — Settling · GENERATED
+## Beat 2 — Settling · GENERATED · role: settling
 1:40 · 86 words · 46s silence
 
 > Notice where you're being held up. The backs of your legs. Your heels, or your hips.
@@ -80,7 +80,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 3 — Approach · GENERATED
+## Beat 3 — Approach · GENERATED · role: approach
 2:27 · 141 words · 58s silence
 
 > There's a room behind the platform where the bars are already loaded.
@@ -120,7 +120,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 4 — Setup · GENERATED
+## Beat 4 — Setup · GENERATED · role: event
 1:45 · 97 words · 44s silence
 
 > The bar is colder than the room.
@@ -156,7 +156,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 5 — The difficult part · GENERATED
+## Beat 5 — The difficult part · GENERATED · role: difficulty_and_response
 2:11 · 117 words · 57s silence
 
 > Off the floor it's fast. Past the knee it's fast. The turnover is where it always is.
@@ -196,7 +196,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 6 — Completion · GENERATED
+## Beat 6 — Completion · GENERATED · role: completion
 1:34 · 83 words · 42s silence
 
 > Two breaths in the rack. The bar sits where it always sits — you don't have to fix
@@ -227,7 +227,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 7 — Aftermath & anchor · GENERATED
+## Beat 7 — Aftermath & anchor · GENERATED · role: anchor
 2:10 · 118 words · 55s silence
 
 > Notice where that sits in your body. Not the relief — underneath the relief.
@@ -271,7 +271,7 @@ Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 ---
 
-## Beat 8 — Reorientation · GENERATED
+## Beat 8 — Reorientation · GENERATED · role: reorientation
 1:00 · 51 words · 28s silence
 
 > Come back to where you actually are.
