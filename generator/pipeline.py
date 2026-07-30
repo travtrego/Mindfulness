@@ -138,11 +138,16 @@ def _live_llm(usage: Usage | None = None) -> LLM | None:
 
 
 def _json_from(text: str) -> dict | list:
-    """Models wrap JSON in prose and fences more often than not."""
+    """Models wrap JSON in prose and fences more often than not.
+
+    raw_decode rather than loads: a model that answers with the object and then adds
+    "Let me know if you'd like changes" is the single most common shape after fencing, and
+    loads rejects it outright as trailing data.
+    """
     fenced = re.search(r"```(?:json)?\s*(.+?)```", text, re.S)
     raw = fenced.group(1) if fenced else text
     start = min((raw.find(c) for c in "[{" if raw.find(c) != -1), default=0)
-    return json.loads(raw[start:])
+    return json.JSONDecoder().raw_decode(raw[start:])[0]
 
 
 def generate(user_text: str, *, category: str | None = None, memory: dict | None = None,
@@ -171,10 +176,23 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         }
         trace.add("intent", note="dry run - using stub", result=intent)
     else:
-        intent = _json_from(llm(p))
+        try:
+            intent = _json_from(llm(p))
+            if not isinstance(intent, dict):
+                raise ValueError(f"intent is a {type(intent).__name__}, not an object")
+        except (ValueError, TypeError) as e:
+            # unparseable intent used to take the whole run down before a word was drafted.
+            # The category the listener tapped is already known; that is enough to proceed.
+            trace.add("intent-unparseable", error=str(e))
+            intent = {"category": category or "nature"}
         trace.add("intent", result=intent)
 
-    template = for_category(intent["category"])
+    try:
+        template = for_category(intent.get("category"))
+    except ValueError as e:
+        trace.add("category-unknown", error=str(e), fell_back_to=category or "nature")
+        intent["category"] = category if category else "nature"
+        template = for_category(intent["category"])
     slots = dict(intent.get("slots", {}))
     exclusions = {
         "standing": standing_exclusions or [],
@@ -242,15 +260,25 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         attempts = 0
         while not report.ok and attempts < MAX_REWRITES:
             attempts += 1
-            fix = _rewrite_prompt(text, report)
-            trace.add("rewrite", role=beat["role"], attempt=attempts,
-                      findings=[f.rule for f in report.errors], prompt=fix)
-            text = llm(fix, system=prompts.CRAFT_RULES).strip()
+            # nothing to rewrite when there is nothing there - ask for the beat again
+            if not text:
+                trace.add("redraft", role=beat["role"], attempt=attempts,
+                          reason="empty draft")
+                text = llm(p, system=prompts.CRAFT_RULES).strip()
+            else:
+                fix = _rewrite_prompt(text, report)
+                trace.add("rewrite", role=beat["role"], attempt=attempts,
+                          findings=[f.rule for f in report.errors], prompt=fix)
+                text = llm(fix, system=prompts.CRAFT_RULES).strip()
             report = check(text)
 
         if not report.ok:
             trace.add("craft-pass-with-warnings", role=beat["role"],
                       findings=[f"{f.rule}: {f.detail}" for f in report.errors])
+        if not text:
+            # every downstream consumer assumes a beat has words. Say so loudly rather than
+            # writing a session with a hole in it.
+            print(f"  !! beat {beat['role']} is empty after {attempts} attempt(s)")
 
         session.beats.append({**beat, "text": text, "craft": report})
         prior += "\n\n" + text

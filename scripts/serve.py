@@ -10,6 +10,7 @@ without maintaining two copies.
 """
 import argparse
 import http.server
+import inspect
 import json
 import socketserver
 import sys
@@ -59,7 +60,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             n = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(n) or "{}")
-            out = fn(**{k: v for k, v in body.items() if k in fn.__code__.co_varnames})
+            # signature parameters only. co_varnames also lists locals, so a body key that
+            # happened to match one - "llm", "usage", "template" - was forwarded as a kwarg
+            allowed = set(inspect.signature(fn).parameters)
+            out = fn(**{k: v for k, v in body.items() if k in allowed})
         except Exception as e:
             # The app falls back to its own canned copy on any failure, so a broken model
             # call degrades to the old behaviour instead of an empty screen.
@@ -88,8 +92,11 @@ def main():
     global SRC
     SRC = DOC if a.doc else APP
 
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", a.port), Handler) as srv:
+    # threaded: a live /api call runs 10-30s, and on a single-threaded server that blocks
+    # every other request including the page reload
+    socketserver.ThreadingTCPServer.allow_reuse_address = True
+    socketserver.ThreadingTCPServer.daemon_threads = True
+    with socketserver.ThreadingTCPServer(("127.0.0.1", a.port), Handler) as srv:
         url = f"http://localhost:{a.port}"
         print(f"{'document' if a.doc else 'app':<10} {url}")
         print(f"           edit {SRC.relative_to(ROOT)} and refresh — no rebuild")

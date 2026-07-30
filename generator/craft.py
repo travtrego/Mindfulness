@@ -102,11 +102,21 @@ def check(text: str, *, is_cached: bool = False, min_noticing: float = 0.12,
     because the recording cannot know the listener's standing exclusions.
     """
     r = Report()
+    # Silence markers are not spoken. The word matcher is [a-z']+, so the "s" in *[6s]*
+    # counted as a word and every generated beat's word count came out high by exactly the
+    # number of pauses in it - which is also the number the runtime budget is checked
+    # against.
+    text = re.sub(r"\*\[\d+s[^\]]*\]\*", " ", text)
+
     sentences = [s.strip() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
     r.sentences = len(sentences)
     words = re.findall(r"[a-z']+", text.lower())
     r.words = len(words)
     if not words:
+        # a beat that produced nothing used to pass the gate silently, and the pipeline
+        # would append it and move on
+        if not is_cached:
+            r.findings.append(Finding("error", "empty", "beat produced no narration"))
         return r
 
     wordset = set(words)
