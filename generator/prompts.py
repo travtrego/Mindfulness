@@ -126,6 +126,41 @@ Return JSON: [{{"question": "...", "options": ["...", "..."], "fills": "slot_nam
 """
 
 
+def talk_prompt(template: Template, category: str, history: list[dict]) -> str:
+    """One conversational turn in layer 2a. Hard cap of three, enforced by the caller.
+
+    This is not a chatbot. It is a slot-filler that happens to use sentences, and the only
+    thing it is allowed to want is the situation. The three-turn cap is in SPEC.md 2.2 and
+    the reason is the 2am case: every turn is a turn the listener has to spend.
+    """
+    turns = "\n".join(f"{m['role']}: {m['text']}" for m in history)
+    return f"""\
+You are gathering the situation for a guided visualization. The listener chose
+"{category}", which routes to the {template.name} template — it aims at {template.aims_at}.
+
+Slots this template needs: {list(template.required_slots)}
+
+Conversation so far:
+{turns}
+
+Write the next thing to say. Rules:
+
+  - ONE short question. Never two. Never a question with a preamble.
+  - Ask about their situation, never about how they want to feel. There is no mood slot,
+    no goal slot, and no "what would you like to get out of this."
+  - Ask what only they can answer. You can imagine an excellent forest; you cannot imagine
+    the thirty seconds they are actually dreading.
+  - Do not reassure, validate, or comment on what they said. No "that sounds hard."
+  - Plain sentence. No therapeutic register.
+
+You have at most three turns total and this is turn {len(history) // 2 + 1}. If you already
+have enough to build the session, say nothing more and set done.
+
+Return JSON: {{"reply": "...", "done": false, "slots": {{"slot_name": "value"}}}}
+When done is true, "reply" may be an empty string.
+"""
+
+
 def outline_prompt(template: Template, slots: dict, budget: list[dict],
                    exclusions: dict, target_s: int) -> str:
     rules = "\n".join(f"  - {r}" for r in template.rules)

@@ -14,7 +14,7 @@ Not a meditation app. Meditation is one application of a broader visualization e
 | File | What it is |
 |---|---|
 | [`SPEC.md`](./SPEC.md) | Consolidated product + technical spec. Resolves the conflicts across the three source drafts and records the decisions with rationale. |
-| [`docs/app.html`](./docs/app.html) | **The app.** Full-screen interface, no annotations. Real navigation, working chat, breathing pacer. No audio yet. |
+| [`docs/app.html`](./docs/app.html) | **The app.** Full-screen interface, no annotations. Real navigation, live chat and questions, breathing pacer. No audio yet. |
 | [`docs/prototype.html`](./docs/prototype.html) | The same flow as a design document — every screen annotated with why it is that way. |
 
 ## Running it locally
@@ -51,6 +51,20 @@ python3 -m generator.cli "..." --dry     # force dry even with a key
 python3 -m generator.cli "..." --show-prompts
 ```
 
+### The app's two endpoints
+
+The chat and the amplifying questions call the generator through the local server. **The
+browser never holds the key** — a key shipped to a browser is a key published.
+
+```
+POST /api/talk        {category, history[]}  -> {reply, done, slots, live}
+POST /api/questions   {category, history[]}  -> {questions[], live}
+```
+
+With no key both return the hand-written fallbacks that used to be hardcoded in the page,
+so the interface still works offline. `live: false` says which you are looking at, and the
+browser console logs it. A failed call falls back rather than blanking the screen.
+
 ### Checks
 
 ```bash
@@ -84,8 +98,7 @@ and mean different things by it.
 1. **Read a generated session out loud.** Everything above is unverified until prose comes
    out the other end and holds up beside `docs/sessions/01` and `02`. Nothing else is
    worth doing first.
-2. Wire the app's chat to the generator; its replies are canned today.
-3. TTS: script → parallel synthesis → soundscape markers resolved against character
+2. TTS: script → parallel synthesis → soundscape markers resolved against character
    timings → mixed render.
 
 ## Input model

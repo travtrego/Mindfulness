@@ -591,7 +591,13 @@
     if (s) s.scrollTop = 0;
     if (name === "ask") buildQuestions();
     if (name === "close") anchor.textContent = ANCHORS[category] || ANCHORS._default;
-    if (name === "talk") { thread.innerHTML = '<p class="m app">What\'s going on?</p>'; input.value = ""; }
+    if (name === "talk") {
+      thread.innerHTML = '<p class="m app">What\'s going on?</p>';
+      input.value = "";
+      history = [{ role: "app", text: "What's going on?" }];
+      turn = 0;
+    }
+    if (name === "home") { history = []; scr.talk.dataset.used = ""; }
   }
 
   document.addEventListener("click", function (e) {
@@ -616,10 +622,25 @@
       hint    = document.getElementById("hint");
 
   function buildQuestions() {
-    var set = QUESTIONS[category] || QUESTIONS._default;
     askSub.textContent = scr.talk.dataset.used
       ? "Written from what you just told me."
       : "A few things and we'll go.";
+    qs.innerHTML = "";
+    post("/api/questions", { category: category, history: history })
+      .then(function (out) {
+        if (out.live === false) console.log("[questions] no API key — canned set");
+        if (!out.questions || !out.questions.length) throw 0;
+        // the server speaks {question, options}; the page has always spoken {q, a}
+        renderQuestions(out.questions.map(function (x) {
+          return { q: x.question, a: x.options || [], mem: x.fills === "duration" ? 1 : undefined };
+        }));
+      })
+      .catch(function () {
+        renderQuestions(QUESTIONS[category] || QUESTIONS._default);
+      });
+  }
+
+  function renderQuestions(set) {
     qs.innerHTML = "";
     set.forEach(function (item) {
       var d = document.createElement("div");
@@ -656,17 +677,23 @@
   });
 
   // ---- chat ----
-  var REPLIES = [
-    "Is it the thing itself, or what comes after it?",
-    "Then that's what we'll do. Same place, same people — you leave it another way.",
-  ];
+  // Layer 2a. The server holds the key and does the talking; see generator/api.py.
+  // With no key the server returns the same two lines this used to have hardcoded, so the
+  // flow still works offline and nothing here needs to know the difference.
+  var history = [];
   var turn = 0;
+
+  function post(path, body) {
+    return fetch(path, { method: "POST", body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); });
+  }
 
   function send() {
     var v = input.value.trim();
     if (!v) return;
     var me = document.createElement("p"); me.className = "m me"; me.textContent = v;
     thread.appendChild(me);
+    history.push({ role: "user", text: v });
     input.value = ""; input.style.height = "";
     thread.parentElement.scrollTop = 9e9;
 
@@ -675,22 +702,28 @@
     thread.appendChild(dots);
     thread.parentElement.scrollTop = 9e9;
 
-    setTimeout(function () {
-      dots.remove();
-      var reply = document.createElement("p");
-      reply.className = "m app";
-      reply.textContent = REPLIES[Math.min(turn, REPLIES.length - 1)];
-      thread.appendChild(reply);
-      thread.parentElement.scrollTop = 9e9;
-      turn++;
-      if (turn >= 2) {
-        setTimeout(function () {
-          scr.talk.dataset.used = "1";
-          go("ask");
-          turn = 0;
-        }, 1100);
-      }
-    }, 900);
+    post("/api/talk", { category: category, history: history })
+      .catch(function () { return { reply: "", done: true }; })
+      .then(function (out) {
+        dots.remove();
+        if (out.live === false) console.log("[talk] no API key — canned reply");
+        if (out.reply) {
+          var reply = document.createElement("p");
+          reply.className = "m app";
+          reply.textContent = out.reply;
+          thread.appendChild(reply);
+          history.push({ role: "app", text: out.reply });
+          thread.parentElement.scrollTop = 9e9;
+        }
+        turn++;
+        if (out.done || turn >= 3) {
+          setTimeout(function () {
+            scr.talk.dataset.used = "1";
+            go("ask");
+            turn = 0;
+          }, 1100);
+        }
+      });
   }
   document.getElementById("send").onclick = function (e) { e.stopPropagation(); send(); };
   input.addEventListener("keydown", function (e) {

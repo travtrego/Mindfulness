@@ -10,11 +10,14 @@ without maintaining two copies.
 """
 import argparse
 import http.server
+import json
 import socketserver
+import sys
 import webbrowser
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
 APP = ROOT / "docs/app.html"
 DOC = ROOT / "docs/prototype.html"
 SRC = APP
@@ -43,6 +46,32 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")   # always reflect the file on disk
         self.end_headers()
         self.wfile.write(page)
+
+    def do_POST(self):
+        """The chat and the questions. The key stays here and never reaches the browser."""
+        from generator import api
+
+        routes = {"/api/talk": api.talk, "/api/questions": api.questions}
+        fn = routes.get(self.path)
+        if not fn:
+            return self.send_error(404)
+
+        try:
+            n = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(n) or "{}")
+            out = fn(**{k: v for k, v in body.items() if k in fn.__code__.co_varnames})
+        except Exception as e:
+            # The app falls back to its own canned copy on any failure, so a broken model
+            # call degrades to the old behaviour instead of an empty screen.
+            out = {"error": f"{type(e).__name__}: {e}", "live": False}
+            print(f"  !! {self.path} {out['error']}")
+
+        payload = json.dumps(out).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
     def log_message(self, *a):
         pass
