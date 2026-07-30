@@ -1,12 +1,15 @@
 # Safe place — fourth visit
 
+*template: anchored_place*
+
 Reference session #3. **Anchored place** template, the only depth-0 template with stored
 state. This is a *return* visit, not the establishing one: the place already exists in
 memory, and the session's whole job is to not damage it.
 
 One tap. No questions. From tap to audio is about two seconds.
 
-Target 11:00 · 406 generated words · cached intro on top.
+Target 11:00 · **measured 11:16** · 406 generated words · 40% silence · cached intro on
+top.
 
 ## Inputs
 

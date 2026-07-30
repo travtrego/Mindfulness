@@ -15,6 +15,13 @@ from generator.craft import check, format_report  # noqa: E402
 
 ROOT = Path(__file__).parent.parent / "docs/sessions"
 
+# The noticing ratio is a rule about narration that describes something. Instruction beats
+# do not describe - "in, hold, out" is a direction, and a paced-breathing beat that hits
+# 12% noticing verbs is a beat that has started narrating the breath instead of pacing it.
+# Same exemption the intro matrix already gets, for the same reason. Per-beat rules (bans,
+# demands, person, tense) still run on these.
+INSTRUCTION_ROLES = {"paced_breathing"}
+
 
 def beats(path: Path):
     """Yield (label, prose, is_cached) for each beat in a reference session.
@@ -32,7 +39,8 @@ def beats(path: Path):
     for block in (tagged or blocks):
         label = block.split("\n")[0].strip()
         quoted = [l for l in block.split("\n") if l.startswith(">")]
-        prose = re.sub(r"\*\[\d+s\]\*", "", "\n".join(quoted))
+        # markers may be typed - *[6s]* or *[6s — hold]* (schema: sensory|transition|open|hold)
+        prose = re.sub(r"\*\[\d+s[^\]]*\]\*", "", "\n".join(quoted))
         prose = re.sub(r"^>\s?", "", prose, flags=re.M).strip()
         if len(prose.split()) < 10:
             continue
@@ -46,7 +54,9 @@ def main() -> int:
         whole = []
         for label, prose, cached in beats(path):
             r = check(prose, is_cached=cached)  # per-beat: bans, demands, person, tense
-            whole.append(prose)
+            role = re.search(r"role:\s*([a-z_]+)", label)
+            if not role or role.group(1) not in INSTRUCTION_ROLES:
+                whole.append(prose)
             print(format_report(label[:26], r))
             failed += len(r.errors)
 

@@ -10,6 +10,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
+DEFAULT_SILENCE = 0.42          # measured across the hand-written sessions
+
+
 @dataclass(frozen=True)
 class BeatSpec:
     role: str
@@ -18,6 +21,7 @@ class BeatSpec:
     note: str = ""
     source: str = "generated"
     optional: bool = False
+    silence_share: float | None = None   # None = the session default (0.42)
 
 
 @dataclass(frozen=True)
@@ -51,7 +55,7 @@ TEMPLATES: dict[str, Template] = {
             INTRO,
             BeatSpec("settling", 0.15, 80),
             BeatSpec("paced_breathing", 0.75, 70, "parametric, minimal narration",
-                     source="parametric"),
+                     source="parametric", silence_share=0.65),
             BeatSpec("reorientation", 0.10, 85),
         ),
         rules=(
@@ -73,7 +77,7 @@ TEMPLATES: dict[str, Template] = {
             BeatSpec("settling", 0.12, 82),
             BeatSpec("entry_threshold", 0.15, 75, "shortens as visit_number rises"),
             BeatSpec("establish_world", 0.25, 72, "uses stored details ONLY"),
-            BeatSpec("deepening", 0.22, 72, "exactly one new detail this visit"),
+            BeatSpec("deepening", 0.24, 72, "exactly one new detail this visit"),
             BeatSpec("anchor", 0.18, 85),
             REORIENT,
         ),
@@ -120,10 +124,10 @@ TEMPLATES: dict[str, Template] = {
         required_slots=("environment", "realism", "movement"),
         beats=(
             INTRO,
-            BeatSpec("settling", 0.10, 82),
-            BeatSpec("entry_threshold", 0.14, 75),
-            BeatSpec("establish_world", 0.24, 70),
-            BeatSpec("meaningful_experience", 0.26, 70, "movement through the landscape"),
+            BeatSpec("settling", 0.09, 82),
+            BeatSpec("entry_threshold", 0.13, 75),
+            BeatSpec("establish_world", 0.22, 70),
+            BeatSpec("meaningful_experience", 0.24, 70, "movement through the landscape"),
             BeatSpec("consolidation", 0.14, 72, "the stillness beat"),
             BeatSpec("anchor", 0.12, 85),
             REORIENT,
@@ -146,7 +150,7 @@ TEMPLATES: dict[str, Template] = {
         required_slots=("focus", "object"),
         beats=(
             INTRO,
-            BeatSpec("settling", 0.18, 80),
+            BeatSpec("settling", 0.19, 80),
             BeatSpec("meaningful_experience", 0.42, 72, "the noticing sequence"),
             BeatSpec("consolidation", 0.20, 75, "widening"),
             BeatSpec("anchor", 0.13, 85),
@@ -167,13 +171,14 @@ TEMPLATES: dict[str, Template] = {
         required_slots=("setting", "the_feared_exchange", "competence_domain"),
         beats=(
             INTRO,
-            BeatSpec("settling", 0.09, 82, "must state that nothing is a test"),
-            BeatSpec("threshold", 0.14, 78, "the crossing-in. usually the anchor's source"),
-            BeatSpec("competence", 0.17, 78, "what the listener can still do. NEVER absent"),
-            BeatSpec("the_moment", 0.13, 72, "embedded, NOT climactic"),
-            BeatSpec("what_returns", 0.12, 74, "small. not a speech"),
-            BeatSpec("continuation", 0.19, 80, "LOAD-BEARING. must outlast the_moment"),
-            BeatSpec("anchor", 0.10, 85, "a daily-recurring physical event"),
+            BeatSpec("settling", 0.08, 82, "must state that nothing is a test"),
+            BeatSpec("approach", 0.10, 80, "getting there. separate from the crossing-in"),
+            BeatSpec("threshold", 0.13, 78, "the crossing-in. usually the anchor's source"),
+            BeatSpec("competence", 0.15, 78, "what the listener can still do. NEVER absent"),
+            BeatSpec("the_moment", 0.12, 72, "embedded, NOT climactic"),
+            BeatSpec("what_returns", 0.11, 74, "small. not a speech"),
+            BeatSpec("continuation", 0.17, 80, "LOAD-BEARING. must outlast the_moment"),
+            BeatSpec("anchor", 0.08, 85, "a daily-recurring physical event"),
             REORIENT,
         ),
         rules=(
@@ -208,22 +213,25 @@ def for_category(category: str) -> Template:
 def allocate(template: Template, target_s: int, intro_s: int) -> list[dict]:
     """Turn a template plus a duration into concrete per-beat word and silence budgets.
 
-    Silence runs ~42% of runtime in the reference sessions, so speech gets ~58%.
+    Silence runs ~42% of runtime in the reference sessions, so speech gets ~58%. A beat may
+    override that: `paced_breathing` is mostly silence by definition, and the flat split
+    handed it enough words to narrate every cycle to the end - which is the one thing a
+    breath beat must not do (docs/sessions/04).
     """
     generated_s = max(target_s - intro_s, 60)
-    speech_s = generated_s * 0.58
     out = []
     for b in template.beats:
         if b.source == "cached":
             out.append({"role": b.role, "source": "cached", "wpm": b.wpm})
             continue
-        beat_speech = speech_s * b.share
+        beat_s = generated_s * b.share
+        silence = b.silence_share if b.silence_share is not None else DEFAULT_SILENCE
         out.append({
             "role": b.role,
             "source": b.source,
             "wpm": b.wpm,
-            "word_target": max(round(beat_speech / 60 * b.wpm), 20),
-            "silence_total_s": round(generated_s * b.share * 0.42),
+            "word_target": max(round(beat_s * (1 - silence) / 60 * b.wpm), 20),
+            "silence_total_s": round(beat_s * silence),
             "note": b.note,
         })
     return out

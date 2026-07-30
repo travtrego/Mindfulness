@@ -225,7 +225,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
             session.beats.append({**beat, "text": None})
             continue
 
-        exemplar = prompts.load_exemplar(beat["role"])
+        exemplar = prompts.load_exemplar(beat["role"], template.name)
         p = prompts.draft_prompt(beat, template, slots, prior, exemplar)
         trace.add("draft", role=beat["role"], prompt=p)
         text = llm(p, system=prompts.CRAFT_RULES).strip()

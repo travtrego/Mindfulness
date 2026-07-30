@@ -45,9 +45,9 @@ def main() -> int:
 
     for name, block, stated_w, stated_s in blocks:
         lines = [l for l in block.split("\n") if l.startswith(">")]
-        spoken = re.sub(r"\*\[\d+s\]\*", "", "\n".join(lines)).replace(">", " ")
+        spoken = re.sub(r"\*\[\d+s[^\]]*\]\*", "", "\n".join(lines)).replace(">", " ")
         words = spoken.split()
-        silences = [int(x) for x in re.findall(r"\*\[(\d+)s\]\*", block)]
+        silences = [int(x) for x in re.findall(r"\*\[(\d+)s[^\]]*\]\*", block)]
 
         w, s = len(words), sum(silences)
         if w != int(stated_w):

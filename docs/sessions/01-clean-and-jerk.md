@@ -1,5 +1,7 @@
 # Reference session 01 — final clean & jerk
 
+*template: rehearsal*
+
 **Exemplar #1.** Hand-written, not generated. This is the standard generated sessions are
 measured against, and the source of few-shot examples for the draft and sensory passes.
 

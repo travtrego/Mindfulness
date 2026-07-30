@@ -1,5 +1,7 @@
 # Reference session 02 — first day back
 
+*template: reentry*
+
 **Exemplar #2.** Hand-written. Establishes the **Re-entry** template — the sixth, and the
 first one added since the original five.
 

@@ -198,7 +198,7 @@ Return the narration only. No preamble, no headings, no explanation.
 """
 
 
-def load_exemplar(role: str) -> str:
+def load_exemplar(role: str, template: str | None = None) -> str:
     """Pull a hand-written beat of the same role from the reference sessions.
 
     Few-shot on a handful of excellent examples beats almost anything else available at this
@@ -208,11 +208,18 @@ def load_exemplar(role: str) -> str:
     earlier version matched the title's first word, which silently returned the wrong beat
     whenever the two disagreed - `the_moment` matched on "the" and pulled whichever block
     happened to be longest.
+
+    Template matters as much as role, because two templates can share a role name and mean
+    different things by it: `meaningful_experience` is movement through a landscape in
+    `immersive` and a noticing sequence in `reflective` (docs/sessions/05 and 06). A
+    same-template beat always wins over a longer one from elsewhere.
     """
     import re
-    best = ""
+    best = ("", -1)          # prose, score
     for path in sorted(REFERENCE_DIR.glob("[0-9][0-9]-*.md")):
         text = path.read_text().split("\n# ")[0]
+        tpl = re.search(r"^\*template:\s*([a-z_]+)\*", text, re.M)
+        same = bool(template and tpl and tpl.group(1) == template)
         for block in re.split(r"\n## Beat ", text)[1:]:
             header = block.split("\n")[0]
             tag = re.search(r"role:\s*([a-z_]+)", header)
@@ -220,6 +227,7 @@ def load_exemplar(role: str) -> str:
                 continue
             quoted = [l for l in block.split("\n") if l.startswith(">")]
             prose = re.sub(r"^>\s?", "", "\n".join(quoted), flags=re.M).strip()
-            if len(prose) > len(best):
-                best = prose
-    return best or "(no exemplar for this role yet)"
+            score = len(prose) + (100_000 if same else 0)
+            if score > best[1]:
+                best = (prose, score)
+    return best[0] or "(no exemplar for this role yet)"

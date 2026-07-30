@@ -58,6 +58,7 @@ python3 scripts/check_craft.py           # craft validator vs the hand-written s
 python3 scripts/check_intros.py          # the four cached intros
 python3 scripts/validate_outline.py docs/schema/example-01-clean-and-jerk.json
 python3 scripts/smoke_live_path.py       # whole live path against a fake model, no spend
+python3 scripts/session_stats.py         # measured runtime per session + template shares
 ```
 
 ## Status
@@ -65,19 +66,26 @@ python3 scripts/smoke_live_path.py       # whole live path against a fake model,
 Text pipeline built, validated, and wired to the live API. **No audio yet** — that needs
 an ElevenLabs key. Nothing is deployed; the app runs locally only.
 
-Three of six templates have hand-written exemplars (`rehearsal`, `reentry`,
-`anchored_place`), so 16 of 19 beat roles resolve to a few-shot example. Three roles still
-draft blind: `paced_breathing`, `meaningful_experience`, `consolidation`.
+**All six templates have a hand-written exemplar, and all 19 beat roles resolve to one.**
+Exemplars are matched on template *and* role, because two templates can share a role name
+and mean different things by it.
+
+| # | Session | Template | Measured |
+|---|---|---|---|
+| 01 | Clean and jerk | `rehearsal` | 16:18 |
+| 02 | First day back | `reentry` | 19:35 |
+| 03 | Safe place, fourth visit | `anchored_place` | 11:16 |
+| 04 | Just breathing | `breath_only` | 6:22 |
+| 05 | Frozen lake at dusk | `immersive` | 16:07 |
+| 06 | What your hands did today | `reflective` | 11:08 |
 
 **Next up, in order:**
 
 1. **Read a generated session out loud.** Everything above is unverified until prose comes
    out the other end and holds up beside `docs/sessions/01` and `02`. Nothing else is
    worth doing first.
-2. Hand-write exemplars for `immersive`, `reflective`, and `breath_only` — the three
-   roles that currently draft blind.
-3. Wire the app's chat to the generator; its replies are canned today.
-4. TTS: script → parallel synthesis → soundscape markers resolved against character
+2. Wire the app's chat to the generator; its replies are canned today.
+3. TTS: script → parallel synthesis → soundscape markers resolved against character
    timings → mixed render.
 
 ## Input model
