@@ -8,7 +8,7 @@ the one most likely to drift into travel-brochure writing.
 
 Depth 1 — one tap, three questions, no chat.
 
-Target 16:00 · **measured 16:07** · 538 generated words · 47% silence · cached intro on
+Target 16:00 · **measured 15:42** · 538 generated words · 47% silence · cached intro on
 top.
 
 ## Inputs

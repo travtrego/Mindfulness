@@ -8,7 +8,7 @@ memory, and the session's whole job is to not damage it.
 
 One tap. No questions. From tap to audio is about two seconds.
 
-Target 11:00 · **measured 11:16** · 406 generated words · 40% silence · cached intro on
+Target 11:00 · **measured 10:50** · 379 generated words · 40% silence · cached intro on
 top.
 
 ## Inputs

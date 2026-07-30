@@ -24,7 +24,7 @@ Longer and more silent than the 17-minute target. Both are correct for this sess
 ---
 
 ## Beat 1 — Grounding intro · CACHED · role: grounding_intro
-`sensitive register · slow pacing` — 1:43 · 70 words · 52s silence
+> *(cached: `intro/sensitive_slow`)* — 2:09 · 70 words · 52s silence
 
 Full text in [`00-intro-matrix.md`](./00-intro-matrix.md) §4. Selected because the
 sensitivity flag is set: it carries explicit stop permission and removes the implicit

@@ -13,10 +13,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from generator import intros  # noqa: E402
 from generator.templates import TEMPLATES  # noqa: E402
 
 ROOT = Path(__file__).parent.parent / "docs/sessions"
-INTRO_S = 103          # standard pacing; slow is 128, brisk 84
 
 
 def stats(path: Path) -> None:
@@ -26,7 +26,15 @@ def stats(path: Path) -> None:
         return
     wpm = {b.role: b.wpm for b in TEMPLATES[tpl.group(1)].beats}
 
-    print(f"\n{path.name}   template: {tpl.group(1)}")
+    # the intro is a recording of known length - read which one, do not assume
+    ref = re.search(r"cached:\s*`intro/([a-z]+)_([a-z]+)`", text)
+    if not ref or ref.group(1) not in intros.SCRIPTS or ref.group(2) not in intros.PACING:
+        print(f"\n{path.name}: no readable intro cached_ref")
+        return
+    intro_s = intros.duration(ref.group(1), ref.group(2))
+
+    print(f"\n{path.name}   template: {tpl.group(1)}   "
+          f"intro: {ref.group(1)}/{ref.group(2)} {intro_s}s")
     print(f"{'beat':<24}{'words':>6}{'wpm':>5}{'speech':>8}{'silence':>9}{'total':>8}")
     print("-" * 60)
 
@@ -50,9 +58,9 @@ def stats(path: Path) -> None:
         silence += sil
         print(f"{role.group(1):<24}{w:>6}{rate:>5}{sp:>7.0f}s{sil:>8}s{sp + sil:>7.0f}s")
 
-    total = speech + silence + INTRO_S
+    total = speech + silence + intro_s
     print("-" * 60)
-    print(f"{'+ cached intro':<24}{'':>11}{'':>8}{INTRO_S:>8}s")
+    print(f"{'+ cached intro':<24}{'':>11}{'':>8}{intro_s:>8}s")
     print(f"runtime {total / 60:.2f} min   silence "
           f"{silence / (speech + silence) * 100:.0f}% of generated")
 

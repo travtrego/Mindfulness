@@ -10,9 +10,12 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from generator import intros as INTROS  # noqa: E402
+
 DOC = Path(__file__).parent.parent / "docs/sessions/00-intro-matrix.md"
 
-PACING = {"slow": (72, 1.35), "standard": (82, 1.00), "brisk": (92, 0.75)}
+PACING = INTROS.PACING
 
 WORD_MIN, WORD_MAX = 45, 75
 HEDGES = {"gently", "simply", "just", "slightly", "somewhat", "perhaps", "maybe"}
@@ -75,10 +78,23 @@ def main() -> int:
             if len(re.findall(r",", l)) >= 2 and " and " in l:
                 problems.append(f"{name}: possible three-item enumeration - {l.strip(' >')[:60]}")
 
+        # generator/intros.py duplicates these numbers because the pipeline needs them at
+        # runtime. If they drift, every session in the affected register is mis-sized.
+        coded = INTROS.SCRIPTS.get(name.lower())
+        if coded is None:
+            problems.append(f"{name}: no entry in generator/intros.py")
+        elif coded != (w, s):
+            problems.append(
+                f"{name}: generator/intros.py says {coded[0]}w/{coded[1]}s, "
+                f"the script is {w}w/{s}s"
+            )
+
         row = f"{name:<12}{w:>6}{s:>5}"
         for p in ("slow", "standard", "brisk"):
             wpm, mult = PACING[p]
             d = w / wpm * 60 + s * mult
+            if coded and abs(d - INTROS.duration(name.lower(), p)) > 1:
+                problems.append(f"{name}/{p}: duration disagrees with generator/intros.py")
             row += fmt(d).rjust(9 if p == "slow" else 10 if p == "standard" else 8)
         print(row)
 

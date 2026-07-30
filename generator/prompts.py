@@ -85,8 +85,16 @@ Return JSON only:
   "still_empty": [ ],                // required slots you could NOT fill
   "target_duration_s": <int>,
   "sensitivity_flag": <bool>,        // grief, trauma, crisis-adjacent, or self-harm
+  "intro_register": "<settling | neutral | activating>",
   "session_exclusions": [ ]          // things the listener asked you not to raise
 }}
+
+intro_register picks which cached opening plays, and it is about the state they are in
+right now, not the session they asked for. "activating" for someone keyed up before
+something; "settling" for wired-and-tired, late, or overwhelmed; "neutral" when you cannot
+tell, which is most of the time. Guess neutral rather than guessing wrong - a settling
+intro on someone who is already flat is worse than a plain one. Sensitivity overrides this
+entirely.
 
 sensitivity_flag is conservative: when unsure, set it true.
 

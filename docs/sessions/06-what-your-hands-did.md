@@ -13,7 +13,7 @@ the generator to put a landscape in a session that has no landscape.
 
 Depth 1 — one tap, three questions.
 
-Target 11:00 · **measured 11:08** · 310 generated words · 49% silence · cached intro on
+Target 11:00 · **measured 10:52** · 310 generated words · 49% silence · cached intro on
 top.
 
 ## Inputs

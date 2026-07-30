@@ -44,7 +44,9 @@ drafted = [b for b in s.beats if b.get("text")]
 print(f"beats drafted  {len(drafted)} of {len(s.beats)}")
 print(f"script words   {len(s.script.split())}")
 
-out = Path(sys.argv[1] if len(sys.argv) > 1 else "fake.md")
+import tempfile
+out = Path(sys.argv[1] if len(sys.argv) > 1 else
+           Path(tempfile.gettempdir()) / "smoke-session.md")
 write_session_doc(s, out, "meet on saturday")
 print(f"\n{out}:\n")
 print("\n".join(out.read_text().split("\n")[:24]))

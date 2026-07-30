@@ -8,7 +8,7 @@ to hide.
 
 Depth 0. One tap. This is the 2am case.
 
-Target 6:00 · **measured 6:22** · 132 generated words · 55% silence · cached intro on top.
+Target 6:00 · **measured 6:26** · 132 generated words · 55% silence · cached intro on top.
 
 ## Inputs
 

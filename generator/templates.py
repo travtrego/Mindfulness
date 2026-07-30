@@ -1,16 +1,50 @@
 """The six templates, as data.
 
-Category count is not the build cost - template count is. Fifteen categories map onto six
+Category count is not the build cost - template count is. Fourteen categories map onto six
 beat structures here, and adding a category is one line while adding a template is real work.
 
 See docs/templates/slots.md for what each template needs filled and where it comes from.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 DEFAULT_SILENCE = 0.42          # measured across the hand-written sessions
+
+# schema: sensory 3-6s | transition 6-12s | open 15-30s | hold after a climax or an anchor
+_SILENCE_BANDS = ((6, "sensory"), (12, "transition"), (30, "open"))
+
+
+def silence_plan(total_s: int, role: str) -> list[dict]:
+    """Split a beat's silence budget into typed blocks that sum to exactly total_s.
+
+    The model is asked for this and usually gives it, but when it does not, an outline used
+    to carry silence_total_s with an empty plan - which contradicts the schema's own rule
+    that the two agree, and made the runtime gate see a session with no silence in it at
+    all. A default that is merely reasonable beats a field that is merely absent.
+    """
+    if total_s <= 0:
+        return []
+    # a paced-breathing silence IS the breath, so it is never stretched or merged
+    if role == "paced_breathing":
+        n = max(1, round(total_s / 14))
+    else:
+        n = max(1, round(total_s / 12))
+
+    base, extra = divmod(total_s, n)
+    if base < 2:                       # too little to split; one block
+        return [{"type": "transition", "seconds": total_s}]
+
+    out = []
+    for i in range(n):
+        secs = base + (1 if i < extra else 0)
+        if role == "paced_breathing":
+            kind = "hold"
+        else:
+            kind = next((k for lim, k in _SILENCE_BANDS if secs <= lim), "open")
+        out.append({"type": kind, "seconds": secs})
+    return out
 
 
 @dataclass(frozen=True)
@@ -226,12 +260,14 @@ def allocate(template: Template, target_s: int, intro_s: int) -> list[dict]:
             continue
         beat_s = generated_s * b.share
         silence = b.silence_share if b.silence_share is not None else DEFAULT_SILENCE
+        sil_s = round(beat_s * silence)
         out.append({
             "role": b.role,
             "source": b.source,
             "wpm": b.wpm,
             "word_target": max(round(beat_s * (1 - silence) / 60 * b.wpm), 20),
-            "silence_total_s": round(beat_s * silence),
+            "silence_total_s": sil_s,
+            "silence_plan": silence_plan(sil_s, b.role),
             "note": b.note,
         })
     return out

@@ -9,7 +9,6 @@ and prints both. Enough to check the shape before spending a token.
 """
 import argparse
 import datetime as dt
-import json
 import re
 import sys
 from pathlib import Path

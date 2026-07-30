@@ -83,6 +83,7 @@ python3 scripts/validate_outline.py docs/schema/example-01-clean-and-jerk.json
 python3 scripts/smoke_live_path.py       # whole live path against a fake model, no spend
 python3 scripts/session_stats.py         # measured runtime per session + template shares
 python3 scripts/test_bad_outlines.py     # ten malformed model outlines, none may crash a run
+python3 scripts/check_pipeline_schema.py # every template's real output vs our own schema
 ```
 
 ## Status
@@ -96,12 +97,16 @@ and mean different things by it.
 
 | # | Session | Template | Measured |
 |---|---|---|---|
-| 01 | Clean and jerk | `rehearsal` | 16:18 |
-| 02 | First day back | `reentry` | 19:35 |
-| 03 | Safe place, fourth visit | `anchored_place` | 11:16 |
-| 04 | Just breathing | `breath_only` | 6:22 |
-| 05 | Frozen lake at dusk | `immersive` | 16:07 |
-| 06 | What your hands did today | `reflective` | 11:08 |
+| 01 | Clean and jerk | `rehearsal` | 16:02 |
+| 02 | First day back | `reentry` | 20:01 |
+| 03 | Safe place, fourth visit | `anchored_place` | 10:50 |
+| 04 | Just breathing | `breath_only` | 6:26 |
+| 05 | Frozen lake at dusk | `immersive` | 15:42 |
+| 06 | What your hands did today | `reflective` | 10:52 |
+
+Runtimes include each session's own cached intro, read from its `cached_ref` — the four
+intro scripts differ by up to 71 seconds, so assuming one number for all of them was worth
+about 25 seconds a session.
 
 **Next up, in order:**
 
@@ -131,7 +136,7 @@ and mean different things by it.
 Floor is one tap and about two seconds — that's the 2am case, and nothing may be added to
 it. Hard caps at 3 chat turns and 3 questions.
 
-**Fourteen categories on five templates.** Breadth is cheap; template count is the real
+**Fourteen categories on six templates.** Breadth is cheap; template count is the real
 build cost. See `SPEC.md` §1.5.
 
 | Group | Categories |
@@ -140,5 +145,6 @@ build cost. See `SPEC.md` §1.5.
 | Go somewhere | Nature · Adventure · Fantasy · Into sleep |
 | Prepare | Interview · Competition · Hard conversation · Confidence |
 | Reflect | Gratitude · Creativity |
+| Going back | First day back · Seeing people again |
 
 Plus Safe Place as a persistent return, and "just talk to me" as the chat entry.

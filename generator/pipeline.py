@@ -18,13 +18,12 @@ import re
 from dataclasses import dataclass, field
 from typing import Callable
 
-from . import prompts
+from . import intros, prompts
 from .craft import Report, check
 from .templates import Template, allocate, for_category
 
 MODEL = "claude-opus-5"
 MAX_REWRITES = 2          # then pass with a log entry rather than looping
-INTRO_SECONDS = {"slow": 128, "standard": 103, "brisk": 84}
 
 # claude-opus-5, USD per million tokens. Cache writes bill at 1.25x, reads at 0.1x.
 PRICE_IN = 5.00
@@ -187,9 +186,14 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
     lo, hi = template.duration_range
     target_s = max(lo, min(hi, target_s))
 
-    # sensitivity forces the slow, sensitive intro
-    if intent.get("sensitivity_flag"):
-        pacing = "slow"
+    # sensitivity forces the slow, sensitive intro. It is the only script carrying explicit
+    # stop permission (SPEC.md 8), so it is not a preference the model gets to weigh.
+    sensitive = bool(intent.get("sensitivity_flag"))
+    register = intent.get("intro_register") or "neutral"
+    if register not in intros.SCRIPTS:
+        register = "neutral"
+    if sensitive:
+        register, pacing = "sensitive", "slow"
 
     # --- 2. amplifying questions ----------------------------------------------
     still_empty = [s for s in template.required_slots if s not in slots]
@@ -200,7 +204,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
             trace.add("questions", result=_json_from(llm(p)))
 
     # --- 3. outline ------------------------------------------------------------
-    intro_s = INTRO_SECONDS[pacing]
+    intro_s = intros.duration(register, pacing)
     budget = allocate(template, target_s, intro_s)
     p = prompts.outline_prompt(template, slots, budget, exclusions, target_s)
     trace.add("outline", prompt=p, budget=budget)
@@ -209,13 +213,9 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
                       slots=slots, trace=trace, usage=usage)
 
     if dry:
-        session.outline = {
-            "schema_version": "1.0", "template": template.name,
-            "category": intent["category"], "target_duration_s": target_s,
-            "sensitivity_flag": bool(intent.get("sensitivity_flag")),
-            "exclusions": exclusions, "slots": slots,
-            "beats": budget, "transitions": [],
-        }
+        # same builder as the live path, so a dry outline is the exact shape a real one is
+        session.outline = _reconcile({}, budget, template, intent, exclusions,
+                                     slots, target_s, Trace(), pacing, register)
         return session
 
     try:
@@ -224,7 +224,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         trace.add("outline-unparseable", error=str(e))
         raw = {}
     session.outline = _reconcile(raw, budget, template, intent, exclusions,
-                                 slots, target_s, trace)
+                                 slots, target_s, trace, pacing, register)
 
     # --- 4. draft each beat, then gate ----------------------------------------
     prior = ""
@@ -263,7 +263,8 @@ _MODEL_FIELDS = ("id", "note", "beats_on", "do_not_mention", "silence_plan", "ca
 
 
 def _reconcile(raw: dict, budget: list[dict], template: Template, intent: dict,
-               exclusions: dict, slots: dict, target_s: int, trace: Trace) -> dict:
+               exclusions: dict, slots: dict, target_s: int, trace: Trace,
+               pacing: str = "standard", register: str = "neutral") -> dict:
     """Merge the model's outline onto the locally computed budget.
 
     The budget is authoritative for anything numeric: role order, word_target,
@@ -292,7 +293,10 @@ def _reconcile(raw: dict, budget: list[dict], template: Template, intent: dict,
         # a cached beat introduces no imagery, so it can carry no exclusions to honour
         if beat.get("source") == "cached":
             beat["do_not_mention"] = []
-            beat.setdefault("cached_ref", "intro/neutral_standard")
+            ref = f"intro/{register}_{pacing}"
+            if beat.get("cached_ref") and beat["cached_ref"] != ref:
+                trace.add("intro-overridden", model_said=beat["cached_ref"], used=ref)
+            beat["cached_ref"] = ref
         else:
             beat.setdefault("do_not_mention", [])
             beat.setdefault("beats_on", [])
@@ -300,7 +304,8 @@ def _reconcile(raw: dict, budget: list[dict], template: Template, intent: dict,
         beats.append(beat)
 
     extra = [r for r in beats_by_role if r not in {b["role"] for b in budget}]
-    if repaired or extra:
+    # a dry run passes {} on purpose - that is not a repair, it is the whole point
+    if raw and (repaired or extra):
         trace.add("outline-reconciled", missing=repaired, ignored=extra)
         print(f"  outline repaired: {len(repaired)} beat(s) rebuilt from the budget"
               + (f", {len(extra)} unknown role(s) dropped" if extra else ""))

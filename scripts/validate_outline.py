@@ -10,6 +10,9 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from generator import intros  # noqa: E402
+
 SCHEMA = Path(__file__).parent.parent / "docs/schema/outline.schema.json"
 DRIFT_TOLERANCE = 0.10  # SPEC.md 5.2
 
@@ -38,22 +41,33 @@ def check(path: Path) -> int:
     print("-" * 67)
 
     for b in beats:
-        plan = sum(s["seconds"] for s in b["silence_plan"])
-        if plan != b["silence_total_s"]:
-            problems.append(
-                f"{b['id']}: silence_plan sums to {plan}s, silence_total_s says {b['silence_total_s']}s"
-            )
-        sp = b["word_target"] / b["wpm"] * 60
-        speech += sp
-        silence += plan
-        print(f"{b['id']:<22}{b['role']:<26}{b['word_target']:>6}{b['wpm']:>5}{sp + plan:>7.0f}s")
-
         # cached beats may introduce no imagery and carry no exclusions
         if b["source"] == "cached":
             if b.get("do_not_mention"):
                 problems.append(f"{b['id']}: cached beat carries exclusions it cannot honour")
-            if not b.get("cached_ref"):
+            ref = b.get("cached_ref")
+            if not ref:
                 problems.append(f"{b['id']}: cached beat has no cached_ref")
+            # a recording has a known length; take it from the matrix rather than a word
+            # budget it does not have. An outline that omits both cannot be timed at all.
+            elif "word_target" not in b:
+                reg, _, pac = ref.removeprefix("intro/").partition("_")
+                if reg in intros.SCRIPTS and pac in intros.PACING:
+                    d = intros.duration(reg, pac)
+                    speech += d
+                    print(f"{b['id']:<22}{b['role']:<26}{'cached':>6}{b['wpm']:>5}{d:>7.0f}s")
+                    continue
+                problems.append(f"{b['id']}: cached_ref {ref!r} is not in the intro matrix")
+
+        plan = sum(s["seconds"] for s in b.get("silence_plan", []))
+        if plan != b.get("silence_total_s", plan):
+            problems.append(
+                f"{b['id']}: silence_plan sums to {plan}s, silence_total_s says {b['silence_total_s']}s"
+            )
+        sp = b.get("word_target", 0) / b["wpm"] * 60
+        speech += sp
+        silence += plan
+        print(f"{b['id']:<22}{b['role']:<26}{b.get('word_target', 0):>6}{b['wpm']:>5}{sp + plan:>7.0f}s")
 
         # scene-building beats must not be delivered at conversational pace
         if b["role"] in ("event", "difficulty_and_response", "completion") and b["wpm"] > 90:

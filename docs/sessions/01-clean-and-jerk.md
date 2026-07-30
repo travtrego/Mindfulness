@@ -26,7 +26,7 @@ same script runs **13:05 (110 wpm) to 15:07 (85 wpm)**. 761 words, 370s of silen
 ---
 
 ## Beat 1 — Grounding intro · CACHED · role: grounding_intro
-`standard pacing · settling register` — 1:26 · 64 words · 40s silence
+> *(cached: `intro/settling_standard`)* — 1:27 · 64 words · 40s silence
 Full matrix in [`00-intro-matrix.md`](./00-intro-matrix.md)
 
 > Settle into the shape your body has already chosen.
