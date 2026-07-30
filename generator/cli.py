@@ -14,9 +14,37 @@ import re
 import sys
 from pathlib import Path
 
+from . import prompts
 from .craft import check
-from .pipeline import Session, generate
+from .pipeline import PRICE_IN, PRICE_OUT, Session, generate
 from .templates import TEMPLATES
+
+
+def estimate(s: Session) -> str:
+    """Project the cost of running this for real, from a dry run.
+
+    Rough - tokens are counted at 4 chars each and thinking tokens are guessed at half the
+    visible output. Good enough to answer 'can I afford to iterate on this', which is the
+    only question it needs to answer.
+    """
+    beats = [b for b in s.outline["beats"] if b.get("source") != "cached"]
+    inp = sum(len(st["prompt"]) for st in s.trace.steps if "prompt" in st) // 4
+    out = 0
+    prior = ""
+    for b in beats:
+        p = prompts.draft_prompt(b, s.template, s.slots, prior,
+                                 prompts.load_exemplar(b["role"], s.template.name))
+        inp += len(p) // 4
+        words = b.get("word_target", 0)
+        out += words * 4 // 3
+        prior += " x" * words              # prior grows as beats accumulate
+    out += 1500                            # the outline JSON
+    out = int(out * 1.5)                   # + thinking, which bills as output
+    inp += len(prompts.CRAFT_RULES) // 4 * len(beats)
+
+    cost = (inp * PRICE_IN + out * PRICE_OUT) / 1_000_000
+    return (f"~{inp:,} in / ~{out:,} out over {len(beats) + 3} calls\n"
+            f"~${cost:.3f} per run   (~${cost * 10:.2f} for ten)")
 
 
 def write_session_doc(s: Session, path: Path, user_text: str) -> None:
@@ -69,6 +97,8 @@ def main() -> int:
     ap.add_argument("--show-prompts", action="store_true")
     ap.add_argument("--templates", action="store_true", help="list templates and exit")
     ap.add_argument("--out", metavar="PATH", help="write the session as markdown")
+    ap.add_argument("--estimate", action="store_true",
+                    help="project the cost of a live run without making one")
     a = ap.parse_args()
     if not a.text and not a.templates:
         ap.error("text is required unless --templates")
@@ -82,7 +112,8 @@ def main() -> int:
             print(f"  beats:   {' -> '.join(b.role for b in t.beats)}")
         return 0
 
-    s = generate(a.text, category=a.category, pacing=a.pacing, dry=a.dry)
+    s = generate(a.text, category=a.category, pacing=a.pacing,
+                 dry=a.dry or a.estimate)
 
     print(f"\ncategory   {s.category}")
     print(f"template   {s.template.name}  (depth {s.template.depth})")
@@ -110,6 +141,9 @@ def main() -> int:
 
     if s.script:
         print(f"\n{'=' * 78}\n{s.script}\n{'=' * 78}")
+
+    if a.estimate:
+        print(f"\n{estimate(s)}")
 
     if s.usage.calls:
         print(f"\n{s.usage.summary()}")

@@ -1,6 +1,6 @@
 # Generated — competition
 
-*2026-07-30 03:03 · rehearsal template · 189 words · $0.0000*
+*2026-07-30 03:15 · rehearsal template · 189 words · $0.0000*
 
 ## Inputs
 
@@ -10,7 +10,7 @@
 
 ## Beat 1 — Grounding intro · CACHED · role: grounding_intro
 
-> *(cached: `?`)*
+> *(cached: `intro/neutral_standard`)*
 
 ## Beat 2 — Settling · GENERATED · role: settling
 

@@ -44,12 +44,21 @@ python3 -m generator.cli "clean and jerk on saturday" --category competition \
 matters is reading a generated session out loud beside `01` and `02` and seeing whether
 you can tell which is which.**
 
-Every run prints what it cost. Expect roughly **$0.13** per session.
+Every run prints what it cost, and `--estimate` projects it without spending anything:
 
 ```bash
-python3 -m generator.cli "..." --dry     # force dry even with a key
+python3 -m generator.cli "..." --estimate      # ~$0.12 per run (~$1.20 for ten)
+python3 -m generator.cli "..." --dry           # force dry even with a key
 python3 -m generator.cli "..." --show-prompts
 ```
+
+| Template | Per run |
+|---|---|
+| `breath_only` | ~$0.08 |
+| `reflective` | ~$0.11 |
+| `anchored_place` | ~$0.11 |
+| `rehearsal` | ~$0.12 |
+| `immersive` (long) | ~$0.15 |
 
 ### The app's two endpoints
 
@@ -73,6 +82,7 @@ python3 scripts/check_intros.py          # the four cached intros
 python3 scripts/validate_outline.py docs/schema/example-01-clean-and-jerk.json
 python3 scripts/smoke_live_path.py       # whole live path against a fake model, no spend
 python3 scripts/session_stats.py         # measured runtime per session + template shares
+python3 scripts/test_bad_outlines.py     # ten malformed model outlines, none may crash a run
 ```
 
 ## Status

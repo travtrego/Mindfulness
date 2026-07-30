@@ -167,7 +167,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         intent = {
             "category": category or "nature",
             "slots": {}, "still_empty": [],
-            "target_duration_s": 840, "sensitivity_flag": False,
+            "sensitivity_flag": False,
             "session_exclusions": [],
         }
         trace.add("intent", note="dry run - using stub", result=intent)
@@ -181,7 +181,9 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         "standing": standing_exclusions or [],
         "session": intent.get("session_exclusions", []),
     }
-    target_s = int(intent.get("target_duration_s") or template.duration_range[0])
+    # midpoint, not the floor - a template's range is what it can do, and defaulting to the
+    # short end made every estimate look like a 14-minute session even for into_sleep
+    target_s = int(intent.get("target_duration_s") or sum(template.duration_range) // 2)
     lo, hi = template.duration_range
     target_s = max(lo, min(hi, target_s))
 
@@ -216,7 +218,13 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         }
         return session
 
-    session.outline = _json_from(llm(p))
+    try:
+        raw = _json_from(llm(p))
+    except (ValueError, TypeError) as e:
+        trace.add("outline-unparseable", error=str(e))
+        raw = {}
+    session.outline = _reconcile(raw, budget, template, intent, exclusions,
+                                 slots, target_s, trace)
 
     # --- 4. draft each beat, then gate ----------------------------------------
     prior = ""
@@ -248,6 +256,66 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         prior += "\n\n" + text
 
     return session
+
+
+#: fields the model owns - what the beat is about. Everything else comes from the budget.
+_MODEL_FIELDS = ("id", "note", "beats_on", "do_not_mention", "silence_plan", "cached_ref")
+
+
+def _reconcile(raw: dict, budget: list[dict], template: Template, intent: dict,
+               exclusions: dict, slots: dict, target_s: int, trace: Trace) -> dict:
+    """Merge the model's outline onto the locally computed budget.
+
+    The budget is authoritative for anything numeric: role order, word_target,
+    silence_total_s, wpm, source. Those were computed from the template and cannot be
+    wrong. The model owns what each beat is *about*.
+
+    This exists because the draft loop reads beat fields directly, so one missing key used
+    to raise KeyError after the outline call was already paid for. A model that returns
+    prose, half a schema, or nothing at all now costs one call and still produces a session.
+    """
+    beats_by_role: dict[str, dict] = {}
+    for b in raw.get("beats", []) if isinstance(raw, dict) else []:
+        if isinstance(b, dict) and b.get("role"):
+            beats_by_role.setdefault(b["role"], b)
+
+    repaired, beats = [], []
+    for i, spec in enumerate(budget, 1):
+        got = beats_by_role.get(spec["role"], {})
+        if not got:
+            repaired.append(spec["role"])
+        beat = dict(spec)
+        beat.setdefault("id", f"b{i}_{spec['role']}")
+        for k in _MODEL_FIELDS:
+            if got.get(k) is not None:
+                beat[k] = got[k]
+        # a cached beat introduces no imagery, so it can carry no exclusions to honour
+        if beat.get("source") == "cached":
+            beat["do_not_mention"] = []
+            beat.setdefault("cached_ref", "intro/neutral_standard")
+        else:
+            beat.setdefault("do_not_mention", [])
+            beat.setdefault("beats_on", [])
+            beat.setdefault("silence_plan", [])
+        beats.append(beat)
+
+    extra = [r for r in beats_by_role if r not in {b["role"] for b in budget}]
+    if repaired or extra:
+        trace.add("outline-reconciled", missing=repaired, ignored=extra)
+        print(f"  outline repaired: {len(repaired)} beat(s) rebuilt from the budget"
+              + (f", {len(extra)} unknown role(s) dropped" if extra else ""))
+
+    return {
+        "schema_version": "1.0",
+        "template": template.name,
+        "category": intent.get("category", template.categories[0]),
+        "target_duration_s": target_s,
+        "sensitivity_flag": bool(intent.get("sensitivity_flag")),
+        "exclusions": exclusions,
+        "slots": slots,
+        "beats": beats,
+        "transitions": raw.get("transitions", []) if isinstance(raw, dict) else [],
+    }
 
 
 def _rewrite_prompt(text: str, report: Report) -> str:
