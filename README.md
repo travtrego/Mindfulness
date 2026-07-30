@@ -20,36 +20,64 @@ Not a meditation app. Meditation is one application of a broader visualization e
 ## Running it locally
 
 ```bash
+pip install -r requirements.txt
 python3 scripts/serve.py                 # the app at localhost:8000
 python3 scripts/serve.py --doc           # the annotated design document
 python3 -m generator.cli --templates     # the six templates
-python3 -m generator.cli "playoff game saturday" --category competition
 ```
 
-The generator runs without an API key: it builds every prompt and allocates the per-beat
-word and silence budget, then stops. It goes live the moment `ANTHROPIC_API_KEY` exists,
-with no code change.
+### Generating a session
+
+Without `ANTHROPIC_API_KEY` the generator runs dry: it builds every prompt and allocates
+the per-beat word and silence budget, then stops. With a key it runs for real — no code
+change, no flag.
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+
+python3 -m generator.cli "clean and jerk on saturday" --category competition \
+        --out docs/sessions/gen-01.md
+```
+
+`--out` writes the session in the same format as the hand-written ones in
+`docs/sessions/`, with per-beat craft findings. That is deliberate: **the only test that
+matters is reading a generated session out loud beside `01` and `02` and seeing whether
+you can tell which is which.**
+
+Every run prints what it cost. Expect roughly **$0.13** per session.
+
+```bash
+python3 -m generator.cli "..." --dry     # force dry even with a key
+python3 -m generator.cli "..." --show-prompts
+```
+
+### Checks
 
 ```bash
 python3 scripts/check_craft.py           # craft validator vs the hand-written sessions
 python3 scripts/check_intros.py          # the four cached intros
 python3 scripts/validate_outline.py docs/schema/example-01-clean-and-jerk.json
+python3 scripts/smoke_live_path.py       # whole live path against a fake model, no spend
 ```
 
 ## Status
 
-Text pipeline built and validated. **No audio yet** — that needs an ElevenLabs key.
-Nothing is deployed; the mock runs locally only.
+Text pipeline built, validated, and wired to the live API. **No audio yet** — that needs
+an ElevenLabs key. Nothing is deployed; the app runs locally only.
+
+Two of six templates have hand-written exemplars (`rehearsal`, `reentry`), so 13 of 19
+beat roles resolve to a few-shot example. The other three templates draft without one.
 
 **Next up, in order:**
 
-1. Hand-write 3–5 complete sessions (one per template) as few-shot exemplars and the
-   craft eval set. This surfaces schema questions no amount of spec work will.
-2. Write the slot definition for each of the five templates — which slots the template
-   needs filled, plus worked examples of good and bad amplifying questions. These drive
-   question generation at runtime.
-3. Lock the outline JSON schema and the stem tag enum.
-4. Prove the pipeline shape end to end: 3 LLM calls → script → parallel TTS → mixed render.
+1. **Read a generated session out loud.** Everything above is unverified until prose comes
+   out the other end and holds up beside `docs/sessions/01` and `02`. Nothing else is
+   worth doing first.
+2. Hand-write exemplars for `immersive`, `reflective`, and `anchored_place` — the six
+   roles that currently draft blind.
+3. Wire the app's chat to the generator; its replies are canned today.
+4. TTS: script → parallel synthesis → soundscape markers resolved against character
+   timings → mixed render.
 
 ## Input model
 

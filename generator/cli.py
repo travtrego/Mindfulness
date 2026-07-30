@@ -8,11 +8,56 @@ Without ANTHROPIC_API_KEY set it runs dry: builds every prompt, allocates the be
 and prints both. Enough to check the shape before spending a token.
 """
 import argparse
+import datetime as dt
 import json
+import re
 import sys
+from pathlib import Path
 
-from .pipeline import generate
+from .craft import check
+from .pipeline import Session, generate
 from .templates import TEMPLATES
+
+
+def write_session_doc(s: Session, path: Path, user_text: str) -> None:
+    """Write the generated session in the same shape as docs/sessions/*.md.
+
+    Same shape on purpose: the only test that matters is reading it out loud beside the two
+    hand-written ones and seeing whether you can tell which is which.
+    """
+    spoken = "\n".join(b["text"] for b in s.beats if b.get("text"))
+    words = len(re.sub(r"\*\[[^\]]*\]\*", "", spoken).split())
+
+    out = [
+        f"# Generated — {s.category}",
+        "",
+        f"*{dt.datetime.now():%Y-%m-%d %H:%M} · {s.template.name} template · "
+        f"{words} words · ${s.usage.cost:.4f}*",
+        "",
+        "## Inputs",
+        "",
+        f"- **said:** {user_text}",
+        f"- **category:** {s.category}",
+        *(f"- **{k}:** {v}" for k, v in s.slots.items()),
+        "",
+    ]
+    for i, b in enumerate(s.beats, 1):
+        title = b["role"].replace("_", " ").capitalize()
+        src = "CACHED" if b.get("source") == "cached" else "GENERATED"
+        out += [f"## Beat {i} — {title} · {src} · role: {b['role']}", ""]
+        if not b.get("text"):
+            out += [f"> *(cached: `{b.get('cached_ref', '?')}`)*", ""]
+            continue
+        out += ["> " + l if l.strip() else ">" for l in b["text"].split("\n")]
+        r = check(b["text"])
+        flags = [f"`{f.rule}` {f.detail}" for f in r.findings]
+        out += ["", f"*{r.words}w · notice {r.noticing_ratio:.2f} · "
+                    f"senses {len(r.senses_used)}*"]
+        if flags:
+            out += ["", "Craft findings: " + "; ".join(flags)]
+        out += [""]
+
+    path.write_text("\n".join(out))
 
 
 def main() -> int:
@@ -23,6 +68,7 @@ def main() -> int:
     ap.add_argument("--dry", action="store_true", help="force dry run even with a key")
     ap.add_argument("--show-prompts", action="store_true")
     ap.add_argument("--templates", action="store_true", help="list templates and exit")
+    ap.add_argument("--out", metavar="PATH", help="write the session as markdown")
     a = ap.parse_args()
     if not a.text and not a.templates:
         ap.error("text is required unless --templates")
@@ -36,8 +82,7 @@ def main() -> int:
             print(f"  beats:   {' -> '.join(b.role for b in t.beats)}")
         return 0
 
-    s = generate(a.text, category=a.category, pacing=a.pacing,
-                 llm=(lambda _: "") if a.dry else None)
+    s = generate(a.text, category=a.category, pacing=a.pacing, dry=a.dry)
 
     print(f"\ncategory   {s.category}")
     print(f"template   {s.template.name}  (depth {s.template.depth})")
@@ -65,6 +110,16 @@ def main() -> int:
 
     if s.script:
         print(f"\n{'=' * 78}\n{s.script}\n{'=' * 78}")
+
+    if s.usage.calls:
+        print(f"\n{s.usage.summary()}")
+
+    if a.out:
+        if not s.beats:
+            print("\nnothing to write - dry run produced no narration")
+        else:
+            write_session_doc(s, Path(a.out), a.text)
+            print(f"wrote {a.out}")
 
     if a.show_prompts:
         print(s.trace.prompts_only())

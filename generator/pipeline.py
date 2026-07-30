@@ -26,6 +26,43 @@ MODEL = "claude-opus-5"
 MAX_REWRITES = 2          # then pass with a log entry rather than looping
 INTRO_SECONDS = {"slow": 128, "standard": 103, "brisk": 84}
 
+# claude-opus-5, USD per million tokens. Cache writes bill at 1.25x, reads at 0.1x.
+PRICE_IN = 5.00
+PRICE_OUT = 25.00
+PRICE_CACHE_WRITE = PRICE_IN * 1.25
+PRICE_CACHE_READ = PRICE_IN * 0.10
+
+
+@dataclass
+class Usage:
+    """What the run actually cost, accumulated across every call."""
+    calls: int = 0
+    input: int = 0
+    output: int = 0
+    cache_write: int = 0
+    cache_read: int = 0
+
+    def add(self, u) -> None:
+        self.calls += 1
+        self.input += u.input_tokens
+        self.output += u.output_tokens
+        self.cache_write += getattr(u, "cache_creation_input_tokens", 0) or 0
+        self.cache_read += getattr(u, "cache_read_input_tokens", 0) or 0
+
+    @property
+    def cost(self) -> float:
+        return (self.input * PRICE_IN
+                + self.output * PRICE_OUT
+                + self.cache_write * PRICE_CACHE_WRITE
+                + self.cache_read * PRICE_CACHE_READ) / 1_000_000
+
+    def summary(self) -> str:
+        cached = ""
+        if self.cache_read or self.cache_write:
+            cached = (f"  cache {self.cache_read} read / {self.cache_write} written")
+        return (f"{self.calls} calls   {self.input} in / {self.output} out"
+                f"{cached}\ncost  ${self.cost:.4f}")
+
 
 @dataclass
 class Trace:
@@ -52,31 +89,52 @@ class Session:
     outline: dict | None = None
     beats: list[dict] = field(default_factory=list)
     trace: Trace = field(default_factory=Trace)
+    usage: Usage = field(default_factory=Usage)
 
     @property
     def script(self) -> str:
         return "\n\n".join(b["text"] for b in self.beats if b.get("text"))
 
 
-LLM = Callable[[str], str]
+LLM = Callable[..., str]
 
 
-def _live_llm() -> LLM | None:
+def _live_llm(usage: Usage | None = None) -> LLM | None:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         return None
     try:
         import anthropic
     except ImportError:
+        print("ANTHROPIC_API_KEY is set but the SDK is missing - pip install anthropic")
         return None
     client = anthropic.Anthropic(api_key=key)
 
-    def call(prompt: str) -> str:
-        msg = client.messages.create(
-            model=MODEL, max_tokens=4096,
+    def call(prompt: str, system: str | None = None) -> str:
+        kw = {}
+        if system:
+            # byte-identical on every draft call, so it is the one cacheable prefix here.
+            # It sits close to the 512-token minimum for Opus 5 - if caching does not
+            # engage, the cache counters in the usage summary stay at zero and say so.
+            kw["system"] = [{
+                "type": "text", "text": system,
+                "cache_control": {"type": "ephemeral"},
+            }]
+
+        # streaming so a long beat cannot trip the request timeout; adaptive thinking
+        # because choosing what NOT to say is the hard part of every one of these calls.
+        with client.messages.stream(
+            model=MODEL, max_tokens=8000,
+            thinking={"type": "adaptive"},
             messages=[{"role": "user", "content": prompt}],
-        )
-        return msg.content[0].text
+            **kw,
+        ) as stream:
+            msg = stream.get_final_message()
+
+        if usage is not None:
+            usage.add(msg.usage)
+        # with thinking on, content leads with thinking blocks
+        return "".join(b.text for b in msg.content if b.type == "text")
     return call
 
 
@@ -90,9 +148,15 @@ def _json_from(text: str) -> dict | list:
 
 def generate(user_text: str, *, category: str | None = None, memory: dict | None = None,
              standing_exclusions: list[str] | None = None,
-             llm: LLM | None = None, pacing: str = "standard") -> Session:
-    """Run the pipeline. With llm=None it builds prompts and skips model calls."""
-    llm = llm or _live_llm()
+             llm: LLM | None = None, pacing: str = "standard",
+             dry: bool = False) -> Session:
+    """Run the pipeline. Dry means: build every prompt, allocate the budget, call nothing.
+
+    Dry is the default whenever no key is present, and `dry=True` forces it even when one
+    is. Passing a stub llm is not a way to run dry - the stub gets called for real.
+    """
+    usage = Usage()
+    llm = None if dry else (llm or _live_llm(usage))
     dry = llm is None
     trace = Trace()
 
@@ -140,7 +204,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
     trace.add("outline", prompt=p, budget=budget)
 
     session = Session(category=intent["category"], template=template,
-                      slots=slots, trace=trace)
+                      slots=slots, trace=trace, usage=usage)
 
     if dry:
         session.outline = {
@@ -164,7 +228,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         exemplar = prompts.load_exemplar(beat["role"])
         p = prompts.draft_prompt(beat, template, slots, prior, exemplar)
         trace.add("draft", role=beat["role"], prompt=p)
-        text = llm(p).strip()
+        text = llm(p, system=prompts.CRAFT_RULES).strip()
 
         report = check(text)
         attempts = 0
@@ -173,7 +237,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
             fix = _rewrite_prompt(text, report)
             trace.add("rewrite", role=beat["role"], attempt=attempts,
                       findings=[f.rule for f in report.errors], prompt=fix)
-            text = llm(fix).strip()
+            text = llm(fix, system=prompts.CRAFT_RULES).strip()
             report = check(text)
 
         if not report.ok:
@@ -199,8 +263,6 @@ This narration fails the craft standard. Fix ONLY the flagged problems.
 
 Change nothing else. Keep the word count, the silence markers, and every line that was not
 flagged exactly as they are.
-
-{prompts.CRAFT_RULES}
 
 Narration:
 \"\"\"{text}\"\"\"

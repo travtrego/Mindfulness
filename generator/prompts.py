@@ -3,9 +3,11 @@
 Call 1 parses intent, call 2 produces an outline, call 3 drafts prose. All three are text
 calls and run in ~15-25s total; TTS is what gets parallelised afterwards (SPEC.md 5).
 
-The craft rules appear in the draft prompt AND are enforced afterwards by generator.craft.
+The craft rules are sent as the system prompt AND enforced afterwards by generator.craft.
 Both are needed: the prompt gets most of the way there, the validator catches the drift
-that a prompt cannot hold across 2,000 words.
+that a prompt cannot hold across 2,000 words. They live in the system block rather than the
+user turn because they are byte-identical on every draft call, which makes them the one
+thing in the pipeline worth caching.
 """
 from __future__ import annotations
 
@@ -174,8 +176,6 @@ def draft_prompt(beat: dict, template: Template, slots: dict, prior: str,
                  exemplar: str) -> str:
     return f"""\
 Write the narration for ONE beat.
-
-{CRAFT_RULES}
 
 Beat: {beat['role']} — {beat.get('note', '')}
 Word target: {beat['word_target']} (±10%)
