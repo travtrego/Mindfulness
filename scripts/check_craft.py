@@ -17,10 +17,19 @@ ROOT = Path(__file__).parent.parent / "docs/sessions"
 
 
 def beats(path: Path):
-    """Yield (label, prose, is_cached) for each beat in a reference session."""
+    """Yield (label, prose, is_cached) for each beat in a reference session.
+
+    A beat is a heading carrying a `role:` tag. Commentary sections quote the narration to
+    discuss it, and an earlier version of this split on every `##` and scored those quotes
+    as if they were beats. Files with no tagged headings - the intro matrix - fall back to
+    scoring every quoted block, which is what that file wants.
+    """
     text = path.read_text()
     text = re.split(r"\n# (?:Craft notes|The Re-entry template|Revision)", text)[0]
-    for block in re.split(r"\n## (?:Beat )?", text)[1:]:
+    blocks = re.split(r"\n## (?:Beat )?", text)[1:]
+    tagged = [b for b in blocks if re.search(r"role:\s*[a-z_]+", b.split("\n")[0])]
+
+    for block in (tagged or blocks):
         label = block.split("\n")[0].strip()
         quoted = [l for l in block.split("\n") if l.startswith(">")]
         prose = re.sub(r"\*\[\d+s\]\*", "", "\n".join(quoted))

@@ -65,15 +65,16 @@ python3 scripts/smoke_live_path.py       # whole live path against a fake model,
 Text pipeline built, validated, and wired to the live API. **No audio yet** — that needs
 an ElevenLabs key. Nothing is deployed; the app runs locally only.
 
-Two of six templates have hand-written exemplars (`rehearsal`, `reentry`), so 13 of 19
-beat roles resolve to a few-shot example. The other three templates draft without one.
+Three of six templates have hand-written exemplars (`rehearsal`, `reentry`,
+`anchored_place`), so 16 of 19 beat roles resolve to a few-shot example. Three roles still
+draft blind: `paced_breathing`, `meaningful_experience`, `consolidation`.
 
 **Next up, in order:**
 
 1. **Read a generated session out loud.** Everything above is unverified until prose comes
    out the other end and holds up beside `docs/sessions/01` and `02`. Nothing else is
    worth doing first.
-2. Hand-write exemplars for `immersive`, `reflective`, and `anchored_place` — the six
+2. Hand-write exemplars for `immersive`, `reflective`, and `breath_only` — the three
    roles that currently draft blind.
 3. Wire the app's chat to the generator; its replies are canned today.
 4. TTS: script → parallel synthesis → soundscape markers resolved against character

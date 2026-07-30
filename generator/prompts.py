@@ -211,7 +211,7 @@ def load_exemplar(role: str) -> str:
     """
     import re
     best = ""
-    for path in sorted(REFERENCE_DIR.glob("0[12]*.md")):
+    for path in sorted(REFERENCE_DIR.glob("[0-9][0-9]-*.md")):
         text = path.read_text().split("\n# ")[0]
         for block in re.split(r"\n## Beat ", text)[1:]:
             header = block.split("\n")[0]
