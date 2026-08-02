@@ -13,6 +13,7 @@ Not a meditation app. Meditation is one application of a broader visualization e
 
 | File | What it is |
 |---|---|
+| [`HANDOFF.md`](./HANDOFF.md) | State of play: what exists, what is decided, what is blocked. Start here if you are picking this up cold. |
 | [`SPEC.md`](./SPEC.md) | Consolidated product + technical spec. Resolves the conflicts across the three source drafts and records the decisions with rationale. |
 | [`docs/app.html`](./docs/app.html) | **The app.** Full-screen interface, no annotations. Real navigation, live chat and questions, breathing pacer. No audio yet. |
 | [`docs/prototype.html`](./docs/prototype.html) | The same flow as a design document — every screen annotated with why it is that way. |
