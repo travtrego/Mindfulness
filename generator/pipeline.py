@@ -153,7 +153,7 @@ def _json_from(text: str) -> dict | list:
 def generate(user_text: str, *, category: str | None = None, memory: dict | None = None,
              standing_exclusions: list[str] | None = None,
              llm: LLM | None = None, pacing: str = "standard",
-             dry: bool = False) -> Session:
+             dry: bool = False, progress: bool = False) -> Session:
     """Run the pipeline. Dry means: build every prompt, allocate the budget, call nothing.
 
     Dry is the default whenever no key is present, and `dry=True` forces it even when one
@@ -163,6 +163,13 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
     llm = None if dry else (llm or _live_llm(usage))
     dry = llm is None
     trace = Trace()
+
+    def say(msg: str) -> None:
+        """A minute of silence makes a working command look like a hung one."""
+        if progress and not dry:
+            print(msg, flush=True)
+
+    say("reading what you said...")
 
     # --- 1. intent -------------------------------------------------------------
     p = prompts.intent_prompt(user_text, category, memory)
@@ -213,6 +220,8 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
     if sensitive:
         register, pacing = "sensitive", "slow"
 
+    say(f"  -> {template.name} template, {target_s // 60} min")
+
     # --- 2. amplifying questions ----------------------------------------------
     still_empty = [s for s in template.required_slots if s not in slots]
     if still_empty and template.depth > 0:
@@ -226,6 +235,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
     budget = allocate(template, target_s, intro_s)
     p = prompts.outline_prompt(template, slots, budget, exclusions, target_s)
     trace.add("outline", prompt=p, budget=budget)
+    say("planning the beats...")
 
     session = Session(category=intent["category"], template=template,
                       slots=slots, trace=trace, usage=usage)
@@ -245,6 +255,10 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
                                  slots, target_s, trace, pacing, register)
 
     # --- 4. draft each beat, then gate ----------------------------------------
+    to_write = [b for b in session.outline["beats"] if b.get("source") != "cached"]
+    say(f"writing {len(to_write)} beats...")
+    written = 0
+
     prior = ""
     for beat in session.outline["beats"]:
         if beat.get("source") == "cached":
@@ -279,6 +293,11 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
             # every downstream consumer assumes a beat has words. Say so loudly rather than
             # writing a session with a hole in it.
             print(f"  !! beat {beat['role']} is empty after {attempts} attempt(s)")
+
+        written += 1
+        flags = [f.rule for f in report.errors]
+        say(f"  {written}/{len(to_write)}  {beat['role']:<24}{report.words:>4}w"
+            + (f"   craft: {', '.join(flags)}" if flags else ""))
 
         session.beats.append({**beat, "text": text, "craft": report})
         prior += "\n\n" + text

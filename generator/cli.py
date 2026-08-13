@@ -112,7 +112,7 @@ def main() -> int:
         return 0
 
     s = generate(a.text, category=a.category, pacing=a.pacing,
-                 dry=a.dry or a.estimate)
+                 dry=a.dry or a.estimate, progress=True)
 
     print(f"\ncategory   {s.category}")
     print(f"template   {s.template.name}  (depth {s.template.depth})")
