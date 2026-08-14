@@ -1,2 +1,14 @@
+[project]
+name = "mindfulness"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "anthropic>=0.40",
+  "jsonschema>=4.0",
+]
+
+[project.scripts]
+app = "app:handler"
+
 [tool.vercel]
-entrypoint = "scripts.serve:Handler"
+entrypoint = "app:handler"
