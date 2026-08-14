@@ -27,7 +27,8 @@ Working title only. Naming is still open (`SPEC.md` §12.1).
 **End-to-end browser MVP: built and deployed.** Intake reaches the generator, every category
 returns a complete playable session, narration uses the browser's installed speech voice,
 and pause/resume, ±15-second seek, early exit, breathing-only escape, and reflection work in
-the player. The real-model prose still needs an owner listening test.
+the player. Onboarding preferences and category-scoped reflections persist on the device and
+inform later generation. The real-model prose still needs an owner listening test.
 
 | Area | State |
 |---|---|
@@ -40,6 +41,7 @@ the player. The real-model prose still needs an owner listening test.
 | App | Intake, generation, narrated player, controls, emergency exit, reflection |
 | Audio | Browser Web Speech API; production voice is a later quality upgrade |
 | Deployment | Vercel on the repository's active branch |
+| Persistence | Device-local preferences/reflections; accounts and database still pending |
 
 Branch: `claude/hello-j0yf74`. 32 commits. Everything pushed.
 

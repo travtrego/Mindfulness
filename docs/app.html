@@ -367,9 +367,9 @@
     <p class="eyebrow">One time only</p>
     <h1 class="t">When you picture a place, how much do you actually see?</h1>
     <div class="opts">
-      <button class="opt" data-go="ob2"><b>Vividly, like a photograph</b><span>Colour, light, detail</span></button>
-      <button class="opt" data-go="ob2"><b>Somewhat — impressions more than images</b><span>More feeling than picture</span></button>
-      <button class="opt" data-go="ob2"><b>Not really — I know it without seeing it</b><span>The language shifts to sensation and knowing</span></button>
+      <button class="opt" data-go="ob2" data-pref-key="sensoryDensity" data-pref-value="vivid"><b>Vividly, like a photograph</b><span>Colour, light, detail</span></button>
+      <button class="opt" data-go="ob2" data-pref-key="sensoryDensity" data-pref-value="impressions"><b>Somewhat — impressions more than images</b><span>More feeling than picture</span></button>
+      <button class="opt" data-go="ob2" data-pref-key="sensoryDensity" data-pref-value="nonvisual"><b>Not really — I know it without seeing it</b><span>The language shifts to sensation and knowing</span></button>
     </div>
     <div style="flex:1"></div>
     <p class="sub" style="margin:0">There is no better answer. It changes how the sessions
@@ -396,9 +396,9 @@
     <p class="eyebrow">One time only</p>
     <h1 class="t">How long do you usually have?</h1>
     <div class="opts">
-      <button class="opt" data-go="ob4"><b>Under ten minutes</b><span>Most days</span></button>
-      <button class="opt" data-go="ob4"><b>Around fifteen</b><span>The usual shape of a session</span></button>
-      <button class="opt" data-go="ob4"><b>Longer, when I can</b><span>Twenty and up</span></button>
+      <button class="opt" data-go="ob4" data-pref-key="preferredDurationS" data-pref-value="480"><b>Under ten minutes</b><span>Most days</span></button>
+      <button class="opt" data-go="ob4" data-pref-key="preferredDurationS" data-pref-value="900"><b>Around fifteen</b><span>The usual shape of a session</span></button>
+      <button class="opt" data-go="ob4" data-pref-key="preferredDurationS" data-pref-value="1200"><b>Longer, when I can</b><span>Twenty and up</span></button>
     </div>
     <div style="flex:1"></div>
     <p class="sub" style="margin:0">A starting point. Every session can be shorter or longer
@@ -424,7 +424,7 @@
     <div style="flex:1"></div>
     <div class="foot">
       <button class="btn" data-go="home">Done</button>
-      <button class="btn ghost" data-go="home">Nothing to avoid</button>
+      <button class="btn ghost" data-go="home" data-action="clear-avoid">Nothing to avoid</button>
     </div>
     <p class="sub" style="margin:.7rem 0 0;text-align:center">Changeable any time.</p>
   </section>
@@ -437,8 +437,8 @@
 
     <div class="scroll">
       <button class="resume" data-action="generate" data-cat="Safe place">
-        <b>Return to the boathouse</b>
-        <span>Your safe place · 4th visit</span>
+        <b>Return to your safe place</b>
+        <span>Ready when you are</span>
       </button>
 
       <span class="grp">Settle</span>
@@ -490,7 +490,7 @@
       </div>
     </div>
     <div class="composer">
-      <textarea id="input" rows="1" placeholder="Say it however it comes out"></textarea>
+      <textarea id="input" rows="1" maxlength="1800" placeholder="Say it however it comes out"></textarea>
       <button class="icon" id="talk-mic" aria-label="Speak instead">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
@@ -509,7 +509,7 @@
     <div class="bar"><span>9:42</span><span>􀙇</span></div>
     <button class="back" data-go="home">← back</button>
     <p class="eyebrow" id="ask-cat">Game or match</p>
-    <h1 class="t" style="margin-bottom:.35rem;">Three more and we'll go.</h1>
+    <h1 class="t" style="margin-bottom:.35rem;">A few more and we'll go.</h1>
     <p class="sub" id="ask-sub">Written from what you just told me.</p>
 
     <div class="scroll" id="qs"></div>
@@ -576,8 +576,8 @@
     <div class="reflect">
       <p>Anything you want to keep from that?</p>
       <div class="composer" style="padding-top:0">
-        <textarea id="reflection" rows="1" placeholder="Say it, or type it"></textarea>
-        <button class="icon" aria-label="Speak">
+        <textarea id="reflection" rows="1" maxlength="1200" placeholder="Say it, or type it"></textarea>
+        <button class="icon" id="reflection-mic" aria-label="Speak">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
           </svg>
@@ -589,263 +589,6 @@
 
 </div>
 </div>
-
-<script>
-(function () { return; // retained temporarily as a reference while the functional player replaces it
-  var scr = {}, cur = "ob0";
-  ["ob0","ob1","ob2","ob3","ob4","home","talk","ask","play","close"].forEach(function (k) { scr[k] = document.getElementById("s-" + k); });
-
-  var QUESTIONS = {
-    "Nature": [
-      { q: "Somewhere you've been, or somewhere new?", a: ["been there", "somewhere new"] },
-      { q: "Warm or cold?", a: ["warm", "cold"] },
-      { q: "How long have we got?", a: ["12 min", "16 min", "20 min"], mem: 1 }
-    ],
-    "Game or match": [
-      { q: "Same pitch, or somewhere neutral?", a: ["same pitch", "neutral ground"], sel: 0 },
-      { q: "Do you want the crowd, or do you want it quiet?", a: ["the crowd", "quiet"] },
-      { q: "How long have we got?", a: ["10 min", "14 min", "20 min"], mem: 1 }
-    ],
-    "First day back": [
-      { q: "Does anyone ask, or does it just not come up?", a: ["they ask", "it doesn't come up"], sel: 0 },
-      { q: "What's the part of the day you can still do without thinking?", a: ["the work itself", "the routine", "the people"] },
-      { q: "How long have we got?", a: ["14 min", "17 min", "20 min"], mem: 1 }
-    ],
-    "_default": [
-      { q: "Somewhere you've been, or somewhere new?", a: ["been there", "somewhere new"] },
-      { q: "How long have we got?", a: ["10 min", "14 min", "20 min"], mem: 1 }
-    ]
-  };
-
-  var ANCHORS = {
-    "Game or match": "You have already stood this up once tonight.",
-    "First day back": "You have already had this Tuesday once.",
-    "Just breathing": "That is always there, and it takes eight seconds.",
-    "Safe place": "The boathouse keeps. It will be there next time.",
-    "_default": "You have already been there once."
-  };
-
-  var category = "Game or match";
-
-  function go(name) {
-    if (!scr[name]) return;
-    scr[cur].classList.remove("on");
-    scr[name].classList.add("on");
-    cur = name;
-    controls.classList.remove("on");
-    hint.style.opacity = "";
-    var s = scr[name].querySelector(".scroll");
-    if (s) s.scrollTop = 0;
-    if (name === "ask") buildQuestions();
-    if (name === "close") anchor.textContent = ANCHORS[category] || ANCHORS._default;
-    if (name === "talk") {
-      thread.innerHTML = '<p class="m app">What\'s going on?</p>';
-      input.value = "";
-      history = [{ role: "app", text: "What's going on?" }];
-      turn = 0;
-    }
-    if (name === "home") { history = []; scr.talk.dataset.used = ""; }
-  }
-
-  document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-go]");
-    if (!el) return;
-    e.preventDefault(); e.stopPropagation();
-    if (el.dataset.cat) {
-      category = el.dataset.cat;
-      talkCat.textContent = askCat.textContent = category;
-    }
-    go(el.dataset.go);
-  });
-
-  var talkCat = document.getElementById("talk-cat"),
-      askCat  = document.getElementById("ask-cat"),
-      askSub  = document.getElementById("ask-sub"),
-      qs      = document.getElementById("qs"),
-      thread  = document.getElementById("thread"),
-      input   = document.getElementById("input"),
-      anchor  = document.getElementById("anchor"),
-      controls = document.getElementById("controls"),
-      hint    = document.getElementById("hint");
-
-  function buildQuestions() {
-    askSub.textContent = scr.talk.dataset.used
-      ? "Written from what you just told me."
-      : "A few things and we'll go.";
-    qs.innerHTML = "";
-    post("/api/questions", { category: category, history: history })
-      .then(function (out) {
-        if (out.live === false) console.log("[questions] no API key — canned set");
-        if (!out.questions || !out.questions.length) throw 0;
-        // the server speaks {question, options}; the page has always spoken {q, a}
-        renderQuestions(out.questions.map(function (x) {
-          return { q: x.question, a: x.options || [], mem: x.fills === "duration" ? 1 : undefined };
-        }));
-      })
-      .catch(function () {
-        renderQuestions(QUESTIONS[category] || QUESTIONS._default);
-      });
-  }
-
-  function renderQuestions(set) {
-    qs.innerHTML = "";
-    set.forEach(function (item) {
-      var d = document.createElement("div");
-      d.className = "q";
-      var p = document.createElement("p"); p.textContent = item.q; d.appendChild(p);
-      var row = document.createElement("div"); row.className = "chips";
-      item.a.forEach(function (label, i) {
-        var b = document.createElement("button");
-        b.className = "chip" + (item.sel === i ? " sel" : "") + (item.mem === i ? " mem" : "");
-        b.textContent = label;
-        b.onclick = function (ev) {
-          ev.stopPropagation();
-          row.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("sel", "mem"); });
-          b.classList.add("sel");
-        };
-        row.appendChild(b);
-      });
-      d.appendChild(row);
-      if (item.mem !== undefined) {
-        var n = document.createElement("p"); n.className = "memnote";
-        n.textContent = "• your usual, from the last six sessions";
-        d.appendChild(n);
-      }
-      qs.appendChild(d);
-    });
-    var say = document.createElement("button");
-    say.className = "say";
-    say.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path></svg> or just say it — the more you say, the less it asks';
-    qs.appendChild(say);
-  }
-
-  document.querySelectorAll("#avoid .chip").forEach(function (c) {
-    c.onclick = function (e) { e.stopPropagation(); c.classList.toggle("sel"); };
-  });
-
-  // ---- chat ----
-  // Layer 2a. The server holds the key and does the talking; see generator/api.py.
-  // With no key the server returns the same two lines this used to have hardcoded, so the
-  // flow still works offline and nothing here needs to know the difference.
-  var sendBtn = document.getElementById("send");
-  var history = [];
-  var turn = 0;
-  // one turn in flight at a time. A real call runs 10-30s, and sending a second message
-  // while the first is out lets the replies land in whichever order they finish - which
-  // reads as the conversation running backwards.
-  var pending = false;
-
-  function post(path, body) {
-    return fetch(path, { method: "POST", body: JSON.stringify(body) })
-      .then(function (r) { return r.json(); });
-  }
-
-  function send() {
-    var v = input.value.trim();
-    if (!v || pending) return;
-    pending = true;
-    sendBtn.classList.add("busy");
-    var me = document.createElement("p"); me.className = "m me"; me.textContent = v;
-    thread.appendChild(me);
-    history.push({ role: "user", text: v });
-    input.value = ""; input.style.height = "";
-    thread.parentElement.scrollTop = 9e9;
-
-    var dots = document.createElement("div");
-    dots.className = "typing"; dots.innerHTML = "<i></i><i></i><i></i>";
-    thread.appendChild(dots);
-    thread.parentElement.scrollTop = 9e9;
-
-    post("/api/talk", { category: category, history: history })
-      .catch(function () { return { reply: "", done: true, live: false }; })
-      .then(function (out) {
-        pending = false;
-        sendBtn.classList.remove("busy");
-        dots.remove();
-        if (out.live === false) console.log("[talk] no API key — canned reply");
-        if (out.reply) {
-          var reply = document.createElement("p");
-          reply.className = "m app";
-          reply.textContent = out.reply;
-          thread.appendChild(reply);
-          history.push({ role: "app", text: out.reply });
-          thread.parentElement.scrollTop = 9e9;
-        }
-        turn++;
-        if (out.done || turn >= 3) {
-          setTimeout(function () {
-            scr.talk.dataset.used = "1";
-            go("ask");
-            turn = 0;
-          }, 1100);
-        }
-      });
-  }
-  sendBtn.onclick = function (e) { e.stopPropagation(); send(); };
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-  });
-  input.addEventListener("input", function () {
-    input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 96) + "px";
-  });
-
-  // ---- playback ----
-  var hideT = null;
-  scr.play.addEventListener("click", function (e) {
-    if (e.target.closest(".controls")) return;
-    controls.classList.add("on");
-    hint.style.opacity = "0";
-    clearTimeout(hideT);
-    hideT = setTimeout(function () {
-      controls.classList.remove("on");
-      hint.style.opacity = "";
-    }, 4500);
-  });
-
-  var wave = document.getElementById("wave"), seed = 7;
-  function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
-  for (var i = 0; i < 56; i++) {
-    var b = document.createElement("span");
-    b.style.height = Math.min(100, 12 + Math.abs(Math.sin(i / 4.5)) * 55 + rnd() * 30) + "%";
-    if (i < 6) b.className = "p";
-    wave.appendChild(b);
-  }
-
-  var LINES = [
-    "You notice the weight of your own hands.",
-    "Cooler air at the edge of one nostril than the other.",
-    "The chair takes more of you than you were letting it.",
-    "Somewhere behind you, the room keeps going without you."
-  ];
-  var pacer = document.getElementById("pacer"),
-      label = document.getElementById("pace-label"),
-      narr  = document.getElementById("narr"),
-      li = 0;
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    pacer.style.transform = "scale(.82)"; label.textContent = "breathe";
-  } else {
-    var IN = 4000, HOLD = 2000, OUT = 6000, CYC = IN + HOLD + OUT,
-        t0 = performance.now(), lastCyc = 0;
-    function ease(x) { return x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
-    (function tick(now) {
-      var t = (now - t0) % CYC, c = Math.floor((now - t0) / CYC), s, txt;
-      if (t < IN) { s = .6 + .4 * ease(t / IN); txt = "in"; }
-      else if (t < IN + HOLD) { s = 1; txt = "hold"; }
-      else { s = 1 - .4 * ease((t - IN - HOLD) / OUT); txt = "out"; }
-      pacer.style.transform = "scale(" + s.toFixed(4) + ")";
-      if (label.textContent !== txt) label.textContent = txt;
-      if (c !== lastCyc) {
-        lastCyc = c; li = (li + 1) % LINES.length;
-        narr.style.opacity = "0";
-        setTimeout(function () { narr.textContent = LINES[li]; narr.style.opacity = ""; }, 800);
-      }
-      requestAnimationFrame(tick);
-    })(performance.now());
-  }
-})();
-</script>
 
 <script>
 (function () {
@@ -896,6 +639,7 @@
   var endBtn = document.getElementById("end-session");
   var breathingBtn = document.getElementById("breathing-only");
   var reflection = document.getElementById("reflection");
+  var reflectionMic = document.getElementById("reflection-mic");
 
   var ANCHORS = {
     "Game or match": "You have already stood this up once tonight.",
@@ -937,6 +681,56 @@
 
   function writeStore(key, value) {
     try { window.localStorage.setItem(key, value); } catch (e) { /* private mode */ }
+  }
+
+  function readJsonStore(key, fallback) {
+    try { return JSON.parse(readStore(key) || "") || fallback; } catch (e) { return fallback; }
+  }
+
+  function readArrayStore(key) {
+    var value = readJsonStore(key, []);
+    return Array.isArray(value) ? value : [];
+  }
+
+  function profileMemory() {
+    return {
+      sensory_density: readStore("sensoryDensity") || "impressions",
+      preferred_duration_s: Number(readStore("preferredDurationS")) || 900,
+      voice: voicePreference
+    };
+  }
+
+  function contentMemory() {
+    var matching = readArrayStore("reflections").filter(function (item) {
+      return item && item.category === category && item.text;
+    }).slice(-3);
+    return {
+      category: category,
+      things_to_keep: matching.map(function (item) { return item.text; })
+    };
+  }
+
+  function generationMemory() {
+    return { style: profileMemory(), content: contentMemory() };
+  }
+
+  function rememberReflection(text) {
+    text = text.trim().slice(0, 1200);
+    if (!text) return;
+    var items = readArrayStore("reflections");
+    items.push({ category: category, text: text, saved_at: new Date().toISOString() });
+    writeStore("reflections", JSON.stringify(items.slice(-12)));
+  }
+
+  function saveExclusions() {
+    writeStore("standingExclusions", JSON.stringify(selectedExclusions()));
+  }
+
+  function restorePreferences() {
+    var saved = readArrayStore("standingExclusions");
+    document.querySelectorAll("#avoid .chip").forEach(function (chip) {
+      chip.classList.toggle("sel", saved.indexOf(chip.textContent) !== -1);
+    });
   }
 
   function post(path, body) {
@@ -998,7 +792,15 @@
       voicePreference = el.dataset.voice;
       writeStore("voicePreference", voicePreference);
     }
+    if (el.dataset.prefKey) writeStore(el.dataset.prefKey, el.dataset.prefValue);
     if (el.dataset.cat) setCategory(el.dataset.cat);
+
+    if (el.dataset.action === "clear-avoid") {
+      document.querySelectorAll("#avoid .chip").forEach(function (chip) { chip.classList.remove("sel"); });
+      saveExclusions();
+      if (el.dataset.go) go(el.dataset.go);
+      return;
+    }
 
     if (el.dataset.action === "generate") {
       startGeneration(el.dataset.surprise === "1");
@@ -1009,7 +811,7 @@
       return;
     }
     if (el.dataset.action === "finish-reflection") {
-      if (reflection.value.trim()) writeStore("lastReflection", reflection.value.trim());
+      rememberReflection(reflection.value);
       reflection.value = "";
       go("home");
       return;
@@ -1059,6 +861,7 @@
 
       var row = document.createElement("div");
       row.className = "chips";
+      if (item.fills === "duration") item.mem = durationMemoryIndex(item.a);
       item.a.forEach(function (answer, index) {
         var chip = document.createElement("button");
         var selected = item.sel === index || item.mem === index;
@@ -1118,8 +921,25 @@
   }
 
   document.querySelectorAll("#avoid .chip").forEach(function (chip) {
-    chip.onclick = function (event) { event.stopPropagation(); chip.classList.toggle("sel"); };
+    chip.onclick = function (event) {
+      event.stopPropagation();
+      chip.classList.toggle("sel");
+      saveExclusions();
+    };
   });
+
+  function durationMemoryIndex(options) {
+    var preferred = Number(readStore("preferredDurationS")) || 900;
+    var best = 0;
+    var distance = Infinity;
+    options.forEach(function (option, index) {
+      var minutes = Number(String(option).match(/\d+/));
+      if (!minutes) return;
+      var current = Math.abs(minutes * 60 - preferred);
+      if (current < distance) { best = index; distance = current; }
+    });
+    return best;
+  }
 
   function selectedExclusions() {
     return Array.prototype.map.call(
@@ -1191,6 +1011,13 @@
       input.focus();
     });
   };
+  reflectionMic.onclick = function (event) {
+    event.stopPropagation();
+    dictate(reflectionMic, function (words) {
+      reflection.value = words;
+      reflection.focus();
+    });
+  };
 
   function dictate(button, onWords) {
     var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1251,7 +1078,8 @@
       category: category,
       history: history,
       answers: surprise ? [] : collectAnswers(),
-      exclusions: selectedExclusions()
+      exclusions: selectedExclusions(),
+      memory: generationMemory()
     }).then(function (session) {
       if (token !== generationToken) return;
       clearInterval(generationTimer);
@@ -1627,6 +1455,7 @@
     scr.home.classList.add("on");
     cur = "home";
   }
+  restorePreferences();
 
   window.addEventListener("beforeunload", function () { if (window.speechSynthesis) window.speechSynthesis.cancel(); });
 })();

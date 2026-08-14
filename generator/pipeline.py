@@ -201,13 +201,28 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         intent["category"] = category if category else "nature"
         template = for_category(intent["category"])
     slots = dict(intent.get("slots", {}))
+    # Memory is useful only if it survives a model omitting it from parsed intent. Style
+    # preferences are safe across categories; content arrives already category-scoped by
+    # the API and is never quoted back as a conversational callback.
+    memory = memory if isinstance(memory, dict) else {}
+    style_memory = memory.get("style") if isinstance(memory.get("style"), dict) else {}
+    content_memory = memory.get("content") if isinstance(memory.get("content"), dict) else {}
+    for key in ("sensory_density", "voice"):
+        if style_memory.get(key):
+            slots.setdefault(key, style_memory[key])
+    if content_memory.get("things_to_keep"):
+        slots.setdefault("prior_things_to_keep", content_memory["things_to_keep"])
     exclusions = {
         "standing": standing_exclusions or [],
         "session": intent.get("session_exclusions", []),
     }
     # midpoint, not the floor - a template's range is what it can do, and defaulting to the
     # short end made every estimate look like a 14-minute session even for into_sleep
-    target_s = int(intent.get("target_duration_s") or sum(template.duration_range) // 2)
+    target_s = int(
+        intent.get("target_duration_s")
+        or style_memory.get("preferred_duration_s")
+        or sum(template.duration_range) // 2
+    )
     lo, hi = template.duration_range
     target_s = max(lo, min(hi, target_s))
 

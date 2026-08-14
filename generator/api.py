@@ -4,9 +4,9 @@ The browser never sees the key and never talks to Anthropic directly - it talks 
 scripts/serve.py, which calls this. That is not a nicety: a key shipped to a browser is a
 key published.
 
-Without a key both functions return the hand-written fallbacks that used to be hardcoded in
-docs/app.html, so the interface still works offline. Every response carries `live` so the UI
-can say which it is rather than pretending.
+Without a key the intake functions return short hand-written fallbacks and generation returns
+the matching complete reference session, so the interface still works offline. Every response
+carries `live` so the UI can say which it is rather than pretending.
 """
 from __future__ import annotations
 
@@ -19,6 +19,8 @@ from .templates import Template, for_category
 
 MAX_TURNS = 3            # SPEC.md 2.2. Hard cap, not a target.
 MAX_QUESTIONS = 3
+MAX_HISTORY_ITEMS = 7
+MAX_HISTORY_CHARS = 6000
 
 # The category labels the app shows, mapped to the category ids the templates know about.
 CATEGORY_IDS = {
@@ -164,7 +166,116 @@ You can stop this at any point. Nothing is lost by stopping.
 }
 
 
+def _text(value: object, limit: int, *, required: bool = False) -> str:
+    if not isinstance(value, str):
+        if required:
+            raise ValueError("text value is required")
+        return ""
+    cleaned = " ".join(value.split()).strip()[:limit]
+    if required and not cleaned:
+        raise ValueError("text value is required")
+    return cleaned
+
+
+def _history(value: object) -> list[dict]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError("history must be a list")
+    cleaned, total = [], 0
+    for item in value[-MAX_HISTORY_ITEMS:]:
+        if not isinstance(item, dict) or item.get("role") not in {"user", "app"}:
+            continue
+        text = _text(item.get("text"), 1800)
+        if not text:
+            continue
+        remaining = MAX_HISTORY_CHARS - total
+        if remaining <= 0:
+            break
+        text = text[:remaining]
+        total += len(text)
+        cleaned.append({"role": item["role"], "text": text})
+    return cleaned
+
+
+def _answers(value: object) -> list[dict]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError("answers must be a list")
+    cleaned = []
+    for item in value[:MAX_QUESTIONS]:
+        if not isinstance(item, dict):
+            continue
+        answer = _text(item.get("answer"), 500)
+        if answer:
+            cleaned.append({
+                "question": _text(item.get("question"), 300),
+                "answer": answer,
+                "fills": _text(item.get("fills"), 80),
+            })
+    return cleaned
+
+
+def _exclusions(value: object) -> list[str]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError("exclusions must be a list")
+    return [text for item in value[:12] if (text := _text(item, 80))]
+
+
+def _slots(value: object) -> dict:
+    if not isinstance(value, dict):
+        return {}
+    cleaned = {}
+    for key, item in list(value.items())[:20]:
+        key = _text(key, 80)
+        if not key:
+            continue
+        if isinstance(item, list):
+            cleaned[key] = [_text(part, 300) for part in item[:8] if _text(part, 300)]
+        elif isinstance(item, (str, int, float, bool)):
+            cleaned[key] = _text(str(item), 600)
+    return cleaned
+
+
+def _memory(value: object, category: str) -> dict:
+    """Allow only the small, local-memory schema the browser actually owns."""
+    if not isinstance(value, dict):
+        return {}
+    raw_style = value.get("style") if isinstance(value.get("style"), dict) else {}
+    style = {}
+    density = raw_style.get("sensory_density")
+    if density in {"vivid", "impressions", "nonvisual"}:
+        style["sensory_density"] = density
+    voice = raw_style.get("voice")
+    if voice in {"lower", "deeper"}:
+        style["voice"] = voice
+    try:
+        duration = int(raw_style.get("preferred_duration_s"))
+    except (TypeError, ValueError):
+        duration = 0
+    if duration:
+        style["preferred_duration_s"] = max(180, min(2700, duration))
+
+    raw_content = value.get("content") if isinstance(value.get("content"), dict) else {}
+    content = {}
+    if _text(raw_content.get("category"), 80) == category:
+        raw_keeps = raw_content.get("things_to_keep", [])
+        if isinstance(raw_keeps, list):
+            keeps = [text for item in raw_keeps[-3:] if (text := _text(item, 1200))]
+            if keeps:
+                content = {
+                    "scope": "same category only",
+                    "things_to_keep": keeps,
+                    "instruction": "Fold these in quietly; never say 'last time you said'.",
+                }
+    return {key: item for key, item in {"style": style, "content": content}.items() if item}
+
+
 def resolve(category: str) -> tuple[str, Template]:
+    category = _text(category, 80, required=True)
     cid = CATEGORY_IDS.get(category, category)
     return cid, for_category(cid)
 
@@ -172,6 +283,7 @@ def resolve(category: str) -> tuple[str, Template]:
 def talk(category: str, history: list[dict]) -> dict:
     """One turn of layer 2a. `history` alternates {role: user|app, text: ...}."""
     cid, template = resolve(category)
+    history = _history(history)
     # Count what the listener said, not what the app said - the thread is seeded with an
     # opening line the app did not have to ask for, and counting it burns a turn.
     said = sum(1 for m in history if m["role"] == "user")
@@ -183,19 +295,26 @@ def talk(category: str, history: list[dict]) -> dict:
     usage = Usage()
     llm = _live_llm(usage)
     if llm is None:
-        return {"reply": FALLBACK_REPLIES[min(said - 1, len(FALLBACK_REPLIES) - 1)],
+        return {"reply": FALLBACK_REPLIES[min(max(0, said - 1), len(FALLBACK_REPLIES) - 1)],
                 "slots": {}, "live": False, "done": said >= 2}
-
-    out = _json_from(llm(prompts.talk_prompt(template, cid, history)))
-    return {"reply": out.get("reply", ""), "done": bool(out.get("done")),
-            "slots": out.get("slots", {}), "live": True, "cost": round(usage.cost, 4)}
+    try:
+        out = _json_from(llm(prompts.talk_prompt(template, cid, history)))
+        if not isinstance(out, dict):
+            raise ValueError("talk response is not an object")
+        return {"reply": _text(out.get("reply"), 1000), "done": bool(out.get("done")),
+                "slots": _slots(out.get("slots")), "live": True, "cost": round(usage.cost, 4)}
+    except Exception as exc:
+        return {"reply": FALLBACK_REPLIES[min(max(0, said - 1), len(FALLBACK_REPLIES) - 1)],
+                "slots": {}, "live": False, "done": said >= 2,
+                "note": f"Live intake failed ({type(exc).__name__})."}
 
 
 def questions(category: str, history: list[dict] | None = None,
               slots: dict | None = None) -> dict:
     """Layer 2b. Up to three, generated FROM what was said in 2a."""
     cid, template = resolve(category)
-    slots = dict(slots or {})
+    history = _history(history)
+    slots = _slots(slots)
     transcript = "\n".join(m["text"] for m in (history or []) if m["role"] == "user")
 
     usage = Usage()
@@ -206,10 +325,18 @@ def questions(category: str, history: list[dict] | None = None,
                 "template": template.name}
 
     still_empty = [s for s in template.required_slots if s not in slots]
-    out = _json_from(llm(prompts.question_prompt(template, slots, still_empty, transcript)))
-    qs = [q for q in out if q.get("question")][:MAX_QUESTIONS - 1]
-    return {"questions": qs + [DURATION_QUESTION], "live": True,
-            "template": template.name, "cost": round(usage.cost, 4)}
+    try:
+        out = _json_from(llm(prompts.question_prompt(template, slots, still_empty, transcript)))
+        if not isinstance(out, list):
+            raise ValueError("question response is not a list")
+        qs = [q for q in out if isinstance(q, dict) and q.get("question")][:MAX_QUESTIONS - 1]
+        return {"questions": qs + [DURATION_QUESTION], "live": True,
+                "template": template.name, "cost": round(usage.cost, 4)}
+    except Exception as exc:
+        qs = FALLBACK_QUESTIONS.get(cid, FALLBACK_QUESTIONS["_default"])
+        return {"questions": qs + [DURATION_QUESTION], "live": False,
+                "template": template.name,
+                "note": f"Live questions failed ({type(exc).__name__})."}
 
 
 def _intro_for(template_name: str, cached_ref: str | None = None) -> str:
@@ -285,11 +412,15 @@ def _listener_text(category: str, history: list[dict], answers: list[dict]) -> s
 
 def generate_session(category: str, history: list[dict] | None = None,
                      answers: list[dict] | None = None,
-                     exclusions: list[str] | None = None) -> dict:
+                     exclusions: list[str] | None = None,
+                     memory: dict | None = None) -> dict:
     """Generate and serialize one complete, playable meditation session."""
     category_id, template = resolve(category)
-    history = list(history or [])
-    answers = list(answers or [])
+    category = _text(category, 80, required=True)
+    history = _history(history)
+    answers = _answers(answers)
+    exclusions = _exclusions(exclusions)
+    memory = _memory(memory, category)
     user_text = _listener_text(category, history, answers)
 
     # The live pipeline already degrades to dry mode without a key, but a dry Session has an
@@ -298,7 +429,8 @@ def generate_session(category: str, history: list[dict] | None = None,
         session = generate(
             user_text,
             category=category_id,
-            standing_exclusions=list(exclusions or []),
+            memory=memory,
+            standing_exclusions=exclusions,
             progress=True,
         )
         if not session.beats or not session.script.strip():

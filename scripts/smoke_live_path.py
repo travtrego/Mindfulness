@@ -38,8 +38,18 @@ def fake(prompt, system=None):
                            "slots": {}, "beats": budget, "transitions": []})
     return PROSE   # draft and rewrite
 
-s = generate("meet on saturday", category="competition", llm=fake)
+s = generate(
+    "meet on saturday",
+    category="competition",
+    memory={
+        "style": {"sensory_density": "nonvisual", "preferred_duration_s": 720},
+        "content": {"things_to_keep": ["the cold bar in both hands"]},
+    },
+    llm=fake,
+)
 assert s.usage.calls == 0, "fake model must not touch the usage counter"
+assert s.slots["sensory_density"] == "nonvisual"
+assert s.slots["prior_things_to_keep"] == ["the cold bar in both hands"]
 drafted = [b for b in s.beats if b.get("text")]
 print(f"beats drafted  {len(drafted)} of {len(s.beats)}")
 print(f"script words   {len(s.script.split())}")

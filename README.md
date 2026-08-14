@@ -93,6 +93,8 @@ python3 scripts/test_bad_outlines.py     # ten malformed model outlines, none ma
 python3 scripts/check_pipeline_schema.py # every template's real output vs our own schema
 python3 scripts/test_bad_model_output.py # bad JSON, bad intent, empty drafts - none may crash
 python3 scripts/test_api_sessions.py     # every category has a complete playable fallback
+python3 scripts/check_app_contract.py    # generation, narration, controls, memory wiring
+python3 scripts/test_server_contract.py  # HTTP API, bounds, headers, no source-file exposure
 ```
 
 ## Status
