@@ -33,6 +33,8 @@ def main() -> None:
         "endBtn.onclick",
         "reflectionMic.onclick",
         "rememberReflection(reflection.value)",
+        'navigator.wakeLock.request("screen")',
+        "navigator.mediaSession.setActionHandler",
     )
     for marker in required_wiring:
         assert marker in html, f"missing app wiring: {marker}"

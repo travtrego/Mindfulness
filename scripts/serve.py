@@ -46,7 +46,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Permissions-Policy", "microphone=(self)")
+        self.send_header("Permissions-Policy", "microphone=(self), screen-wake-lock=(self)")
         self.send_header(
             "Content-Security-Policy",
             "default-src 'self'; style-src 'self' 'unsafe-inline'; "

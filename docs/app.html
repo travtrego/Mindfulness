@@ -529,7 +529,7 @@
       <div class="making-inner">
         <div class="spinner"></div>
         <h1 class="t" id="gen-title">Writing your session.</h1>
-        <p class="sub gen-status" id="gen-status">Reading what you told me.</p>
+        <p class="sub gen-status" id="gen-status" aria-live="polite">Reading what you told me.</p>
         <p class="gen-note" id="gen-note">You can leave this screen open. It may take a minute.</p>
       </div>
     </div>
@@ -543,7 +543,7 @@
   <section class="scr dark" id="s-play">
     <div class="rail" id="rail"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="pacezone"><div class="pacer" id="pacer"><span id="pace-label">in</span></div></div>
-    <p class="narr" id="narr">You notice the weight of your own hands.</p>
+    <p class="narr" id="narr" aria-live="polite">You notice the weight of your own hands.</p>
     <p class="hint" id="hint">Tap anywhere for controls</p>
 
     <div class="controls" id="controls">
@@ -583,6 +583,7 @@
           </svg>
         </button>
       </div>
+      <p class="sub" style="font-family:var(--mono);font-size:.56rem;margin:.55rem 0 0;">Saved only on this device. Leave it empty to skip.</p>
     </div>
     <div class="foot"><button class="btn ghost" data-action="finish-reflection">Done</button></div>
   </section>
@@ -607,6 +608,7 @@
   var generationTimer = null;
   var currentSession = null;
   var voicePreference = readStore("voicePreference") || "deeper";
+  var wakeLock = null;
 
   var talkCat = document.getElementById("talk-cat");
   var askCat = document.getElementById("ask-cat");
@@ -1160,8 +1162,62 @@
     rail.innerHTML = "";
     session.beats.forEach(function () { rail.appendChild(document.createElement("i")); });
     buildWave();
+    prepareMediaControls();
     setPauseIcon(false);
     updatePlayer();
+  }
+
+  function prepareMediaControls() {
+    if (!("mediaSession" in navigator)) return;
+    if ("MediaMetadata" in window) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: category + " session",
+        artist: "Guided visualization"
+      });
+    }
+    var actions = {
+      play: resumePlayback,
+      pause: pausePlayback,
+      seekbackward: function (detail) { seekBy(-(detail.seekOffset || 15)); },
+      seekforward: function (detail) { seekBy(detail.seekOffset || 15); },
+      stop: finishSession
+    };
+    Object.keys(actions).forEach(function (action) {
+      try { navigator.mediaSession.setActionHandler(action, actions[action]); }
+      catch (error) { /* action unsupported by this browser */ }
+    });
+  }
+
+  function setMediaState(state) {
+    if (!("mediaSession" in navigator)) return;
+    try { navigator.mediaSession.playbackState = state; }
+    catch (error) { /* partial implementation */ }
+  }
+
+  function updateMediaPosition() {
+    if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState || !playback.total) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration: playback.total,
+        playbackRate: 1,
+        position: Math.min(playback.elapsed, Math.max(0, playback.total - .01))
+      });
+    } catch (error) { /* partial implementation */ }
+  }
+
+  function holdWakeLock() {
+    if (!("wakeLock" in navigator) || wakeLock || document.visibilityState !== "visible") return;
+    navigator.wakeLock.request("screen").then(function (lock) {
+      wakeLock = lock;
+      lock.addEventListener("release", function () { wakeLock = null; });
+    }).catch(function () { wakeLock = null; });
+  }
+
+  function releaseWakeLock() {
+    if (!wakeLock) return;
+    var lock = wakeLock;
+    wakeLock = null;
+    lock.release().catch(function () { /* already released by the browser */ });
   }
 
   function buildWave() {
@@ -1199,6 +1255,8 @@
     playback.playing = true;
     playback.lastClock = performance.now();
     playback.clock = setInterval(clockTick, 250);
+    holdWakeLock();
+    setMediaState("playing");
     controls.classList.add("on");
     hint.style.opacity = "0";
     setPauseIcon(true);
@@ -1275,6 +1333,7 @@
       playback.segmentTimer = null;
     }
     setPauseIcon(false);
+    setMediaState("paused");
     paceLabel.textContent = "paused";
   }
 
@@ -1291,6 +1350,8 @@
       playCurrent();
     }
     setPauseIcon(true);
+    holdWakeLock();
+    setMediaState("playing");
   }
 
   function seekBy(delta) {
@@ -1326,6 +1387,8 @@
     playback.utterance = null;
     playback.playing = false;
     if (window.speechSynthesis) window.speechSynthesis.cancel();
+    releaseWakeLock();
+    setMediaState("none");
     if (reset !== false) {
       playback.index = 0;
       playback.elapsed = 0;
@@ -1370,6 +1433,7 @@
     rail.querySelectorAll("i").forEach(function (item, index) {
       item.className = index < beatIndex ? "done" : (index === beatIndex ? "now" : "");
     });
+    updateMediaPosition();
   }
 
   function setPauseIcon(isPlaying) {
@@ -1457,6 +1521,13 @@
   }
   restorePreferences();
 
-  window.addEventListener("beforeunload", function () { if (window.speechSynthesis) window.speechSynthesis.cancel(); });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && playback.playing) holdWakeLock();
+  });
+
+  window.addEventListener("beforeunload", function () {
+    releaseWakeLock();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  });
 })();
 </script>
