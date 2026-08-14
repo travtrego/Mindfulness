@@ -241,11 +241,33 @@
     transition: background .2s;
   }
   .btn:hover, .btn:focus-visible { background: rgba(217,142,82,.21); outline: none; }
+  .btn:disabled { opacity: .35; cursor: default; }
   .btn.ghost {
     border-color: rgba(237,231,223,.13); background: none; color: var(--dimmer);
     margin-top: .45rem; font-size: .63rem;
   }
   .btn.ghost:hover, .btn.ghost:focus-visible { background: rgba(237,231,223,.05); }
+
+  /* ---------- generation ---------- */
+  .making { flex: 1; display: grid; place-items: center; text-align: center; }
+  .making-inner { width: 100%; max-width: 18rem; }
+  .spinner {
+    width: 54px; height: 54px; margin: 0 auto 1.7rem; border-radius: 50%;
+    border: 1px solid rgba(237,231,223,.09); border-top-color: var(--ember);
+    animation: spin 1.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .making.ready .spinner { animation: none; border-color: var(--glacier); position: relative; }
+  .making.ready .spinner::after {
+    content: ""; position: absolute; width: 18px; height: 9px; left: 16px; top: 18px;
+    border-left: 1px solid var(--glacier); border-bottom: 1px solid var(--glacier);
+    transform: rotate(-45deg);
+  }
+  .gen-status { min-height: 2.5rem; transition: opacity .25s; }
+  .gen-note {
+    font-family: var(--mono); font-size: .55rem; line-height: 1.5;
+    color: rgba(127,168,160,.65); margin-top: 1rem;
+  }
 
   /* ---------- playback ---------- */
   .rail { display: flex; gap: 3px; margin-bottom: 1.1rem; }
@@ -293,7 +315,7 @@
     font-size: .58rem; color: var(--dimmer); font-variant-numeric: tabular-nums;
     margin-bottom: 1rem;
   }
-  .transport { display: flex; align-items: center; justify-content: center; gap: 1.7rem; }
+  .transport { display: flex; align-items: center; justify-content: center; gap: 1.1rem; }
   .tb {
     background: none; border: 0; color: var(--dim); cursor: pointer;
     font-family: var(--mono); font-size: .6rem; display: grid; place-items: center;
@@ -301,6 +323,7 @@
   }
   .tb:hover, .tb:focus-visible { color: var(--ink); outline: none; }
   .tb.main { width: 54px; height: 54px; border: 1px solid rgba(237,231,223,.22); border-radius: 50%; }
+  .tb.end { color: rgba(237,231,223,.34); }
   .escape {
     margin-top: 1.15rem; width: 100%; padding: .68rem; border-radius: 10px;
     border: 1px solid rgba(127,168,160,.33); background: rgba(127,168,160,.07);
@@ -359,8 +382,8 @@
     <p class="eyebrow">One time only</p>
     <h1 class="t">Which voice?</h1>
     <div class="opts">
-      <button class="opt" data-go="ob3"><b>Lower, unhurried</b><span>Some grain to it. Audible breath.</span></button>
-      <button class="opt" data-go="ob3"><b>Deeper, measured</b><span>Even pace. Quiet warmth.</span></button>
+      <button class="opt" data-go="ob3" data-voice="lower"><b>Lower, unhurried</b><span>Some grain to it. Audible breath.</span></button>
+      <button class="opt" data-go="ob3" data-voice="deeper"><b>Deeper, measured</b><span>Even pace. Quiet warmth.</span></button>
     </div>
     <div style="flex:1"></div>
     <p class="sub" style="margin:0">Changeable later, though not partway through something
@@ -413,14 +436,14 @@
     <h1 class="t">What do you need?</h1>
 
     <div class="scroll">
-      <button class="resume" data-go="play" data-cat="Safe place">
+      <button class="resume" data-action="generate" data-cat="Safe place">
         <b>Return to the boathouse</b>
         <span>Your safe place · 4th visit</span>
       </button>
 
       <span class="grp">Settle</span>
       <div class="grid">
-        <button class="cat" data-go="play" data-cat="Just breathing"><b>Just breathing</b><i class="now">STARTS NOW</i></button>
+        <button class="cat" data-action="generate" data-cat="Just breathing"><b>Just breathing</b><i class="now">STARTS NOW</i></button>
         <button class="cat" data-go="ask" data-cat="Body scan"><b>Body scan</b><i>8–12 MIN</i></button>
       </div>
 
@@ -468,7 +491,7 @@
     </div>
     <div class="composer">
       <textarea id="input" rows="1" placeholder="Say it however it comes out"></textarea>
-      <button class="icon" aria-label="Speak instead">
+      <button class="icon" id="talk-mic" aria-label="Speak instead">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
         </svg>
@@ -492,14 +515,33 @@
     <div class="scroll" id="qs"></div>
 
     <div class="foot">
-      <button class="btn" data-go="play">Begin · 14 min</button>
-      <button class="btn ghost" data-go="play">Skip — surprise me</button>
+      <button class="btn" id="build-session" data-action="generate">Create my session</button>
+      <button class="btn ghost" data-action="generate" data-surprise="1">Skip — surprise me</button>
+    </div>
+  </section>
+
+  <!-- GENERATION -->
+  <section class="scr dark" id="s-generate">
+    <div class="bar"><span>9:42</span><span>􀙇</span></div>
+    <button class="back" data-go="home">← cancel</button>
+    <p class="eyebrow" id="gen-cat">Game or match</p>
+    <div class="making" id="making">
+      <div class="making-inner">
+        <div class="spinner"></div>
+        <h1 class="t" id="gen-title">Writing your session.</h1>
+        <p class="sub gen-status" id="gen-status">Reading what you told me.</p>
+        <p class="gen-note" id="gen-note">You can leave this screen open. It may take a minute.</p>
+      </div>
+    </div>
+    <div class="foot" id="gen-foot" hidden>
+      <button class="btn" id="start-session" data-action="play-ready">Begin session</button>
+      <button class="btn ghost" data-go="home">Not now</button>
     </div>
   </section>
 
   <!-- PLAYBACK -->
   <section class="scr dark" id="s-play">
-    <div class="rail"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="rail" id="rail"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="pacezone"><div class="pacer" id="pacer"><span id="pace-label">in</span></div></div>
     <p class="narr" id="narr">You notice the weight of your own hands.</p>
     <p class="hint" id="hint">Tap anywhere for controls</p>
@@ -508,17 +550,20 @@
       <div class="wave" id="wave"></div>
       <div class="times"><span id="elapsed">0:14</span><span id="remain">−13:46</span></div>
       <div class="transport">
-        <button class="tb" aria-label="Back 15 seconds">
+        <button class="tb" id="rewind" aria-label="Back 15 seconds">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6V2L6 6l5 4V7a6 6 0 1 1-6 6"></path></svg>15
         </button>
         <button class="tb main" id="pp" aria-label="Pause">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
         </button>
-        <button class="tb" data-go="close" aria-label="End session">
+        <button class="tb" id="forward" aria-label="Forward 15 seconds">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6V2l5 4-5 4V7a6 6 0 1 0 6 6"></path></svg>15
+        </button>
+        <button class="tb end" id="end-session" aria-label="End session">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>end
         </button>
       </div>
-      <button class="escape" data-go="play">Take me back to breathing</button>
+      <button class="escape" id="breathing-only">Take me back to breathing</button>
     </div>
   </section>
 
@@ -531,7 +576,7 @@
     <div class="reflect">
       <p>Anything you want to keep from that?</p>
       <div class="composer" style="padding-top:0">
-        <textarea rows="1" placeholder="Say it, or type it"></textarea>
+        <textarea id="reflection" rows="1" placeholder="Say it, or type it"></textarea>
         <button class="icon" aria-label="Speak">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path>
@@ -539,14 +584,14 @@
         </button>
       </div>
     </div>
-    <div class="foot"><button class="btn ghost" data-go="home">Done</button></div>
+    <div class="foot"><button class="btn ghost" data-action="finish-reflection">Done</button></div>
   </section>
 
 </div>
 </div>
 
 <script>
-(function () {
+(function () { return; // retained temporarily as a reference while the functional player replaces it
   var scr = {}, cur = "ob0";
   ["ob0","ob1","ob2","ob3","ob4","home","talk","ask","play","close"].forEach(function (k) { scr[k] = document.getElementById("s-" + k); });
 
@@ -799,5 +844,790 @@
       requestAnimationFrame(tick);
     })(performance.now());
   }
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var keys = ["ob0","ob1","ob2","ob3","ob4","home","talk","ask","generate","play","close"];
+  var scr = {}, cur = "ob0";
+  keys.forEach(function (key) { scr[key] = document.getElementById("s-" + key); });
+
+  var category = "Game or match";
+  var history = [];
+  var turn = 0;
+  var pending = false;
+  var questionToken = 0;
+  var generationToken = 0;
+  var generationTimer = null;
+  var currentSession = null;
+  var voicePreference = readStore("voicePreference") || "deeper";
+
+  var talkCat = document.getElementById("talk-cat");
+  var askCat = document.getElementById("ask-cat");
+  var askSub = document.getElementById("ask-sub");
+  var qs = document.getElementById("qs");
+  var thread = document.getElementById("thread");
+  var input = document.getElementById("input");
+  var anchor = document.getElementById("anchor");
+  var controls = document.getElementById("controls");
+  var hint = document.getElementById("hint");
+  var sendBtn = document.getElementById("send");
+  var talkMic = document.getElementById("talk-mic");
+  var making = document.getElementById("making");
+  var genCat = document.getElementById("gen-cat");
+  var genTitle = document.getElementById("gen-title");
+  var genStatus = document.getElementById("gen-status");
+  var genNote = document.getElementById("gen-note");
+  var genFoot = document.getElementById("gen-foot");
+  var startSessionBtn = document.getElementById("start-session");
+  var rail = document.getElementById("rail");
+  var wave = document.getElementById("wave");
+  var pacer = document.getElementById("pacer");
+  var paceLabel = document.getElementById("pace-label");
+  var narr = document.getElementById("narr");
+  var elapsedEl = document.getElementById("elapsed");
+  var remainEl = document.getElementById("remain");
+  var pauseBtn = document.getElementById("pp");
+  var rewindBtn = document.getElementById("rewind");
+  var forwardBtn = document.getElementById("forward");
+  var endBtn = document.getElementById("end-session");
+  var breathingBtn = document.getElementById("breathing-only");
+  var reflection = document.getElementById("reflection");
+
+  var ANCHORS = {
+    "Game or match": "You have already stood this up once tonight.",
+    "Interview": "You have already walked into the room once.",
+    "Hard conversation": "You have already said the first true thing once.",
+    "Confidence": "Your body has already carried you through it once.",
+    "First day back": "You have already had this Tuesday once.",
+    "Seeing people again": "You have already crossed the threshold once.",
+    "Just breathing": "That is always there, and it takes eight seconds.",
+    "Safe place": "The place keeps. It will be there next time.",
+    "_default": "You have already been there once."
+  };
+
+  var FALLBACK_QUESTIONS = {
+    "Nature": [
+      { q: "Somewhere you've been, or somewhere new?", a: ["been there", "somewhere new"] },
+      { q: "Warm or cold?", a: ["warm", "cold"] },
+      { q: "How long have we got?", a: ["12 min", "16 min", "20 min"], fills: "duration", mem: 1 }
+    ],
+    "Game or match": [
+      { q: "Same place, or somewhere neutral?", a: ["same place", "neutral ground"], sel: 0 },
+      { q: "Do you want the crowd, or do you want it quiet?", a: ["the crowd", "quiet"] },
+      { q: "How long have we got?", a: ["10 min", "14 min", "20 min"], fills: "duration", mem: 1 }
+    ],
+    "First day back": [
+      { q: "Does anyone ask, or does it just not come up?", a: ["they ask", "it doesn't come up"], sel: 0 },
+      { q: "What's the part of the day you can still do without thinking?", a: ["the work itself", "the routine", "the people"] },
+      { q: "How long have we got?", a: ["14 min", "17 min", "20 min"], fills: "duration", mem: 1 }
+    ],
+    "_default": [
+      { q: "Somewhere you've been, or somewhere new?", a: ["been there", "somewhere new"] },
+      { q: "How long have we got?", a: ["10 min", "14 min", "20 min"], fills: "duration", mem: 1 }
+    ]
+  };
+
+  function readStore(key) {
+    try { return window.localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  function writeStore(key, value) {
+    try { window.localStorage.setItem(key, value); } catch (e) { /* private mode */ }
+  }
+
+  function post(path, body) {
+    return fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (response) {
+      if (!response.ok) throw new Error("Request failed: " + response.status);
+      return response.json();
+    });
+  }
+
+  function setCategory(value) {
+    category = value || category;
+    talkCat.textContent = category;
+    askCat.textContent = category;
+    genCat.textContent = category;
+  }
+
+  function go(name) {
+    if (!scr[name]) return;
+    if (cur === "play" && name !== "play") stopPlayback();
+    scr[cur].classList.remove("on");
+    scr[name].classList.add("on");
+    cur = name;
+    controls.classList.remove("on");
+    hint.style.opacity = "";
+    var scroll = scr[name].querySelector(".scroll");
+    if (scroll) scroll.scrollTop = 0;
+
+    if (name === "ask") buildQuestions();
+    if (name === "close") anchor.textContent = ANCHORS[category] || ANCHORS._default;
+    if (name === "talk") resetTalk();
+    if (name === "home") {
+      generationToken++;
+      clearInterval(generationTimer);
+      history = [];
+      scr.talk.dataset.used = "";
+    }
+  }
+
+  function resetTalk() {
+    thread.innerHTML = '<p class="m app">What\'s going on?</p>';
+    input.value = "";
+    history = [{ role: "app", text: "What's going on?" }];
+    turn = 0;
+    pending = false;
+    sendBtn.classList.remove("busy");
+  }
+
+  document.addEventListener("click", function (event) {
+    var el = event.target.closest("[data-go], [data-action]");
+    if (!el) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (el.dataset.voice) {
+      voicePreference = el.dataset.voice;
+      writeStore("voicePreference", voicePreference);
+    }
+    if (el.dataset.cat) setCategory(el.dataset.cat);
+
+    if (el.dataset.action === "generate") {
+      startGeneration(el.dataset.surprise === "1");
+      return;
+    }
+    if (el.dataset.action === "play-ready") {
+      startPlayback();
+      return;
+    }
+    if (el.dataset.action === "finish-reflection") {
+      if (reflection.value.trim()) writeStore("lastReflection", reflection.value.trim());
+      reflection.value = "";
+      go("home");
+      return;
+    }
+    if (el.dataset.go) {
+      if (cur === "ob4" && el.dataset.go === "home") writeStore("onboardingComplete", "1");
+      go(el.dataset.go);
+    }
+  });
+
+  // ---- questions ----
+  function buildQuestions() {
+    var token = ++questionToken;
+    askSub.textContent = scr.talk.dataset.used
+      ? "Written from what you just told me."
+      : "A few things and we'll go.";
+    qs.innerHTML = '<div class="typing"><i></i><i></i><i></i></div>';
+    post("/api/questions", { category: category, history: history })
+      .then(function (out) {
+        if (token !== questionToken) return;
+        if (!out.questions || !out.questions.length) throw new Error("No questions");
+        renderQuestions(out.questions.map(function (item) {
+          return {
+            q: item.question,
+            a: item.options || [],
+            fills: item.fills,
+            mem: item.fills === "duration" ? 1 : undefined
+          };
+        }));
+      })
+      .catch(function () {
+        if (token === questionToken) renderQuestions(FALLBACK_QUESTIONS[category] || FALLBACK_QUESTIONS._default);
+      });
+  }
+
+  function renderQuestions(set) {
+    qs.innerHTML = "";
+    set.forEach(function (item) {
+      var block = document.createElement("div");
+      block.className = "q";
+      block.dataset.question = item.q;
+      block.dataset.fills = item.fills || "";
+
+      var question = document.createElement("p");
+      question.textContent = item.q;
+      block.appendChild(question);
+
+      var row = document.createElement("div");
+      row.className = "chips";
+      item.a.forEach(function (answer, index) {
+        var chip = document.createElement("button");
+        var selected = item.sel === index || item.mem === index;
+        chip.className = "chip" + (selected ? " sel" : "") + (item.mem === index ? " mem" : "");
+        chip.textContent = answer;
+        chip.onclick = function (event) {
+          event.stopPropagation();
+          row.querySelectorAll(".chip").forEach(function (other) { other.classList.remove("sel", "mem"); });
+          chip.classList.add("sel");
+          updateBuildLabel();
+        };
+        row.appendChild(chip);
+      });
+      block.appendChild(row);
+
+      if (item.mem !== undefined) {
+        var note = document.createElement("p");
+        note.className = "memnote";
+        note.textContent = "• your usual";
+        block.appendChild(note);
+      }
+      qs.appendChild(block);
+    });
+
+    var say = document.createElement("button");
+    say.className = "say";
+    say.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path></svg> add something in your own words';
+    say.onclick = function (event) {
+      event.stopPropagation();
+      dictate(say, function (words) {
+        history.push({ role: "user", text: words });
+        scr.talk.dataset.used = "1";
+        buildQuestions();
+      });
+    };
+    qs.appendChild(say);
+    updateBuildLabel();
+  }
+
+  function collectAnswers() {
+    var answers = [];
+    qs.querySelectorAll(".q").forEach(function (block) {
+      var selected = block.querySelector(".chip.sel");
+      if (selected) answers.push({
+        question: block.dataset.question,
+        answer: selected.textContent,
+        fills: block.dataset.fills
+      });
+    });
+    return answers;
+  }
+
+  function updateBuildLabel() {
+    var build = document.getElementById("build-session");
+    var duration = collectAnswers().filter(function (item) { return item.fills === "duration"; })[0];
+    build.textContent = duration ? "Create · " + duration.answer : "Create my session";
+  }
+
+  document.querySelectorAll("#avoid .chip").forEach(function (chip) {
+    chip.onclick = function (event) { event.stopPropagation(); chip.classList.toggle("sel"); };
+  });
+
+  function selectedExclusions() {
+    return Array.prototype.map.call(
+      document.querySelectorAll("#avoid .chip.sel"),
+      function (chip) { return chip.textContent; }
+    );
+  }
+
+  // ---- chat and dictation ----
+  function send() {
+    var value = input.value.trim();
+    if (!value || pending) return;
+    pending = true;
+    sendBtn.classList.add("busy");
+
+    var mine = document.createElement("p");
+    mine.className = "m me";
+    mine.textContent = value;
+    thread.appendChild(mine);
+    history.push({ role: "user", text: value });
+    input.value = "";
+    input.style.height = "";
+    thread.parentElement.scrollTop = 99999;
+
+    var dots = document.createElement("div");
+    dots.className = "typing";
+    dots.innerHTML = "<i></i><i></i><i></i>";
+    thread.appendChild(dots);
+    thread.parentElement.scrollTop = 99999;
+
+    post("/api/talk", { category: category, history: history })
+      .catch(function () { return { reply: "", done: true, live: false }; })
+      .then(function (out) {
+        pending = false;
+        sendBtn.classList.remove("busy");
+        dots.remove();
+        if (out.reply) {
+          var reply = document.createElement("p");
+          reply.className = "m app";
+          reply.textContent = out.reply;
+          thread.appendChild(reply);
+          history.push({ role: "app", text: out.reply });
+          thread.parentElement.scrollTop = 99999;
+        }
+        turn++;
+        if (out.done || turn >= 3) {
+          setTimeout(function () {
+            scr.talk.dataset.used = "1";
+            go("ask");
+            turn = 0;
+          }, 700);
+        }
+      });
+  }
+
+  sendBtn.onclick = function (event) { event.stopPropagation(); send(); };
+  input.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); send(); }
+  });
+  input.addEventListener("input", function () {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 96) + "px";
+  });
+  talkMic.onclick = function (event) {
+    event.stopPropagation();
+    dictate(talkMic, function (words) {
+      input.value = words;
+      input.dispatchEvent(new Event("input"));
+      input.focus();
+    });
+  };
+
+  function dictate(button, onWords) {
+    var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      button.setAttribute("title", "Voice input is not available in this browser");
+      return;
+    }
+    var original = button.innerHTML;
+    var recognition = new Recognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    button.style.color = "var(--ember)";
+    recognition.onresult = function (event) { onWords(event.results[0][0].transcript); };
+    recognition.onend = function () { button.innerHTML = original; button.style.color = ""; };
+    recognition.onerror = function () { button.innerHTML = original; button.style.color = ""; };
+    recognition.start();
+  }
+
+  // ---- generation ----
+  var GEN_STEPS = [
+    "Reading what you told me.",
+    "Choosing the shape of the session.",
+    "Planning the beats and the silences.",
+    "Writing the first half.",
+    "Writing the difficult part.",
+    "Checking the language against the craft rules.",
+    "Bringing you back at the end."
+  ];
+
+  function setGenStatus(text) {
+    genStatus.style.opacity = "0";
+    setTimeout(function () { genStatus.textContent = text; genStatus.style.opacity = ""; }, 170);
+  }
+
+  function startGeneration(surprise) {
+    var token = ++generationToken;
+    clearInterval(generationTimer);
+    currentSession = null;
+    making.classList.remove("ready");
+    genTitle.textContent = "Writing your session.";
+    genStatus.textContent = GEN_STEPS[0];
+    genStatus.style.opacity = "";
+    genNote.textContent = "You can leave this screen open. It may take a minute.";
+    genFoot.hidden = true;
+    startSessionBtn.textContent = "Begin session";
+    startSessionBtn.dataset.action = "play-ready";
+    genCat.textContent = category;
+    go("generate");
+
+    var step = 0;
+    generationTimer = setInterval(function () {
+      step = Math.min(step + 1, GEN_STEPS.length - 1);
+      setGenStatus(GEN_STEPS[step]);
+    }, 6500);
+
+    post("/api/generate", {
+      category: category,
+      history: history,
+      answers: surprise ? [] : collectAnswers(),
+      exclusions: selectedExclusions()
+    }).then(function (session) {
+      if (token !== generationToken) return;
+      clearInterval(generationTimer);
+      if (!session.beats || !session.beats.length) throw new Error("The session came back empty");
+      currentSession = session;
+      prepareSession(session);
+      making.classList.add("ready");
+      genTitle.textContent = "Your session is ready.";
+      genStatus.textContent = session.personalized
+        ? "Written from what you told me."
+        : "A complete reference session is ready.";
+      genNote.textContent = session.personalized
+        ? "Narration uses a voice installed on this device."
+        : "Live writing was unavailable, so the matching hand-written session was used.";
+      genFoot.hidden = false;
+    }).catch(function (error) {
+      if (token !== generationToken) return;
+      clearInterval(generationTimer);
+      making.classList.add("ready");
+      genTitle.textContent = "That did not finish.";
+      genStatus.textContent = "Your answers are still here.";
+      genNote.textContent = error.message || "The generator could not be reached.";
+      startSessionBtn.textContent = "Try again";
+      startSessionBtn.dataset.action = "generate";
+      genFoot.hidden = false;
+    });
+  }
+
+  // ---- narrated player ----
+  var playback = {
+    segments: [], beats: [], index: 0, elapsed: 0, total: 0,
+    playing: false, token: 0, utterance: null, segmentTimer: null,
+    segmentStartedAt: 0, segmentRemainingMs: 0, clock: null, lastClock: 0
+  };
+
+  function cleanNarration(text) {
+    return text.replace(/\r/g, "").replace(/[*_#>`]/g, "").replace(/\s+/g, " ").trim();
+  }
+
+  function speechPieces(text) {
+    var clean = cleanNarration(text);
+    return clean.match(/[^.!?]+[.!?]+[\"'’”)]*|[^.!?]+$/g) || (clean ? [clean] : []);
+  }
+
+  function prepareSession(session) {
+    var raw = [];
+    session.beats.forEach(function (beat, beatIndex) {
+      var parts = String(beat.text || "").split(/\*\[\s*(\d+)\s*s\s*\]\*/i);
+      parts.forEach(function (part, index) {
+        if (index % 2) {
+          var seconds = Number(part);
+          if (seconds > 0) raw.push({ type: "silence", duration: seconds, beat: beatIndex });
+          return;
+        }
+        speechPieces(part).forEach(function (piece) {
+          piece = piece.trim();
+          if (!piece) return;
+          var words = piece.split(/\s+/).length;
+          raw.push({ type: "speech", text: piece, duration: Math.max(1.8, words / 92 * 60), beat: beatIndex });
+        });
+      });
+    });
+
+    var cursor = 0;
+    raw.forEach(function (segment) {
+      segment.start = cursor;
+      cursor += segment.duration;
+      segment.end = cursor;
+    });
+
+    playback.segments = raw;
+    playback.beats = session.beats;
+    playback.index = 0;
+    playback.elapsed = 0;
+    playback.total = cursor;
+    playback.playing = false;
+
+    rail.innerHTML = "";
+    session.beats.forEach(function () { rail.appendChild(document.createElement("i")); });
+    buildWave();
+    setPauseIcon(false);
+    updatePlayer();
+  }
+
+  function buildWave() {
+    wave.innerHTML = "";
+    var seed = 7;
+    function random() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+    for (var i = 0; i < 56; i++) {
+      var bar = document.createElement("span");
+      bar.style.height = Math.min(100, 12 + Math.abs(Math.sin(i / 4.5)) * 55 + random() * 30) + "%";
+      wave.appendChild(bar);
+    }
+  }
+
+  function chooseVoice() {
+    if (!("speechSynthesis" in window)) return null;
+    var voices = window.speechSynthesis.getVoices();
+    var english = voices.filter(function (voice) { return /^en[-_]/i.test(voice.lang); });
+    if (!english.length) english = voices;
+    var wants = voicePreference === "lower"
+      ? ["Daniel", "David", "Guy", "Arthur", "Google UK English Male"]
+      : ["Mark", "James", "Aaron", "Alex", "Microsoft Ryan"];
+    for (var i = 0; i < wants.length; i++) {
+      var found = english.filter(function (voice) { return voice.name.indexOf(wants[i]) !== -1; })[0];
+      if (found) return found;
+    }
+    return english[0] || null;
+  }
+
+  function startPlayback() {
+    if (!currentSession || !playback.segments.length) return;
+    go("play");
+    stopPlayback(false);
+    playback.index = 0;
+    playback.elapsed = 0;
+    playback.playing = true;
+    playback.lastClock = performance.now();
+    playback.clock = setInterval(clockTick, 250);
+    controls.classList.add("on");
+    hint.style.opacity = "0";
+    setPauseIcon(true);
+    playCurrent();
+  }
+
+  function playCurrent(offsetSeconds) {
+    if (!playback.playing) return;
+    if (playback.index >= playback.segments.length) { finishSession(); return; }
+    var segment = playback.segments[playback.index];
+    var token = ++playback.token;
+    playback.elapsed = Math.max(segment.start, offsetSeconds || segment.start);
+    updateCurrentText(segment);
+    updatePlayer();
+
+    if (segment.type === "silence") {
+      narr.textContent = "";
+      scheduleSegment(Math.max(0, (segment.end - playback.elapsed) * 1000), token);
+      return;
+    }
+
+    if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+      scheduleSegment(segment.duration * 1000, token);
+      return;
+    }
+
+    var utterance = new SpeechSynthesisUtterance(segment.text);
+    var voice = chooseVoice();
+    if (voice) utterance.voice = voice;
+    utterance.rate = 0.78;
+    utterance.pitch = voicePreference === "lower" ? 0.94 : 0.88;
+    utterance.volume = 1;
+    playback.utterance = utterance;
+    utterance.onend = function () { if (token === playback.token && playback.playing) finishSegment(); };
+    utterance.onerror = function (event) {
+      if (token !== playback.token || event.error === "interrupted" || event.error === "canceled") return;
+      scheduleSegment(Math.max(1200, segment.duration * 700), token);
+    };
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function scheduleSegment(milliseconds, token) {
+    clearTimeout(playback.segmentTimer);
+    playback.segmentRemainingMs = milliseconds;
+    playback.segmentStartedAt = performance.now();
+    playback.segmentTimer = setTimeout(function () {
+      if (token === playback.token && playback.playing) finishSegment();
+    }, milliseconds);
+  }
+
+  function finishSegment() {
+    var segment = playback.segments[playback.index];
+    if (segment) playback.elapsed = segment.end;
+    playback.utterance = null;
+    clearTimeout(playback.segmentTimer);
+    playback.segmentTimer = null;
+    playback.index++;
+    playCurrent();
+  }
+
+  function togglePlayback() {
+    if (!playback.segments.length) return;
+    if (playback.playing) pausePlayback(); else resumePlayback();
+  }
+
+  function pausePlayback() {
+    if (!playback.playing) return;
+    playback.playing = false;
+    if (playback.utterance && window.speechSynthesis) window.speechSynthesis.pause();
+    if (playback.segmentTimer) {
+      playback.segmentRemainingMs = Math.max(0,
+        playback.segmentRemainingMs - (performance.now() - playback.segmentStartedAt));
+      clearTimeout(playback.segmentTimer);
+      playback.segmentTimer = null;
+    }
+    setPauseIcon(false);
+    paceLabel.textContent = "paused";
+  }
+
+  function resumePlayback() {
+    if (playback.playing || !playback.segments.length) return;
+    playback.playing = true;
+    playback.lastClock = performance.now();
+    var segment = playback.segments[playback.index];
+    if (playback.utterance && window.speechSynthesis && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    } else if (segment && segment.type === "silence") {
+      scheduleSegment(playback.segmentRemainingMs || (segment.end - playback.elapsed) * 1000, playback.token);
+    } else {
+      playCurrent();
+    }
+    setPauseIcon(true);
+  }
+
+  function seekBy(delta) {
+    if (!playback.segments.length) return;
+    var wasPlaying = playback.playing;
+    var target = Math.max(0, Math.min(playback.total - 0.01, playback.elapsed + delta));
+    playback.token++;
+    clearTimeout(playback.segmentTimer);
+    playback.segmentTimer = null;
+    playback.utterance = null;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+    var index = playback.segments.length - 1;
+    for (var i = 0; i < playback.segments.length; i++) {
+      if (target < playback.segments[i].end) { index = i; break; }
+    }
+    playback.index = index;
+    var segment = playback.segments[index];
+    playback.elapsed = segment.type === "speech" ? segment.start : target;
+    playback.playing = wasPlaying;
+    playback.segmentRemainingMs = Math.max(0, (segment.end - playback.elapsed) * 1000);
+    updateCurrentText(segment);
+    updatePlayer();
+    if (wasPlaying) playCurrent(playback.elapsed);
+  }
+
+  function stopPlayback(reset) {
+    playback.token++;
+    clearTimeout(playback.segmentTimer);
+    clearInterval(playback.clock);
+    playback.segmentTimer = null;
+    playback.clock = null;
+    playback.utterance = null;
+    playback.playing = false;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (reset !== false) {
+      playback.index = 0;
+      playback.elapsed = 0;
+    }
+    setPauseIcon(false);
+  }
+
+  function finishSession() {
+    stopPlayback();
+    writeStore("lastCategory", category);
+    go("close");
+  }
+
+  function clockTick() {
+    var now = performance.now();
+    if (playback.playing) {
+      var segment = playback.segments[playback.index];
+      if (segment) playback.elapsed = Math.min(segment.end, playback.elapsed + (now - playback.lastClock) / 1000);
+      updatePlayer();
+    }
+    playback.lastClock = now;
+  }
+
+  function updateCurrentText(segment) {
+    if (!segment) return;
+    narr.style.opacity = "0";
+    setTimeout(function () {
+      narr.textContent = segment.type === "speech" ? segment.text : "";
+      narr.style.opacity = "";
+    }, 180);
+  }
+
+  function updatePlayer() {
+    elapsedEl.textContent = formatTime(playback.elapsed);
+    remainEl.textContent = "−" + formatTime(Math.max(0, playback.total - playback.elapsed));
+    var ratio = playback.total ? playback.elapsed / playback.total : 0;
+    var bars = wave.querySelectorAll("span");
+    bars.forEach(function (bar, index) { bar.classList.toggle("p", index / bars.length <= ratio); });
+
+    var current = playback.segments[playback.index];
+    var beatIndex = current ? current.beat : playback.beats.length;
+    rail.querySelectorAll("i").forEach(function (item, index) {
+      item.className = index < beatIndex ? "done" : (index === beatIndex ? "now" : "");
+    });
+  }
+
+  function setPauseIcon(isPlaying) {
+    pauseBtn.setAttribute("aria-label", isPlaying ? "Pause" : "Resume");
+    pauseBtn.innerHTML = isPlaying
+      ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>'
+      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"></path></svg>';
+  }
+
+  function formatTime(seconds) {
+    seconds = Math.max(0, Math.round(seconds || 0));
+    return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0");
+  }
+
+  pauseBtn.onclick = function (event) { event.stopPropagation(); togglePlayback(); };
+  rewindBtn.onclick = function (event) { event.stopPropagation(); seekBy(-15); };
+  forwardBtn.onclick = function (event) { event.stopPropagation(); seekBy(15); };
+  endBtn.onclick = function (event) { event.stopPropagation(); finishSession(); };
+  breathingBtn.onclick = function (event) {
+    event.stopPropagation();
+    stopPlayback();
+    category = "Just breathing";
+    currentSession = {
+      category: "just_breathing", template: "breath_only", personalized: false,
+      beats: [{ role: "paced_breathing", text:
+        "Let everything else drop away. *[4s]* Breathe in. *[4s]* Breathe out. *[6s]* " +
+        "Again. In. *[4s]* Out. *[6s]* Nothing to solve. *[8s]* In. *[4s]* Out. *[6s]* " +
+        "Let the next breath happen without helping it. *[10s]* When you are ready, open your eyes." }]
+    };
+    prepareSession(currentSession);
+    startPlayback();
+  };
+
+  var hideTimer = null;
+  scr.play.addEventListener("click", function (event) {
+    if (event.target.closest(".controls")) return;
+    controls.classList.add("on");
+    hint.style.opacity = "0";
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      controls.classList.remove("on");
+      hint.style.opacity = "";
+    }, 4500);
+  });
+
+  // The breathing visual remains independent of narration. Pausing freezes its instruction.
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var breathStart = performance.now();
+  function ease(value) { return value < .5 ? 2 * value * value : 1 - Math.pow(-2 * value + 2, 2) / 2; }
+  function animateBreath(now) {
+    if (reducedMotion) {
+      pacer.style.transform = "scale(.82)";
+      paceLabel.textContent = playback.playing ? "breathe" : "paused";
+      requestAnimationFrame(animateBreath);
+      return;
+    }
+    if (cur === "play" && !playback.playing) {
+      paceLabel.textContent = "paused";
+      requestAnimationFrame(animateBreath);
+      return;
+    }
+    var inside = 4000, hold = 2000, outside = 6000, cycle = inside + hold + outside;
+    var time = (now - breathStart) % cycle;
+    var scale, word;
+    if (time < inside) { scale = .6 + .4 * ease(time / inside); word = "in"; }
+    else if (time < inside + hold) { scale = 1; word = "hold"; }
+    else { scale = 1 - .4 * ease((time - inside - hold) / outside); word = "out"; }
+    pacer.style.transform = "scale(" + scale.toFixed(4) + ")";
+    paceLabel.textContent = word;
+    requestAnimationFrame(animateBreath);
+  }
+  requestAnimationFrame(animateBreath);
+
+  // Make the shell feel like the current device rather than a frozen design comp.
+  var now = new Date();
+  var time = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  document.querySelectorAll(".bar span:first-child").forEach(function (item) { item.textContent = time; });
+  var period = now.getHours() < 12 ? "morning" : (now.getHours() < 18 ? "afternoon" : "evening");
+  document.querySelector("#s-home .eyebrow").textContent = now.toLocaleDateString([], { weekday: "long" }) + " " + period;
+
+  if (readStore("onboardingComplete") === "1") {
+    scr.ob0.classList.remove("on");
+    scr.home.classList.add("on");
+    cur = "home";
+  }
+
+  window.addEventListener("beforeunload", function () { if (window.speechSynthesis) window.speechSynthesis.cancel(); });
 })();
 </script>

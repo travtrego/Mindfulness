@@ -24,11 +24,10 @@ Working title only. Naming is still open (`SPEC.md` §12.1).
 
 ## Where things stand
 
-**Text pipeline: built, validated, wired to the live API. Never run against a real model.**
-
-That last clause is the single most important fact in this document. Everything below is
-verified against fake models, schemas, and hand-written references. **No prose has ever come
-out of this system.** Whether it can write is unknown.
+**End-to-end browser MVP: built and deployed.** Intake reaches the generator, every category
+returns a complete playable session, narration uses the browser's installed speech voice,
+and pause/resume, ±15-second seek, early exit, breathing-only escape, and reflection work in
+the player. The real-model prose still needs an owner listening test.
 
 | Area | State |
 |---|---|
@@ -38,23 +37,24 @@ out of this system.** Whether it can write is unknown.
 | Craft validator | Calibrated against the references |
 | Outline schema | Validated against real pipeline output, all templates |
 | Generator | Live-wired: streaming, adaptive thinking, cached system prompt, cost tracking |
-| App | Runs locally, chat + questions call the generator |
-| Audio | **Nothing.** Needs an ElevenLabs key |
-| Deployment | **Nothing.** Local only, by decision |
+| App | Intake, generation, narrated player, controls, emergency exit, reflection |
+| Audio | Browser Web Speech API; production voice is a later quality upgrade |
+| Deployment | Vercel on the repository's active branch |
 
 Branch: `claude/hello-j0yf74`. 32 commits. Everything pushed.
 
 ---
 
-## The blocker
+## The remaining generation blocker
 
 **There is no `ANTHROPIC_API_KEY` anywhere.** The owner has one but is working from a phone,
 and the cloud environment's env-var field warns in plain text that values are visible to
 anyone using the environment — which disqualifies it for a live billing credential. The key
 needs a laptop.
 
-Until then the generator runs dry: it builds every prompt, allocates the budget, and stops.
-The app falls back to hand-written canned replies and reports `live: false`.
+Until then the live generator runs dry. The app now falls back to the validated hand-written
+session for the selected template, so the experience remains complete and narrated; it is
+just not newly personalized prose.
 
 **Do not work around this by putting a key in the environment variables.** That was
 considered and rejected for the reason above.
@@ -137,7 +137,7 @@ is why there is no loading state anywhere in the product.
 | `generator/pipeline.py` | Orchestration, live client, outline reconciler, usage/cost |
 | `generator/craft.py` | Post-draft validator — the programmatic craft gate |
 | `generator/intros.py` | The 12 cached-intro durations |
-| `generator/api.py` | What the app calls: `talk()` and `questions()` |
+| `generator/api.py` | What the app calls: `talk()`, `questions()`, and `generate_session()` |
 | `generator/cli.py` | CLI, `--estimate`, session-doc writer |
 | `docs/sessions/00-06` | Intro matrix + six hand-written reference sessions |
 | `docs/schema/outline.schema.json` | The outline contract |

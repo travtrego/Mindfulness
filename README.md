@@ -15,7 +15,7 @@ Not a meditation app. Meditation is one application of a broader visualization e
 |---|---|
 | [`HANDOFF.md`](./HANDOFF.md) | State of play: what exists, what is decided, what is blocked. Start here if you are picking this up cold. |
 | [`SPEC.md`](./SPEC.md) | Consolidated product + technical spec. Resolves the conflicts across the three source drafts and records the decisions with rationale. |
-| [`docs/app.html`](./docs/app.html) | **The app.** Full-screen interface, no annotations. Real navigation, live chat and questions, breathing pacer. No audio yet. |
+| [`docs/app.html`](./docs/app.html) | **The app.** Full-screen interface, no annotations. Real navigation, intake, generation, narrated playback, transport controls, breathing pacer, and reflection. |
 | [`docs/prototype.html`](./docs/prototype.html) | The same flow as a design document — every screen annotated with why it is that way. |
 
 ## Running it locally
@@ -61,7 +61,7 @@ python3 -m generator.cli "..." --show-prompts
 | `rehearsal` | ~$0.12 |
 | `immersive` (long) | ~$0.15 |
 
-### The app's two endpoints
+### The app's three endpoints
 
 The chat and the amplifying questions call the generator through the local server. **The
 browser never holds the key** — a key shipped to a browser is a key published.
@@ -69,11 +69,17 @@ browser never holds the key** — a key shipped to a browser is a key published.
 ```
 POST /api/talk        {category, history[]}  -> {reply, done, slots, live}
 POST /api/questions   {category, history[]}  -> {questions[], live}
+POST /api/generate    {category, history[], answers[], exclusions[]} -> {beats[], script, personalized}
 ```
 
-With no key both return the hand-written fallbacks that used to be hardcoded in the page,
-so the interface still works offline. `live: false` says which you are looking at, and the
-browser console logs it. A failed call falls back rather than blanking the screen.
+With no key, chat and questions use the hand-written prompts and generation returns the
+matching validated reference session. The complete experience therefore remains playable
+offline. With a key, `/api/generate` returns newly generated, personalized beats. A failed
+live call falls back rather than blanking the screen.
+
+Narration uses the browser's installed Web Speech voice. Starting playback requires a user
+tap so mobile browsers permit audio. Pause/resume, ±15-second seek, ending early, the
+breathing-only escape, and end-of-session reflection are all handled in the browser.
 
 ### Checks
 
@@ -86,12 +92,15 @@ python3 scripts/session_stats.py         # measured runtime per session + templa
 python3 scripts/test_bad_outlines.py     # ten malformed model outlines, none may crash a run
 python3 scripts/check_pipeline_schema.py # every template's real output vs our own schema
 python3 scripts/test_bad_model_output.py # bad JSON, bad intent, empty drafts - none may crash
+python3 scripts/test_api_sessions.py     # every category has a complete playable fallback
 ```
 
 ## Status
 
-Text pipeline built, validated, and wired to the live API. **No audio yet** — that needs
-an ElevenLabs key. Nothing is deployed; the app runs locally only.
+Text pipeline built, validated, and wired to the live API. The browser MVP is deployed and
+speaks sessions through the device's built-in Web Speech voice. A dedicated recorded or
+neural TTS layer is still a future quality upgrade; it is not required for functional
+playback.
 
 **All six templates have a hand-written exemplar, and all 19 beat roles resolve to one.**
 Exemplars are matched on template *and* role, because two templates can share a role name
@@ -112,11 +121,13 @@ about 25 seconds a session.
 
 **Next up, in order:**
 
-1. **Read a generated session out loud.** Everything above is unverified until prose comes
-   out the other end and holds up beside `docs/sessions/01` and `02`. Nothing else is
-   worth doing first.
-2. TTS: script → parallel synthesis → soundscape markers resolved against character
-   timings → mixed render.
+1. Add `ANTHROPIC_API_KEY` to the Vercel project and judge a newly generated session beside
+   the reference sessions. Without it the full player works, but it plays template-matched
+   reference prose rather than new prose.
+2. Replace device speech with a consistent production narration voice and server-generated
+   audio files when the voice and cost model are chosen.
+3. Move preferences, safe-place details, and reflection memory from local storage into a
+   real user account and database.
 
 ## Input model
 

@@ -49,10 +49,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(page)
 
     def do_POST(self):
-        """The chat and the questions. The key stays here and never reaches the browser."""
+        """Intake and generation. The key stays here and never reaches the browser."""
         from generator import api
 
-        routes = {"/api/talk": api.talk, "/api/questions": api.questions}
+        routes = {
+            "/api/talk": api.talk,
+            "/api/questions": api.questions,
+            "/api/generate": api.generate_session,
+        }
         fn = routes.get(self.path)
         if not fn:
             return self.send_error(404)
@@ -73,6 +77,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         payload = json.dumps(out).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
