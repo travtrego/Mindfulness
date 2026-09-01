@@ -14,7 +14,8 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 API_ROOT = "https://api.elevenlabs.io/v1"
-DEFAULT_VOICE_ID = "pNInz6obpgDQGcFmaJgB"  # Adam, ElevenLabs premade voice
+DEFAULT_LOWER_VOICE_ID = "pNInz6obpgDQGcFmaJgB"  # Adam, ElevenLabs premade voice
+DEFAULT_DEEPER_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # George, ElevenLabs premade voice
 DEFAULT_MODEL_ID = "eleven_multilingual_v2"
 OUTPUT_FORMAT = "mp3_44100_128"
 MAX_TEXT_CHARS = 20_000
@@ -37,7 +38,13 @@ def _voice_id(preference: str | None = None) -> str:
         value = os.environ.get("ELEVENLABS_VOICE_ID_DEEPER")
         if value:
             return value.strip()
-    return (os.environ.get("ELEVENLABS_VOICE_ID") or DEFAULT_VOICE_ID).strip()
+
+    general = os.environ.get("ELEVENLABS_VOICE_ID")
+    if general:
+        return general.strip()
+    if preference == "lower":
+        return DEFAULT_LOWER_VOICE_ID
+    return DEFAULT_DEEPER_VOICE_ID
 
 
 def _pause_seconds(raw: str) -> float:
@@ -75,9 +82,9 @@ def prepare_text(text: str) -> str:
 
 
 def status() -> dict:
-    """Verify the configured credential and selected voice without exposing the key."""
+    """Verify the configured credential and selected default voice without exposing the key."""
     key = _key()
-    voice_id = _voice_id()
+    voice_id = _voice_id("deeper")
     model_id = _model_id()
     if not key:
         return {
