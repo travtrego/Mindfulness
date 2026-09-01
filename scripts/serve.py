@@ -28,13 +28,14 @@ MAX_BODY_BYTES = 48_000
 
 # A long live model run can be terminated by the hosting layer before Python gets a chance
 # to return generator.api's reference-session fallback. Intercept only /api/generate in the
-# browser shell: after three minutes, or after a failed HTTP response, ask the tiny reference
-# endpoint for the matching validated session. The user never dead-ends on a platform timeout.
+# browser shell: after 90 seconds, or after a failed HTTP response, retry the tiny reference
+# endpoint before surfacing an error. The user should not dead-end on one dropped request.
 GENERATION_FAILOVER = r"""<script>
 (function () {
   "use strict";
   var nativeFetch = window.fetch.bind(window);
-  var LIVE_GENERATION_LIMIT_MS = 180000;
+  var LIVE_GENERATION_LIMIT_MS = 90000;
+  var REFERENCE_ATTEMPTS = 3;
 
   function pathOf(resource) {
     try {
@@ -44,11 +45,24 @@ GENERATION_FAILOVER = r"""<script>
     return "";
   }
 
-  function referenceRequest(options) {
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  function referenceRequest(options, attempt) {
+    attempt = attempt || 1;
     return nativeFetch("/api/reference", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: options && options.body ? options.body : "{}"
+    }).then(function (response) {
+      if (!response.ok) throw new Error("Reference session unavailable (" + response.status + ")");
+      return response;
+    }).catch(function (error) {
+      if (attempt >= REFERENCE_ATTEMPTS) throw error;
+      return wait(450 * attempt).then(function () {
+        return referenceRequest(options, attempt + 1);
+      });
     });
   }
 
@@ -63,11 +77,11 @@ GENERATION_FAILOVER = r"""<script>
     return nativeFetch(resource, requestOptions)
       .then(function (response) {
         if (timer) clearTimeout(timer);
-        return response.ok ? response : referenceRequest(options);
+        return response.ok ? response : referenceRequest(options, 1);
       })
       .catch(function () {
         if (timer) clearTimeout(timer);
-        return referenceRequest(options);
+        return referenceRequest(options, 1);
       });
   };
 })();
