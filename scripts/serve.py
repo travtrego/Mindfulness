@@ -25,12 +25,60 @@ DOC = ROOT / "docs/prototype.html"
 SRC = APP
 MAX_BODY_BYTES = 48_000
 
+# A long live model run can be terminated by the hosting layer before Python gets a chance
+# to return generator.api's reference-session fallback. Intercept only /api/generate in the
+# browser shell: after three minutes, or after a failed HTTP response, ask the tiny reference
+# endpoint for the matching validated session. The user never dead-ends on a platform timeout.
+GENERATION_FAILOVER = r"""<script>
+(function () {
+  "use strict";
+  var nativeFetch = window.fetch.bind(window);
+  var LIVE_GENERATION_LIMIT_MS = 180000;
+
+  function pathOf(resource) {
+    try {
+      if (typeof resource === "string") return new URL(resource, window.location.href).pathname;
+      if (resource && resource.url) return new URL(resource.url, window.location.href).pathname;
+    } catch (error) { /* leave unrelated requests untouched */ }
+    return "";
+  }
+
+  function referenceRequest(options) {
+    return nativeFetch("/api/reference", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: options && options.body ? options.body : "{}"
+    });
+  }
+
+  window.fetch = function (resource, options) {
+    if (pathOf(resource) !== "/api/generate") return nativeFetch(resource, options);
+
+    var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var requestOptions = Object.assign({}, options || {});
+    if (controller) requestOptions.signal = controller.signal;
+
+    var timer = controller ? setTimeout(function () { controller.abort(); }, LIVE_GENERATION_LIMIT_MS) : null;
+    return nativeFetch(resource, requestOptions)
+      .then(function (response) {
+        if (timer) clearTimeout(timer);
+        return response.ok ? response : referenceRequest(options);
+      })
+      .catch(function () {
+        if (timer) clearTimeout(timer);
+        return referenceRequest(options);
+      });
+  };
+})();
+</script>"""
+
 SHELL = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>*{{margin:0;padding:0}}body{{margin:0}}</style>
+{failover}
 </head>
 <body>
 {body}
@@ -71,7 +119,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json({"ok": True})
         if path not in ("/", "/index.html"):
             return self.send_error(404)
-        page = SHELL.format(body=SRC.read_text()).encode()
+        page = SHELL.format(failover=GENERATION_FAILOVER, body=SRC.read_text()).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(page)))
@@ -101,6 +149,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "/api/talk": api.talk,
             "/api/questions": api.questions,
             "/api/generate": api.generate_session,
+            # Fast, deterministic escape hatch for a live invocation killed outside Python.
+            "/api/reference": lambda category: api._reference_session(*api.resolve(category)),
         }
         fn = routes.get(path)
         if not fn:
@@ -119,7 +169,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not isinstance(body, dict):
                 return self._json({"error": "JSON body must be an object."}, 400)
             # signature parameters only. co_varnames also lists locals, so a body key that
-            # happened to match one - "llm", "usage", "template" - was forwarded as a kwarg
+            # happened to match one - "llm", "usage" or "template" - was forwarded as a kwarg
             allowed = set(inspect.signature(fn).parameters)
             out = fn(**{k: v for k, v in body.items() if k in allowed})
         except (json.JSONDecodeError, TypeError, ValueError) as exc:
