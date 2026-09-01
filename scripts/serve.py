@@ -22,6 +22,7 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 APP = ROOT / "docs/app.html"
 DOC = ROOT / "docs/prototype.html"
+ELEVENLABS_PLAYER = ROOT / "docs/elevenlabs-player.js"
 SRC = APP
 MAX_BODY_BYTES = 48_000
 
@@ -86,6 +87,20 @@ SHELL = """<!doctype html>
 </html>"""
 
 
+def _app_body() -> str:
+    """Inject the production audio adapter inside app.html's existing closure.
+
+    Keeping the visual prototype untouched means it remains a readable design document while
+    the deployed app can replace browser speech synthesis with ElevenLabs narration.
+    """
+    body = SRC.read_text()
+    if SRC == APP and ELEVENLABS_PLAYER.exists():
+        needle = "})();\n</script>"
+        if needle in body:
+            body = body.replace(needle, ELEVENLABS_PLAYER.read_text() + "\n})();\n</script>", 1)
+    return body
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     server_version = "Mindfulness"
     sys_version = ""
@@ -113,13 +128,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
+    def _binary(self, payload: bytes, content_type: str = "audio/mpeg", status: int = 200):
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
     def do_GET(self):
         path = urlsplit(self.path).path
         if path == "/healthz":
             return self._json({"ok": True})
+        if path == "/api/tts/status":
+            from generator import audio
+            return self._json(audio.status())
         if path not in ("/", "/index.html"):
             return self.send_error(404)
-        page = SHELL.format(failover=GENERATION_FAILOVER, body=SRC.read_text()).encode()
+        page = SHELL.format(failover=GENERATION_FAILOVER, body=_app_body()).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(page)))
@@ -130,19 +156,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_HEAD(self):
         """Mirror the tiny GET surface without exposing filesystem metadata."""
         path = urlsplit(self.path).path
-        if path not in ("/", "/index.html", "/healthz"):
+        if path not in ("/", "/index.html", "/healthz", "/api/tts/status"):
             return self.send_error(404)
         self.send_response(200)
         self.send_header(
             "Content-Type",
-            "application/json; charset=utf-8" if path == "/healthz" else "text/html; charset=utf-8",
+            "application/json; charset=utf-8" if path in ("/healthz", "/api/tts/status")
+            else "text/html; charset=utf-8",
         )
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
 
     def do_POST(self):
-        """Intake and generation. The key stays here and never reaches the browser."""
-        from generator import api
+        """Intake, generation, and TTS. Provider keys stay on the server."""
+        from generator import api, audio
 
         path = urlsplit(self.path).path
         routes = {
@@ -152,8 +179,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # Fast, deterministic escape hatch for a live invocation killed outside Python.
             "/api/reference": lambda category: api._reference_session(*api.resolve(category)),
         }
-        fn = routes.get(path)
-        if not fn:
+        if path not in routes and path != "/api/tts":
             return self.send_error(404)
 
         try:
@@ -168,6 +194,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             body = json.loads(self.rfile.read(n) or "{}")
             if not isinstance(body, dict):
                 return self._json({"error": "JSON body must be an object."}, 400)
+
+            if path == "/api/tts":
+                payload = audio.synthesize(body.get("text"), body.get("voice"))
+                return self._binary(payload)
+
+            fn = routes[path]
             # signature parameters only. co_varnames also lists locals, so a body key that
             # happened to match one - "llm", "usage" or "template" - was forwarded as a kwarg
             allowed = set(inspect.signature(fn).parameters)
