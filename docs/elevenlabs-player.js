@@ -217,3 +217,45 @@
     naturalAudio.pause();
     if (naturalAudioUrl) URL.revokeObjectURL(naturalAudioUrl);
   });
+
+  // ---- Product-flow safeguards ----------------------------------------------
+  // Every session gets the question/duration screen. Earlier prototype shortcuts for
+  // "Just breathing" and "Return to your safe place" jumped directly into generation,
+  // which meant the listener could not choose today's duration or add context.
+  document.querySelectorAll("#s-home [data-action='generate']").forEach(function (button) {
+    button.removeAttribute("data-action");
+    button.setAttribute("data-go", "ask");
+  });
+
+  // Today's explicit duration becomes the remembered duration used by generation. This is
+  // intentionally updated on Create rather than on chip tap, so browsing options does not
+  // silently change a preference.
+  var baseStartGeneration = startGeneration;
+  startGeneration = function (surprise) {
+    if (!surprise) {
+      var duration = collectAnswers().filter(function (item) {
+        return item.fills === "duration";
+      })[0];
+      if (duration) {
+        var match = String(duration.answer).match(/\d+/);
+        if (match) writeStore("preferredDurationS", String(Number(match[0]) * 60));
+      }
+    }
+    return baseStartGeneration(surprise);
+  };
+
+  // Playback must never be a dead end. "End" still reaches reflection; this is the direct
+  // escape hatch for someone who simply wants to leave the session and return to the menu.
+  if (!document.getElementById("back-home")) {
+    var backHome = document.createElement("button");
+    backHome.className = "escape";
+    backHome.id = "back-home";
+    backHome.textContent = "← Back to main menu";
+    backHome.onclick = function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      stopPlayback();
+      go("home");
+    };
+    controls.insertBefore(backHome, breathingBtn);
+  }
