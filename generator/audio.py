@@ -15,14 +15,12 @@ from urllib.request import Request, urlopen
 
 API_ROOT = "https://api.elevenlabs.io/v1"
 
-# Primary direction: warm, intimate, natural American female with a slightly husky quality.
-# This is a public ElevenLabs Voice Library voice. We intentionally do not imitate or clone
-# any real person; the target is a set of vocal qualities, not a person's identity.
-PREFERRED_VOICE_ID = "qTKXGsBhob0PoIjJDrzj"  # The Trusted Friend
+# Product direction: intimate, low, velvety female narration with a sensual, whispery edge.
+# Natasha is a public ElevenLabs Voice Library voice described by ElevenLabs as sensual,
+# hypnotic, gentle, whispery, playful, and suitable for guided meditation / hypnosis.
+PREFERRED_VOICE_ID = "PB6BdkFkZLbI39GHdnbQ"  # Natasha — Sensual, Hypnotic and Playful
 
-# Guaranteed female fallback. ElevenLabs currently routes this legacy Rachel ID to Janet,
-# another female American default voice, so a Voice Library access restriction never sends
-# the app back to the old male narrator defaults.
+# Female American fallback if the Voice Library voice is not available to this API account.
 FALLBACK_FEMALE_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
 
 DEFAULT_MODEL_ID = "eleven_multilingual_v2"
@@ -42,20 +40,13 @@ def _voice_id(preference: str | None = None) -> str:
     """Return the current product voice.
 
     Old ELEVENLABS_VOICE_ID / *_LOWER / *_DEEPER values are deliberately ignored here.
-    Those settings belonged to the male prototype voice era. A new optional override name
-    makes the switch explicit and prevents a stale Vercel variable from silently restoring
-    Adam or George.
+    The explicit warm-voice override remains available for controlled production tests.
     """
     return (os.environ.get("ELEVENLABS_VOICE_ID_WARM") or PREFERRED_VOICE_ID).strip()
 
 
 def _pause_seconds(raw: str) -> float:
-    """Turn legacy 4-12s silence markers into natural, bounded spoken pauses.
-
-    Multilingual v2 accepts short SSML breaks. The old browser player deliberately used much
-    longer silence; listening tests showed those waits feel dead rather than calm, so the TTS
-    track compresses them aggressively.
-    """
+    """Turn legacy 4-12s silence markers into short, intentional spoken pauses."""
     seconds = max(0.0, float(raw))
     return max(0.7, min(2.8, seconds * 0.32))
 
@@ -86,11 +77,11 @@ def _request_audio(key: str, voice_id: str, prepared: str, model_id: str) -> byt
         "text": prepared,
         "model_id": model_id,
         "voice_settings": {
-            "stability": 0.42,
-            "similarity_boost": 0.78,
-            "style": 0.16,
+            "stability": 0.38,
+            "similarity_boost": 0.80,
+            "style": 0.24,
             "use_speaker_boost": True,
-            "speed": 1.07,
+            "speed": 0.90,
         },
     }).encode("utf-8")
 
@@ -113,12 +104,7 @@ def _request_audio(key: str, voice_id: str, prepared: str, model_id: str) -> byt
 
 
 def status() -> dict:
-    """Verify the configured credential without exposing it.
-
-    List Voices is used only as a non-billable authentication probe. The preferred Voice
-    Library voice may not appear in My Voices until it is added to the account, so
-    `preferred_voice_listed` is diagnostic rather than the definition of API health.
-    """
+    """Verify the configured credential without exposing it."""
     key = _key()
     model_id = _model_id()
     if not key:
