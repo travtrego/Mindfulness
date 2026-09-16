@@ -103,7 +103,7 @@ Return JSON only:
 """
 
 
-def _call_openai(session: dict) -> dict:
+def _call_openai(session: dict, *, timeout: int = 75, require_completed: bool = False) -> dict:
     key = _openai_key()
     if not key:
         raise RuntimeError("OPENAI_API_KEY is not configured")
@@ -122,8 +122,10 @@ def _call_openai(session: dict) -> dict:
             "Accept": "application/json",
         },
     )
-    with urlopen(request, timeout=75) as response:
+    with urlopen(request, timeout=timeout) as response:
         payload = json.loads(response.read().decode("utf-8"))
+    if require_completed and (not isinstance(payload, dict) or payload.get("status") != "completed"):
+        raise ValueError("OpenAI critic response did not complete")
     text = _response_text(payload)
     if not text:
         raise ValueError("OpenAI critic returned no text")

@@ -152,6 +152,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = urlsplit(self.path).path
+        if path == "/api/diagnostics/critic":
+            return self._critic_diagnostic(run=False)
         if path == "/healthz":
             return self._json({"ok": True})
         if path == "/api/tts/status":
@@ -186,6 +188,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         from generator import api, audio
 
         path = urlsplit(self.path).path
+        if path == "/api/diagnostics/critic":
+            return self._critic_diagnostic(run=True)
         routes = {
             "/api/talk": api.talk,
             "/api/questions": api.questions,
@@ -228,6 +232,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json({"error": "The request could not be completed.", "live": False}, 500)
 
         self._json(out)
+
+    def _critic_diagnostic(self, *, run: bool):
+        from generator import diagnostics
+        if not diagnostics.authorized(self.headers.get("Authorization", "")):
+            return self._json({"ok": False, "reason": "unauthorized"}, 401)
+        if not run:
+            return self._json(diagnostics.status())
+        # No user-controlled prompt, model, URL, or session data is accepted.
+        if self.headers.get("Transfer-Encoding") or self.headers.get("Content-Length", "0") != "0":
+            self.close_connection = True
+            return self._json({"ok": False, "reason": "body_not_allowed"}, 400)
+        out, code = diagnostics.probe()
+        return self._json(out, code)
 
     def log_message(self, *a):
         pass

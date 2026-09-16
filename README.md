@@ -83,6 +83,9 @@ breathing-only escape, and end-of-session reflection are all handled in the brow
 
 ### Checks
 
+The [production critic diagnostic](docs/critic-diagnostic.md) verifies OpenAI configuration
+and a real critic-model response through a temporary authenticated maintenance endpoint.
+
 ```bash
 python3 scripts/check_craft.py           # craft validator vs the hand-written sessions
 python3 scripts/check_intros.py          # the four cached intros
