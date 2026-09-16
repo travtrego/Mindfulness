@@ -106,6 +106,29 @@ class DiagnosticTests(unittest.TestCase):
             self.assertTrue(result["quality_layer"]["active"])
             self.assertEqual(call.call_args.kwargs, {})  # generation retains 75s default
 
+    def test_production_http_forwards_inputs_and_runs_critic(self):
+        inputs = {"category": "Nature", "history": [], "answers": [],
+                  "exclusions": [], "memory": {}}
+        original = {"live": True, "fallback": False, "script": "original", "beats": []}
+        with patch.object(critic, "_base_generate_session", return_value=original) as base, \
+             patch.object(critic, "_call_openai", return_value=VALID) as judge, \
+             ThreadingTCPServer(("127.0.0.1", 0), app.handler) as server:
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            worker.start()
+            try:
+                req = Request(f"http://127.0.0.1:{server.server_address[1]}/api/generate",
+                              data=json.dumps({**inputs, "untrusted_extra": "ignored"}).encode(),
+                              headers={"Content-Type": "application/json"})
+                with urlopen(req, timeout=5) as response:
+                    result = json.loads(response.read())
+                    self.assertEqual(response.status, 200)
+                base.assert_called_once_with(**inputs)
+                judge.assert_called_once()
+                self.assertTrue(result["quality_layer"]["active"])
+            finally:
+                server.shutdown()
+                worker.join()
+
     def test_http_access_and_read_only_get(self):
         token = "a" * 64  # test-only credential, never used by the deployment
         with patch.object(diagnostic_access, "TOKEN_SHA256", hashlib.sha256(token.encode()).hexdigest()), \

@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from functools import wraps
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -210,6 +211,7 @@ def _apply_revisions(session: dict, critique: dict) -> tuple[dict, int]:
     return session, changed
 
 
+@wraps(_base_generate_session)
 def generate_session(*args, **kwargs) -> dict:
     """Generate with Opus, then optionally run the OpenAI editorial pass."""
     session = _base_generate_session(*args, **kwargs)
