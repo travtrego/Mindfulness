@@ -2,9 +2,9 @@
 
     intent -> questions -> outline -> draft (per beat) -> craft gate -> targeted rewrite
 
-Three text calls plus one draft call per beat. All fast; TTS is what gets parallelised
-afterwards (SPEC.md 5). The cached grounding intro covers the whole text window, which is
-why no loading state exists anywhere in the product.
+Production uses intent, outline, then a whole-session draft with batched craft repairs.
+The per-beat path remains available for offline tools and comparison. Generation and
+narration take measurable time; the browser displays a waiting state until they finish.
 
 Runs without an API key in dry mode: builds and shows every prompt, allocates the beat
 budget, and validates whatever it is given. That is enough to check the shape before paying
