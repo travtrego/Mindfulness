@@ -1,19 +1,34 @@
 """Exercise production batch drafting across all category templates without network."""
 import json
+import os
 import sys
+import types
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from generator import api
 from generator.batch_writer import _texts
-from generator.pipeline import generate
+from generator.pipeline import generate, _live_llm
 
 PROSE = "Your hands rest on your thighs. *[6s]* The fabric is warm beneath your palms."
 
 
 class BatchTests(unittest.TestCase):
+    def test_model_effort_matches_request_type(self):
+        client = MagicMock()
+        client.messages.stream.return_value.__enter__.return_value.get_final_message.return_value = types.SimpleNamespace(
+            content=[types.SimpleNamespace(type='text', text='ok')])
+        sdk = types.SimpleNamespace(Anthropic=lambda **kwargs: client)
+        with patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'test-only'}), patch.dict(sys.modules, {'anthropic': sdk}):
+            model = _live_llm(max_tokens=16000)
+            self.assertEqual(model('route this'), 'ok')
+            self.assertEqual(client.messages.stream.call_args.kwargs['output_config'], {'effort': 'low'})
+            model('write this', system='craft rules')
+            self.assertEqual(client.messages.stream.call_args.kwargs['output_config'], {'effort': 'medium'})
+            self.assertEqual(client.messages.stream.call_args.kwargs['max_tokens'], 16000)
+
     def test_every_category_is_complete_in_three_calls(self):
         for label, category in api.CATEGORY_IDS.items():
             calls = []

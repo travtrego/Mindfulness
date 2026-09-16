@@ -125,6 +125,9 @@ def _live_llm(usage: Usage | None = None, *, max_tokens: int = 8000) -> LLM | No
         with client.messages.stream(
             model=MODEL, max_tokens=max_tokens,
             thinking={"type": "adaptive"},
+            # Short routing/outline requests need little deliberation. Narration keeps
+            # moderate reasoning plus the separate craft and OpenAI critic checks.
+            output_config={"effort": "medium" if system else "low"},
             messages=[{"role": "user", "content": prompt}],
             **kw,
         ) as stream:
