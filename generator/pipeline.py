@@ -98,7 +98,7 @@ class Session:
 LLM = Callable[..., str]
 
 
-def _live_llm(usage: Usage | None = None) -> LLM | None:
+def _live_llm(usage: Usage | None = None, *, max_tokens: int = 8000) -> LLM | None:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         return None
@@ -123,7 +123,7 @@ def _live_llm(usage: Usage | None = None) -> LLM | None:
         # streaming so a long beat cannot trip the request timeout; adaptive thinking
         # because choosing what NOT to say is the hard part of every one of these calls.
         with client.messages.stream(
-            model=MODEL, max_tokens=8000,
+            model=MODEL, max_tokens=max_tokens,
             thinking={"type": "adaptive"},
             messages=[{"role": "user", "content": prompt}],
             **kw,
@@ -153,14 +153,14 @@ def _json_from(text: str) -> dict | list:
 def generate(user_text: str, *, category: str | None = None, memory: dict | None = None,
              standing_exclusions: list[str] | None = None,
              llm: LLM | None = None, pacing: str = "standard",
-             dry: bool = False, progress: bool = False) -> Session:
+             dry: bool = False, progress: bool = False, batch_drafts: bool = False) -> Session:
     """Run the pipeline. Dry means: build every prompt, allocate the budget, call nothing.
 
     Dry is the default whenever no key is present, and `dry=True` forces it even when one
     is. Passing a stub llm is not a way to run dry - the stub gets called for real.
     """
     usage = Usage()
-    llm = None if dry else (llm or _live_llm(usage))
+    llm = None if dry else (llm or _live_llm(usage, max_tokens=16000 if batch_drafts else 8000))
     dry = llm is None
     trace = Trace()
 
@@ -239,7 +239,7 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
 
     # --- 2. amplifying questions ----------------------------------------------
     still_empty = [s for s in template.required_slots if s not in slots]
-    if still_empty and template.depth > 0:
+    if still_empty and template.depth > 0 and not batch_drafts:
         p = prompts.question_prompt(template, slots, still_empty, user_text)
         trace.add("questions", prompt=p)
         if not dry:
@@ -268,6 +268,13 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         raw = {}
     session.outline = _reconcile(raw, budget, template, intent, exclusions,
                                  slots, target_s, trace, pacing, register)
+
+    if batch_drafts:
+        from .batch_writer import draft_session
+        say("writing the complete session...")
+        session.beats = draft_session(session, llm, _json_from)
+        say("session draft and craft checks complete")
+        return session
 
     # --- 4. draft each beat, then gate ----------------------------------------
     to_write = [b for b in session.outline["beats"] if b.get("source") != "cached"]

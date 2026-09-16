@@ -8,6 +8,9 @@
   var naturalAudioReady = false;
   var naturalAudioPending = false;
   var naturalAudioToken = 0;
+  var naturalAudioController = null;
+  var naturalAudioTimer = null;
+  var naturalMetadataCleanup = function () {};
 
   naturalAudio.preload = "auto";
 
@@ -19,6 +22,9 @@
   }
 
   function clearNaturalAudio() {
+    if (naturalAudioController) naturalAudioController.abort();
+    clearTimeout(naturalAudioTimer);
+    naturalMetadataCleanup();
     naturalAudio.pause();
     naturalAudio.removeAttribute("src");
     naturalAudio.load();
@@ -33,13 +39,16 @@
     var token = ++naturalAudioToken;
     clearNaturalAudio();
     naturalAudioPending = true;
+    naturalAudioController = new AbortController();
     startSessionBtn.disabled = true;
+    startSessionBtn.dataset.action = "play-ready";
     startSessionBtn.textContent = "Preparing voice…";
 
-    fetch("/api/tts", {
+    var loading = fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text, voice: voicePreference })
+      body: JSON.stringify({ text: text, voice: voicePreference }),
+      signal: naturalAudioController.signal
     }).then(function (response) {
       if (!response.ok) throw new Error("Natural voice unavailable (" + response.status + ")");
       return response.blob();
@@ -63,9 +72,20 @@
         };
         naturalAudio.addEventListener("loadedmetadata", done);
         naturalAudio.addEventListener("error", failed);
+        naturalMetadataCleanup = function () {
+          naturalAudio.removeEventListener("loadedmetadata", done);
+          naturalAudio.removeEventListener("error", failed);
+        };
       });
-    }).then(function () {
+    });
+    Promise.race([loading, new Promise(function (_, reject) {
+      naturalAudioTimer = setTimeout(function () {
+        reject(new Error("Voice preparation took too long"));
+      }, 110000);
+    })]).then(function () {
       if (token !== naturalAudioToken) return;
+      clearTimeout(naturalAudioTimer);
+      naturalMetadataCleanup();
       naturalAudioPending = false;
       naturalAudioReady = true;
       playback.total = naturalAudio.duration || playback.total;
@@ -75,13 +95,30 @@
       updatePlayer();
     }).catch(function (error) {
       if (token !== naturalAudioToken) return;
-      naturalAudioPending = false;
-      naturalAudioReady = false;
-      startSessionBtn.disabled = true;
-      startSessionBtn.textContent = "Voice unavailable";
-      genNote.textContent = error.message + ". Check the ElevenLabs API connection.";
+      ++naturalAudioToken;
+      clearNaturalAudio();
+      startSessionBtn.disabled = false;
+      startSessionBtn.dataset.action = "retry-voice";
+      startSessionBtn.textContent = "Retry voice";
+      genNote.textContent = "Your session text is saved here. Voice preparation did not finish. Retry voice or return to the menu.";
     });
   }
+
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest("[data-action='retry-voice']");
+    if (!button || !currentSession) return;
+    event.preventDefault();
+    prepareNaturalAudio(currentSession);
+  });
+
+  var naturalBaseGo = go;
+  go = function (name) {
+    if (cur === "generate" && name !== "generate" && name !== "play") {
+      ++naturalAudioToken;
+      clearNaturalAudio();
+    }
+    return naturalBaseGo(name);
+  };
 
   prepareSession = function (session) {
     devicePrepareSession(session);

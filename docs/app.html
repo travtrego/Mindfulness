@@ -355,10 +355,10 @@
     <div style="flex:1"></div>
     <h1 class="t">Guided visualization.</h1>
     <p class="lede">Sessions are written for you, one at a time. None of it is pre-recorded.</p>
-    <p class="lede">Three questions first. They take about a minute, and you will not be
-      asked them again.</p>
+    <p class="lede" id="welcome-note">A few preferences first. They take about a minute, and we will remember them.</p>
     <div style="flex:1"></div>
-    <div class="foot"><button class="btn" data-go="ob1">Start</button></div>
+    <div class="foot"><button class="btn" data-action="enter-app">Start</button>
+      <button class="btn ghost" id="edit-preferences" data-go="ob1" hidden>Change preferences</button></div>
   </section>
 
   <section class="scr" id="s-ob1">
@@ -797,6 +797,11 @@
     if (el.dataset.prefKey) writeStore(el.dataset.prefKey, el.dataset.prefValue);
     if (el.dataset.cat) setCategory(el.dataset.cat);
 
+    if (el.dataset.action === "enter-app") {
+      go(readStore("onboardingComplete") === "1" ? "home" : "ob1");
+      return;
+    }
+
     if (el.dataset.action === "clear-avoid") {
       document.querySelectorAll("#avoid .chip").forEach(function (chip) { chip.classList.remove("sel"); });
       saveExclusions();
@@ -1090,7 +1095,7 @@
         ? "Written from what you told me."
         : "A complete reference session is ready.";
       genNote.textContent = session.personalized
-        ? "Narration uses a voice installed on this device."
+        ? "Your session is written. Preparing narration now."
         : "Live writing was unavailable, so the matching hand-written session was used.";
       genFoot.hidden = false;
     }).catch(function (error) {
@@ -1511,9 +1516,8 @@
   document.querySelector("#s-home .eyebrow").textContent = now.toLocaleDateString([], { weekday: "long" }) + " " + period;
 
   if (readStore("onboardingComplete") === "1") {
-    scr.ob0.classList.remove("on");
-    scr.home.classList.add("on");
-    cur = "home";
+    document.getElementById("welcome-note").textContent = "Welcome back. Your preferences are saved. Choose what you need today.";
+    document.getElementById("edit-preferences").hidden = false;
   }
   restorePreferences();
 

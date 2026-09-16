@@ -432,6 +432,7 @@ def generate_session(category: str, history: list[dict] | None = None,
             memory=memory,
             standing_exclusions=exclusions,
             progress=True,
+            batch_drafts=True,
         )
         if not session.beats or not session.script.strip():
             return _reference_session(category_id, template)
@@ -464,7 +465,7 @@ def generate_session(category: str, history: list[dict] | None = None,
             "cost": round(session.usage.cost, 4),
         }
     except Exception as exc:
-        print(f"  !! /api/generate {type(exc).__name__}: {exc}")
+        print(f"  !! /api/generate failed: {type(exc).__name__}")
         return _reference_session(
             category_id,
             template,
