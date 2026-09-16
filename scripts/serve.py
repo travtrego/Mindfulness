@@ -28,13 +28,14 @@ MAX_BODY_BYTES = 48_000
 
 # A long live model run can be terminated by the hosting layer before Python gets a chance
 # to return generator.api's reference-session fallback. Intercept only /api/generate in the
-# browser shell: after 90 seconds, or after a failed HTTP response, retry the tiny reference
+# browser shell: allow the full 300-second server budget plus 10 seconds for delivery,
+# or after a failed HTTP response, retry the tiny reference
 # endpoint before surfacing an error. The user should not dead-end on one dropped request.
 GENERATION_FAILOVER = r"""<script>
 (function () {
   "use strict";
   var nativeFetch = window.fetch.bind(window);
-  var LIVE_GENERATION_LIMIT_MS = 90000;
+  var LIVE_GENERATION_LIMIT_MS = 310000;
   var REFERENCE_ATTEMPTS = 3;
 
   function pathOf(resource) {

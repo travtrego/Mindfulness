@@ -1041,13 +1041,9 @@
 
   // ---- generation ----
   var GEN_STEPS = [
-    "Reading what you told me.",
-    "Choosing the shape of the session.",
-    "Planning the beats and the silences.",
-    "Writing the first half.",
-    "Writing the difficult part.",
-    "Checking the language against the craft rules.",
-    "Bringing you back at the end."
+    "Creating a session from what you told me.",
+    "Your session is still being prepared.",
+    "Taking time to write and review your session."
   ];
 
   function setGenStatus(text) {
@@ -1063,7 +1059,7 @@
     genTitle.textContent = "Writing your session.";
     genStatus.textContent = GEN_STEPS[0];
     genStatus.style.opacity = "";
-    genNote.textContent = "You can leave this screen open. It may take a minute.";
+    genNote.textContent = "Keep this screen open. Writing and review can take a few minutes.";
     genFoot.hidden = true;
     startSessionBtn.textContent = "Begin session";
     startSessionBtn.dataset.action = "play-ready";
@@ -1074,7 +1070,7 @@
     generationTimer = setInterval(function () {
       step = Math.min(step + 1, GEN_STEPS.length - 1);
       setGenStatus(GEN_STEPS[step]);
-    }, 6500);
+    }, 30000);
 
     post("/api/generate", {
       category: category,
