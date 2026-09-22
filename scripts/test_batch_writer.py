@@ -40,7 +40,8 @@ class BatchTests(unittest.TestCase):
                     return '{}'
                 if prompt.startswith("Write the COMPLETE"):
                     beats = json.loads(prompt.split("Beat budgets and content plan: ")[1].splitlines()[0])
-                    return json.dumps({"beats": [{"role": b['role'], "text": PROSE} for b in beats]})
+                    return json.dumps({"beats": [{"role": b['role'], "text": ('Your hands rest here. ' * (b['word_target'] // 4) +
+                        ' '.join('*[%ss]*' % p['seconds'] for p in b['silence_plan']))} for b in beats]})
                 raise AssertionError("unexpected stage: " + prompt[:30])
             with self.subTest(category=label):
                 session = generate('Ten minutes', category=category, llm=model, batch_drafts=True)
@@ -50,6 +51,35 @@ class BatchTests(unittest.TestCase):
                         self.assertTrue(beat['text'])
                 self.assertEqual([b['role'] for b in session.beats],
                                  [b['role'] for b in session.outline['beats']])
+
+    def test_explicit_duration_beats_model_and_template_defaults(self):
+        session = generate('twenty minutes', category='just_breathing', dry=True,
+                           requested_duration_s=1200)
+        self.assertEqual(session.outline['target_duration_s'], 1200)
+
+    def test_duration_answer_is_forwarded_and_preserved_on_fallback(self):
+        with patch.object(api, 'generate', side_effect=ValueError('failed')) as call:
+            result = api.generate_session('Nature', answers=[
+                {'fills': 'duration', 'answer': '20 min'}])
+        self.assertEqual(call.call_args.kwargs['requested_duration_s'], 1200)
+        self.assertEqual(result['requested_duration_s'], 1200)
+        self.assertTrue(result['fallback'])
+
+    def test_short_draft_gets_one_repair_then_fails(self):
+        calls = []
+        def model(prompt, system=None):
+            calls.append(prompt)
+            if prompt.startswith('You are the intent parser'):
+                return '{"category":"nature"}'
+            if prompt.startswith('Produce the outline'):
+                return '{}'
+            if prompt.startswith('Write the COMPLETE'):
+                beats = json.loads(prompt.split('Beat budgets and content plan: ')[1].splitlines()[0])
+                model.roles = [b['role'] for b in beats]
+            return json.dumps({'beats': [{'role': role, 'text': PROSE} for role in model.roles]})
+        with self.assertRaisesRegex(ValueError, 'duration budget'):
+            generate('ten minutes', category='nature', llm=model, batch_drafts=True)
+        self.assertEqual(len(calls), 4)
 
     def test_invalid_batch_cannot_become_incomplete_session(self):
         for result in ({}, {'beats': []}, {'beats': [{'role': 'arrival', 'text': ''}]},

@@ -3,6 +3,7 @@ import json
 
 from . import prompts
 from .craft import check
+from .timing import timing_issues
 
 
 def _texts(raw, allowed):
@@ -59,6 +60,24 @@ Include every requested generated beat exactly once, with nonempty narration.
                 raise
             session.trace.add("batch-format-retry")
 
+    budgets = {beat["role"]: beat for beat in generated}
+    # A short draft cannot pass merely because all beat names are present. Repair
+    # duration once, as a group, to bound model latency and cost.
+    short = {role: timing_issues(texts[role], budgets[role]) for role in roles}
+    short = {role: issues for role, issues in short.items() if issues}
+    if short:
+        repair = f"""Repair the duration of ONLY these narration beats: {json.dumps(short)}.
+Keep the same scene, exclusions and second-person present tense. Add meaningful experience,
+not repeated filler. Use each word_target and place ALL planned silence inline as *[Ns]*.
+Never make up time with one long pause at the end. Never change the speaking rate.
+Budgets: {json.dumps([budgets[role] for role in short])}
+Whole session for continuity: {json.dumps(texts)}
+Return JSON only: {{"beats": [{{"role": "exact role", "text": "revised narration"}}]}}.
+Return only the requested roles.
+"""
+        texts.update(_texts(parse(llm(repair, system=prompts.CRAFT_RULES)), list(short)))
+        session.trace.add("batch-duration-repair", roles=list(short))
+
     for attempt in range(2):
         reports = {role: check(text) for role, text in texts.items()}
         failed = [role for role in roles if not reports[role].ok]
@@ -83,6 +102,10 @@ Repairs: {json.dumps(repairs)}
             if len(check(text).errors) <= len(reports[role].errors):
                 texts[role] = text
         session.trace.add("batch-craft-repair", roles=failed, attempt=attempt + 1)
+
+    for role in roles:
+        if timing_issues(texts[role], budgets[role]):
+            raise ValueError("narration does not meet its duration budget")
 
     return [{**beat, "text": None} if beat.get("source") == "cached" else
             {**beat, "text": texts[beat["role"]], "craft": check(texts[beat["role"]])}

@@ -17,6 +17,7 @@ from urllib.request import Request, urlopen
 from . import prompts
 from .api import generate_session as _base_generate_session
 from .craft import check
+from .timing import preserves_timing
 from .pipeline import _live_llm, _rewrite_prompt
 
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
@@ -198,7 +199,7 @@ def _apply_revisions(session: dict, critique: dict) -> tuple[dict, int]:
             report = check(revised)
 
         # The quality layer never makes a craft-valid session worse just to obey a critic.
-        if revised and report.ok:
+        if revised and report.ok and preserves_timing(original, revised):
             beat["text"] = revised
             changed += 1
 

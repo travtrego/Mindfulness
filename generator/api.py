@@ -422,6 +422,16 @@ def generate_session(category: str, history: list[dict] | None = None,
     exclusions = _exclusions(exclusions)
     memory = _memory(memory, category)
     user_text = _listener_text(category, history, answers)
+    requested_duration_s = None
+    for answer in answers:
+        if answer.get("fills") == "duration":
+            match = re.fullmatch(r"\s*(\d+)\s*min(?:utes)?\s*", answer["answer"], re.I)
+            if match:
+                requested_duration_s = max(180, min(2700, int(match[1]) * 60))
+    def fallback(reason=None):
+        result = _reference_session(category_id, template, reason)
+        result["requested_duration_s"] = requested_duration_s
+        return result
 
     # The live pipeline already degrades to dry mode without a key, but a dry Session has an
     # outline and no narration. Detect that shape and serve the matching hand-written session.
@@ -433,9 +443,10 @@ def generate_session(category: str, history: list[dict] | None = None,
             standing_exclusions=exclusions,
             progress=True,
             batch_drafts=True,
+            requested_duration_s=requested_duration_s,
         )
         if not session.beats or not session.script.strip():
-            return _reference_session(category_id, template)
+            return fallback()
 
         beats = []
         for beat in session.beats:
@@ -450,13 +461,14 @@ def generate_session(category: str, history: list[dict] | None = None,
                 })
 
         if not beats:
-            return _reference_session(category_id, template, "Live generation returned no narration.")
+            return fallback("Live generation returned no narration.")
 
         duration_s = (session.outline or {}).get("target_duration_s")
         return {
             "category": session.category,
             "template": session.template.name,
             "duration_s": duration_s,
+            "requested_duration_s": requested_duration_s,
             "beats": beats,
             "script": "\n\n".join(b["text"] for b in beats),
             "live": True,
@@ -466,8 +478,6 @@ def generate_session(category: str, history: list[dict] | None = None,
         }
     except Exception as exc:
         print(f"  !! /api/generate failed: {type(exc).__name__}")
-        return _reference_session(
-            category_id,
-            template,
+        return fallback(
             f"Live generation failed ({type(exc).__name__}); reference session used.",
         )

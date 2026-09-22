@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const ctx = {ArrayBuffer, Uint8Array, DataView, Blob,
+  cleanNarration: text => text.replace(/[*_#>`]/g, '').replace(/\s+/g, ' ').trim()};
+vm.createContext(ctx);
+vm.runInContext(fs.readFileSync('docs/audio-timeline.js', 'utf8'), ctx);
+const plan = ctx.narrationPlan({beats:[{text:'First. *[12s — open]* Second. *[2.5s]*'}, {text:'Third.'}]});
+assert.deepEqual(Array.from(plan.clips, c=>c.text), ['First.', 'Second.', 'Third.']);
+assert.equal(plan.clips[1].previous_text, 'First.');
+assert.equal(plan.clips[1].next_text, 'Third.');
+const buffers = [new ArrayBuffer(48000), new ArrayBuffer(96000), new ArrayBuffer(48000)];
+new Int16Array(buffers[0]).fill(900);
+new Int16Array(buffers[1]).fill(1800);
+new Int16Array(buffers[2]).fill(2700);
+const result = ctx.narrationWav(plan, buffers);
+assert.equal(result.duration, 18.5); // 4 seconds speech + EXACTLY 14.5 seconds silence.
+const wav = await result.blob.arrayBuffer();
+assert.equal(wav.byteLength, 44 + 18.5 * 48000);
+const view = new DataView(wav);
+assert.equal(view.getUint32(24,true),24000);
+assert.equal(view.getUint32(40,true),18.5*48000);
+const pcm = new Int16Array(wav,44);
+assert.equal(pcm[23999],900);
+assert.equal(pcm[24000],0);
+assert.equal(pcm[13*24000-1],0);
+assert.equal(pcm[13*24000],1800);
+assert.equal(pcm[17.5*24000],2700);
+assert.equal(result.spans[4].beat,1);
+const long = ctx.narrationPlan({script: 'Your hands rest. '.repeat(140)});
+assert.ok(long.clips.every(c=>c.text.length <= 600));
+assert.equal(long.clips.map(c=>c.text).join(' '), 'Your hands rest. '.repeat(140).trim());
+assert.throws(()=>ctx.narrationPlan({script:'Rest. *[999999s]*'}), /oversized pause/);
+assert.throws(()=>ctx.narrationWav(plan,[new ArrayBuffer(3)]), /Invalid narration/);
+console.log('Audio timeline: exact silence, PCM integrity, WAV duration, beat timing and chunk limits passed.');
