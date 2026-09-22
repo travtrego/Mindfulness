@@ -1077,6 +1077,9 @@
       setGenStatus(GEN_STEPS[step]);
     }, 30000);
 
+    var chosenDuration = !surprise && collectAnswers().find(function (answer) { return answer.fills === "duration"; });
+    var durationMatch = chosenDuration && String(chosenDuration.answer).match(/^(\d+)\s*min/i);
+    var requestedSeconds = durationMatch ? Number(durationMatch[1]) * 60 : null;
     post("/api/generate", {
       category: category,
       history: history,
@@ -1087,6 +1090,7 @@
       if (token !== generationToken) return;
       clearInterval(generationTimer);
       if (!session.beats || !session.beats.length) throw new Error("The session came back empty");
+      if (requestedSeconds) session.requested_duration_s = requestedSeconds;
       currentSession = session;
       prepareSession(session);
       making.classList.add("ready");

@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT))
 APP = ROOT / "docs/app.html"
 DOC = ROOT / "docs/prototype.html"
 ELEVENLABS_PLAYER = ROOT / "docs/elevenlabs-player.js"
+AUDIO_TIMELINE = ROOT / "docs/audio-timeline.js"
 SRC = APP
 MAX_BODY_BYTES = 48_000
 
@@ -112,7 +113,7 @@ def _app_body() -> str:
     if SRC == APP and ELEVENLABS_PLAYER.exists():
         needle = "})();\n</script>"
         if needle in body:
-            body = body.replace(needle, ELEVENLABS_PLAYER.read_text() + "\n})();\n</script>", 1)
+            body = body.replace(needle, AUDIO_TIMELINE.read_text() + "\n" + ELEVENLABS_PLAYER.read_text() + "\n})();\n</script>", 1)
     return body
 
 
@@ -143,9 +144,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def _binary(self, payload: bytes, content_type: str = "audio/mpeg", status: int = 200):
+    def _binary(self, payload: bytes, content_type: str = "audio/mpeg", status: int = 200,
+                headers: dict | None = None):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
+        for name, value in (headers or {}).items():
+            self.send_header(name, str(value))
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
@@ -215,8 +219,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json({"error": "JSON body must be an object."}, 400)
 
             if path == "/api/tts":
-                payload = audio.synthesize(body.get("text"), body.get("voice"))
-                return self._binary(payload)
+                payload, voice_id = audio.synthesize(
+                    body.get("text"), body.get("voice"),
+                    previous_text=body.get("previous_text", ""),
+                    next_text=body.get("next_text", ""),
+                    pinned_voice=body.get("pinned_voice"),
+                )
+                return self._binary(payload, "application/octet-stream", headers={
+                    "X-Audio-Sample-Rate": audio.SAMPLE_RATE, "X-Narration-Voice": voice_id,
+                })
 
             fn = routes[path]
             # signature parameters only. co_varnames also lists locals, so a body key that

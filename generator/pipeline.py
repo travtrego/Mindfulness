@@ -156,7 +156,8 @@ def _json_from(text: str) -> dict | list:
 def generate(user_text: str, *, category: str | None = None, memory: dict | None = None,
              standing_exclusions: list[str] | None = None,
              llm: LLM | None = None, pacing: str = "standard",
-             dry: bool = False, progress: bool = False, batch_drafts: bool = False) -> Session:
+             dry: bool = False, progress: bool = False, batch_drafts: bool = False,
+             requested_duration_s: int | None = None) -> Session:
     """Run the pipeline. Dry means: build every prompt, allocate the budget, call nothing.
 
     Dry is the default whenever no key is present, and `dry=True` forces it even when one
@@ -226,8 +227,12 @@ def generate(user_text: str, *, category: str | None = None, memory: dict | None
         or style_memory.get("preferred_duration_s")
         or sum(template.duration_range) // 2
     )
-    lo, hi = template.duration_range
-    target_s = max(lo, min(hi, target_s))
+    if requested_duration_s is not None:
+        # Today's UI duration wins over model estimates and template defaults.
+        target_s = max(180, min(2700, int(requested_duration_s)))
+    else:
+        lo, hi = template.duration_range
+        target_s = max(lo, min(hi, target_s))
 
     # sensitivity forces the slow, sensitive intro. It is the only script carrying explicit
     # stop permission (SPEC.md 8), so it is not a preference the model gets to weigh.

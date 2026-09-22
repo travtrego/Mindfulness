@@ -1,5 +1,15 @@
 # Handoff
 
+## Narration update — September 22, 2026
+
+The narration timing repair is implemented on `fix/narration-timing`; this is not a claim
+that production has been updated. See `docs/narration-timing.md` for behavior and checks.
+ElevenLabs narration exists: older browser-speech/TTS-pending notes below are historical.
+The new path synthesizes short PCM clips and inserts full authored pauses into one WAV.
+Requested duration is enforced in draft budgets; the actual recording length is disclosed
+before playback, including deviations. Live listening quality still needs owner validation.
+
+
 For an agent picking this up cold. Read `README.md` for how to run things and `SPEC.md` for
 why the product is shaped this way. This file is the state of play: what exists, what is
 decided, what is blocked, and what not to re-litigate.

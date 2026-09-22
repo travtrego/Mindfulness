@@ -1,8 +1,7 @@
 """Server-side ElevenLabs narration.
 
-The browser never receives the ElevenLabs credential. The app posts the finished session
-script here; this module converts our pause markers into short SSML breaks and returns one
-complete MP3 so playback uses a real media element rather than browser speech synthesis.
+The browser requests short speech clips, then joins their PCM samples with exact silence
+into one WAV. Pause markers never reach the speech model. Credentials stay server-side.
 """
 from __future__ import annotations
 
@@ -24,8 +23,10 @@ PREFERRED_VOICE_ID = "PB6BdkFkZLbI39GHdnbQ"  # Natasha — Sensual, Hypnotic and
 FALLBACK_FEMALE_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
 
 DEFAULT_MODEL_ID = "eleven_multilingual_v2"
-OUTPUT_FORMAT = "mp3_44100_128"
-MAX_TEXT_CHARS = 20_000
+SAMPLE_RATE = 24_000
+OUTPUT_FORMAT = "pcm_24000"
+MAX_TEXT_CHARS = 600
+MAX_AUDIO_BYTES = SAMPLE_RATE * 2 * 75
 
 
 def _key() -> str:
@@ -45,61 +46,43 @@ def _voice_id(preference: str | None = None) -> str:
     return (os.environ.get("ELEVENLABS_VOICE_ID_WARM") or PREFERRED_VOICE_ID).strip()
 
 
-def _pause_seconds(raw: str) -> float:
-    """Turn legacy 4-12s silence markers into short, intentional spoken pauses."""
-    seconds = max(0.0, float(raw))
-    return max(0.7, min(2.8, seconds * 0.32))
-
-
 def prepare_text(text: str) -> str:
-    if not isinstance(text, str):
+    if not isinstance(text, str) or not text.strip():
         raise ValueError("text is required")
     text = text.strip()
-    if not text:
-        raise ValueError("text is required")
     if len(text) > MAX_TEXT_CHARS:
-        raise ValueError("text is too long")
-
-    text = re.sub(
-        r"\*\[\s*(\d+(?:\.\d+)?)\s*s\s*\]\*",
-        lambda m: f'<break time="{_pause_seconds(m.group(1)):.1f}s" />',
-        text,
-        flags=re.IGNORECASE,
-    )
-    text = re.sub(r"^[>#]+\s*", "", text, flags=re.MULTILINE)
-    text = text.replace("**", "").replace("__", "").replace("`", "")
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()
+        raise ValueError("speech clip is too long")
+    # Pauses belong to the sample timeline, never SSML (which can accelerate speech).
+    if re.search(r"\*\[.*?\]\*|<[^>]+>", text):
+        raise ValueError("speech clips cannot contain pause markers or markup")
+    return text
 
 
-def _request_audio(key: str, voice_id: str, prepared: str, model_id: str) -> bytes:
+def _request_audio(key: str, voice_id: str, prepared: str, model_id: str,
+                   previous_text: str = "", next_text: str = "") -> bytes:
     body = json.dumps({
         "text": prepared,
         "model_id": model_id,
+        "previous_text": previous_text,
+        "next_text": next_text,
         "voice_settings": {
-            "stability": 0.38,
+            "stability": 0.75,
             "similarity_boost": 0.80,
-            "style": 0.24,
+            "style": 0.0,
             "use_speaker_boost": True,
             "speed": 0.90,
         },
     }).encode("utf-8")
-
-    url = f"{API_ROOT}/text-to-speech/{quote(voice_id)}?output_format={OUTPUT_FORMAT}"
     request = Request(
-        url,
-        data=body,
-        method="POST",
-        headers={
-            "xi-api-key": key,
-            "Content-Type": "application/json",
-            "Accept": "audio/mpeg",
-        },
+        f"{API_ROOT}/text-to-speech/{quote(voice_id)}?output_format={OUTPUT_FORMAT}",
+        data=body, method="POST",
+        headers={"xi-api-key": key, "Content-Type": "application/json",
+                 "Accept": "application/octet-stream"},
     )
     with urlopen(request, timeout=90) as response:
-        audio = response.read()
-    if not audio:
-        raise RuntimeError("ElevenLabs returned empty audio")
+        audio = response.read(MAX_AUDIO_BYTES + 1)
+    if not audio or len(audio) % 2 or len(audio) > MAX_AUDIO_BYTES:
+        raise RuntimeError("ElevenLabs returned invalid or oversized PCM audio")
     return audio
 
 
@@ -148,21 +131,26 @@ def status() -> dict:
         }
 
 
-def synthesize(text: str, voice: str | None = None) -> bytes:
+def synthesize(text: str, voice: str | None = None, *, previous_text: str = "",
+               next_text: str = "", pinned_voice: str | None = None) -> tuple[bytes, str]:
+    prepared = prepare_text(text)
+    previous_text = previous_text or ""
+    next_text = next_text or ""
+    if any(not isinstance(t, str) or len(t) > MAX_TEXT_CHARS
+           for t in (previous_text, next_text)):
+        raise ValueError("invalid speech context")
+    preferred = _voice_id(voice)
+    if pinned_voice is not None and pinned_voice not in {preferred, FALLBACK_FEMALE_VOICE_ID}:
+        raise ValueError("invalid pinned voice")
     key = _key()
     if not key:
         raise RuntimeError("ElevenLabs is not configured")
-
-    prepared = prepare_text(text)
-    model_id = _model_id()
-    preferred = _voice_id(voice)
-
+    selected = pinned_voice or preferred
     try:
-        return _request_audio(key, preferred, prepared, model_id)
+        return (_request_audio(key, selected, prepared, _model_id(), previous_text, next_text), selected)
     except HTTPError as exc:
-        # Voice Library access can depend on plan/account availability. If the selected
-        # library voice is unavailable, preserve the product's female voice direction rather
-        # than falling back to browser speech or an old male voice.
-        if preferred == FALLBACK_FEMALE_VOICE_ID or exc.code not in {400, 403, 404, 422}:
+        # Resolve fallback on the FIRST clip only. Never change voice mid-session.
+        if pinned_voice or selected == FALLBACK_FEMALE_VOICE_ID or exc.code not in {400, 403, 404, 422}:
             raise
-        return _request_audio(key, FALLBACK_FEMALE_VOICE_ID, prepared, model_id)
+        return (_request_audio(key, FALLBACK_FEMALE_VOICE_ID, prepared, _model_id(),
+                               previous_text, next_text), FALLBACK_FEMALE_VOICE_ID)
